@@ -84,66 +84,39 @@ export default function CarPage() {
       </div>
 
       {/* HERO */}
-      <section className="relative h-[700px] overflow-hidden">
+      <section className="px-6 md:px-10 pt-28 pb-10">
 
         {/* MAIN IMAGE */}
-        <img
-          src={car.image}
-          alt={car.title}
-          className="
-  absolute
-  inset-0
-  w-full
-  h-full
-  object-cover
-"
-        />
+        <div className="relative w-full h-[420px] overflow-hidden rounded-3xl">
+          <img
+            src={car.image}
+            alt={car.title}
+            className="
+              w-full
+              h-full
+              object-cover
+            "
+          />
+        </div>
 
-        {/* OVERLAY */}
-        <div className="absolute inset-0 bg-black/30 md:bg-black/60" />
+        {/* DESKTOP INFO */}
+        <div className="hidden md:block mt-10">
 
-        {/* CONTENT */}
-<div className="relative z-10 p-10 flex items-end h-full">
+          <h1 className="text-7xl font-bold mb-6">
+            {car.title}
+          </h1>
 
-  <div>
+          <p className="text-5xl text-yellow-400 font-bold mb-2">
+            ≈ {formattedPrice}
+          </p>
 
-    {/* DESKTOP INFO */}
-    <div className="hidden md:block">
+          <p className="text-lg text-gray-300 mb-1">
+            Цена в Китае: {formattedPrice}
+          </p>
 
-      <h1 className="text-7xl font-bold mb-6">
-        {car.title}
-      </h1>
-
-      <p className="text-5xl text-yellow-400 font-bold mb-2">
-        ≈ {formattedPrice}
-      </p>
-
-      <p className="text-lg text-gray-300 mb-1">
-        Цена в Китае: {formattedPrice}
-      </p>
-
-      <p className="text-sm text-gray-500 mb-8">
-        *Стоимость ориентировочная
-      </p>
-
-    </div>
-
-    {/* GALLERY */}
-            <div className="flex gap-4">
-
-              <img
-  src={car.image}
-  alt={car.title}
-  className="
-    w-full
-    rounded-2xl
-    object-cover
-  "
-/>
-
-            </div>
-
-          </div>
+          <p className="text-sm text-gray-500">
+            *Стоимость ориентировочная
+          </p>
 
         </div>
 

@@ -3,6 +3,14 @@ import { useState } from "react";
 import cars from "./data/cars.json";
 import { settings } from "./data/settings";
 
+function getCarDisplayTitle(title: string) {
+  return title.replace(/\s*,?\s*лот\s*№\s*\d+/i, "").trim();
+}
+
+function getCarLotNumber(title: string) {
+  return title.match(/лот\s*№\s*(\d+)/i)?.[1] || "";
+}
+
 export default function Home() {
   const [search, setSearch] = useState("");
   const [name, setName] = useState("");
@@ -86,7 +94,7 @@ const response = await fetch("/api/request", {
       cursor-pointer
     "
   >
-    AUTO IMPORT
+    AutoVector
   </h1>
 
   {/* DESKTOP MENU */}
@@ -250,16 +258,11 @@ const response = await fetch("/api/request", {
         <div className="relative z-10 max-w-3xl">
 
           <h2 className="text-5xl md:text-7xl font-bold leading-tight mb-8">
-            Автомобили
-            <br />
-            из Китая, Кореи
-            <br />
-            и Японии
+            Автомобили из Китая, Кореи и Японии
           </h2>
 
           <p className="text-xl text-gray-300 mb-10">
-            Подбор, проверка и доставка автомобилей напрямую
-            с зарубежных площадок.
+            Подбор, проверка и доставка автомобилей напрямую с зарубежных площадок.
           </p>
 
           <button
@@ -555,8 +558,14 @@ focus:shadow-yellow-400/10
           >
 
             <h4 className="text-3xl font-bold mb-3">
-              {car.title}
+              {getCarDisplayTitle(car.title)}
             </h4>
+
+            {getCarLotNumber(car.title) && (
+              <p className="text-sm text-gray-400 mb-3">
+                Лот: {getCarLotNumber(car.title)}
+              </p>
+            )}
 
             <p className="text-3xl text-yellow-400 font-bold mb-4">
  ≈ {(car.price + car.delivery + car.fee).toLocaleString()} ₽

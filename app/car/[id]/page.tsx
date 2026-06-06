@@ -13,6 +13,14 @@ type Car = (typeof cars)[number] &
     transmission: string;
   }>;
 
+function getCarDisplayTitle(title: string) {
+  return title.replace(/\s*,?\s*лот\s*№\s*\d+/i, "").trim();
+}
+
+function getCarLotNumber(title: string) {
+  return title.match(/лот\s*№\s*(\d+)/i)?.[1] || "";
+}
+
 export default function CarPage() {
   const params = useParams();
 
@@ -31,7 +39,7 @@ export default function CarPage() {
             href="/"
             className="text-3xl font-bold hover:text-yellow-400 transition"
           >
-            AUTO IMPORT
+            AutoVector
           </Link>
 
           <nav className="flex gap-8 text-lg">
@@ -51,6 +59,8 @@ export default function CarPage() {
   }
 
   const formattedPrice = `¥ ${car.price.toLocaleString()}`;
+  const displayTitle = getCarDisplayTitle(car.title);
+  const lotNumber = getCarLotNumber(car.title);
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -91,7 +101,7 @@ export default function CarPage() {
           <div className="relative w-full max-w-5xl mx-auto h-[320px] md:h-[560px] overflow-hidden rounded-3xl bg-zinc-950 border border-white/10">
             <img
               src={car.image}
-              alt={car.title}
+              alt={displayTitle}
               className="
                 w-full
                 h-full
@@ -104,8 +114,14 @@ export default function CarPage() {
           <div className="mt-8 md:mt-10">
 
             <h1 className="text-4xl md:text-7xl font-bold mb-4 md:mb-6">
-              {car.title}
+              {displayTitle}
             </h1>
+
+            {lotNumber && (
+              <p className="text-sm md:text-base text-gray-400 mb-4">
+                Лот: {lotNumber}
+              </p>
+            )}
 
             <p className="text-4xl md:text-5xl text-yellow-400 font-bold mb-2">
               ≈ {car.priceRu || formattedPrice}
@@ -327,8 +343,14 @@ export default function CarPage() {
             <div className="absolute bottom-0 left-0 w-full p-6 z-10">
 
               <h3 className="text-3xl font-bold mb-3">
-                {similarCar.title}
+                {getCarDisplayTitle(similarCar.title)}
               </h3>
+
+              {getCarLotNumber(similarCar.title) && (
+                <p className="text-sm text-gray-400 mb-3">
+                  Лот: {getCarLotNumber(similarCar.title)}
+                </p>
+              )}
 
               <p className="text-3xl text-yellow-400 font-bold mb-4">
                 {similarCar.price}

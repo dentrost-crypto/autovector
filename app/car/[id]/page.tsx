@@ -84,68 +84,51 @@ export default function CarPage() {
       </div>
 
       {/* HERO */}
-      <section className="px-6 md:px-10 pt-28 pb-10">
+      <section className="pt-28 pb-10">
+        <div className="max-w-6xl mx-auto px-6">
 
-        {/* MAIN IMAGE */}
-        <div className="relative w-full h-[420px] overflow-hidden rounded-3xl">
-          <img
-            src={car.image}
-            alt={car.title}
-            className="
-              w-full
-              h-full
-              object-cover
-            "
-          />
-        </div>
+          {/* MAIN IMAGE */}
+          <div className="relative w-full max-w-5xl mx-auto h-[280px] md:h-[520px] overflow-hidden rounded-3xl">
+            <img
+              src={car.image}
+              alt={car.title}
+              className="
+                w-full
+                h-full
+                object-cover
+              "
+            />
+          </div>
 
-        {/* DESKTOP INFO */}
-        <div className="hidden md:block mt-10">
+          {/* MAIN INFO */}
+          <div className="mt-8 md:mt-10">
 
-          <h1 className="text-7xl font-bold mb-6">
-            {car.title}
-          </h1>
+            <h1 className="text-4xl md:text-7xl font-bold mb-4 md:mb-6">
+              {car.title}
+            </h1>
 
-          <p className="text-5xl text-yellow-400 font-bold mb-2">
-            ≈ {formattedPrice}
-          </p>
+            <p className="text-4xl md:text-5xl text-yellow-400 font-bold mb-2">
+              ≈ {car.priceRu || formattedPrice}
+            </p>
 
-          <p className="text-lg text-gray-300 mb-1">
-            Цена в Китае: {formattedPrice}
-          </p>
+            <p className="text-lg text-gray-300 mb-1">
+              Цена в Китае: {formattedPrice}
+            </p>
 
-          <p className="text-sm text-gray-500">
-            *Стоимость ориентировочная
-          </p>
+            <p className="text-sm text-gray-500">
+              *Стоимость ориентировочная
+            </p>
+
+          </div>
 
         </div>
 
       </section>
-      {/* MOBILE INFO */}
-<div className="block md:hidden px-6 py-6 bg-black">
-
-  <h1 className="text-5xl font-bold mb-4">
-    {car.title}
-  </h1>
-
-  <p className="text-4xl text-yellow-400 font-bold mb-2">
-    {car.priceRu || formattedPrice}
-  </p>
-
-  <p className="text-lg text-gray-300 mb-1">
-    Цена в Китае: {formattedPrice}
-  </p>
-
-  <p className="text-sm text-gray-500">
-    *Стоимость ориентировочная
-  </p>
-
-</div>
 
       {/* INFO */}
-      <section className="px-10 py-20">
+      <section className="py-10 pb-20">
 
-        <div className="grid md:grid-cols-2 gap-10">
+        <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10">
 
           {/* CHARACTERISTICS */}
           <div className="bg-zinc-900 rounded-3xl p-8">

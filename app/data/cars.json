@@ -12,7 +12,8 @@
     "volume": "1500 см³",
     "power": "135 л.с. (99.3 кВт)",
     "country": "Китай",
-    "image": "https://cn2.pa-server.ru/img/19/2026/04/83356300/1775240582.6787.webp"
+    "image": "/uploads/fallback.svg",
+    "remoteImage": "https://cn2.pa-server.ru/img/19/2026/04/83356300/1775240582.6787.webp"
   },
   {
     "id": 2,
@@ -27,7 +28,8 @@
     "volume": "1500 см³",
     "power": "140 л.с. (103.0 кВт)",
     "country": "Китай",
-    "image": "https://cn2.pa-server.ru/img/19/2026/04/83689948/1775398507.7573.webp"
+    "image": "/uploads/fallback.svg",
+    "remoteImage": "https://cn2.pa-server.ru/img/19/2026/04/83689948/1775398507.7573.webp"
   },
   {
     "id": 3,
@@ -42,7 +44,8 @@
     "volume": "1500 см³",
     "power": "140 л.с. (103.0 кВт)",
     "country": "Китай",
-    "image": "https://cn2.pa-server.ru/img/19/2026/04/83854357/1775466962.0076.webp"
+    "image": "/uploads/fallback.svg",
+    "remoteImage": "https://cn2.pa-server.ru/img/19/2026/04/83854357/1775466962.0076.webp"
   },
   {
     "id": 4,
@@ -57,7 +60,8 @@
     "volume": "1500 см³",
     "power": "140 л.с. (103.0 кВт)",
     "country": "Китай",
-    "image": "https://cn2.pa-server.ru/img/19/2026/04/83854368/1775467022.8412.webp"
+    "image": "/uploads/fallback.svg",
+    "remoteImage": "https://cn2.pa-server.ru/img/19/2026/04/83854368/1775467022.8412.webp"
   },
   {
     "id": 5,
@@ -72,7 +76,8 @@
     "volume": "1500 см³",
     "power": "140 л.с. (103.0 кВт)",
     "country": "Китай",
-    "image": "https://cn2.pa-server.ru/img/19/2026/04/84680391/1775795522.5921.webp"
+    "image": "/uploads/fallback.svg",
+    "remoteImage": "https://cn2.pa-server.ru/img/19/2026/04/84680391/1775795522.5921.webp"
   },
   {
     "id": 6,
@@ -87,7 +92,8 @@
     "volume": "1500 см³",
     "power": "140 л.с. (103.0 кВт)",
     "country": "Китай",
-    "image": "https://cn2.pa-server.ru/img/19/2026/04/84850133/1775882822.7281.webp"
+    "image": "/uploads/fallback.svg",
+    "remoteImage": "https://cn2.pa-server.ru/img/19/2026/04/84850133/1775882822.7281.webp"
   },
   {
     "id": 7,
@@ -102,7 +108,8 @@
     "volume": "1500 см³",
     "power": "140 л.с. (103.0 кВт)",
     "country": "Китай",
-    "image": "https://cn2.pa-server.ru/img/19/2026/04/84851710/1775884022.6416.webp"
+    "image": "/uploads/fallback.svg",
+    "remoteImage": "https://cn2.pa-server.ru/img/19/2026/04/84851710/1775884022.6416.webp"
   },
   {
     "id": 8,
@@ -117,7 +124,8 @@
     "volume": "1500 см³",
     "power": "140 л.с. (103.0 кВт)",
     "country": "Китай",
-    "image": "https://cn2.pa-server.ru/img/19/2026/04/85839661/1776389523.0968.webp"
+    "image": "/uploads/fallback.svg",
+    "remoteImage": "https://cn2.pa-server.ru/img/19/2026/04/85839661/1776389523.0968.webp"
   },
   {
     "id": 9,
@@ -132,7 +140,8 @@
     "volume": "1500 см³",
     "power": "140 л.с. (103.0 кВт)",
     "country": "Китай",
-    "image": "https://cn2.pa-server.ru/img/19/2026/04/85839700/1776389643.6641.webp"
+    "image": "/uploads/fallback.svg",
+    "remoteImage": "https://cn2.pa-server.ru/img/19/2026/04/85839700/1776389643.6641.webp"
   },
   {
     "id": 10,
@@ -147,7 +156,8 @@
     "volume": "1500 см³",
     "power": "140 л.с. (103.0 кВт)",
     "country": "Китай",
-    "image": "https://cn2.pa-server.ru/img/19/2026/04/85839761/1776389763.6037.webp"
+    "image": "/uploads/fallback.svg",
+    "remoteImage": "https://cn2.pa-server.ru/img/19/2026/04/85839761/1776389763.6037.webp"
   },
   {
     "id": 11,
@@ -162,7 +172,8 @@
     "volume": "1500 см³",
     "power": "140 л.с. (103.0 кВт)",
     "country": "Китай",
-    "image": "https://cn2.pa-server.ru/img/19/2026/04/85843180/1776391622.9177.webp"
+    "image": "/uploads/fallback.svg",
+    "remoteImage": "https://cn2.pa-server.ru/img/19/2026/04/85843180/1776391622.9177.webp"
   },
   {
     "id": 12,
@@ -177,7 +188,8 @@
     "volume": "1500 см³",
     "power": "140 л.с. (103.0 кВт)",
     "country": "Китай",
-    "image": "https://cn2.pa-server.ru/img/19/2026/04/86068057/1776499803.1896.webp"
+    "image": "/uploads/fallback.svg",
+    "remoteImage": "https://cn2.pa-server.ru/img/19/2026/04/86068057/1776499803.1896.webp"
   },
   {
     "id": 13,
@@ -192,7 +204,8 @@
     "volume": "1500 см³",
     "power": "140 л.с. (103.0 кВт)",
     "country": "Китай",
-    "image": "https://cn2.pa-server.ru/img/19/2026/04/86680456/1776950282.5339.webp"
+    "image": "/uploads/fallback.svg",
+    "remoteImage": "https://cn2.pa-server.ru/img/19/2026/04/86680456/1776950282.5339.webp"
   },
   {
     "id": 14,
@@ -207,7 +220,8 @@
     "volume": "1500 см³",
     "power": "140 л.с. (103.0 кВт)",
     "country": "Китай",
-    "image": "https://cn2.pa-server.ru/img/19/2026/04/86857852/1777244828.5049.webp"
+    "image": "/uploads/fallback.svg",
+    "remoteImage": "https://cn2.pa-server.ru/img/19/2026/04/86857852/1777244828.5049.webp"
   },
   {
     "id": 15,
@@ -222,7 +236,8 @@
     "volume": "1500 см³",
     "power": "135 л.с. (99.3 кВт)",
     "country": "Китай",
-    "image": "https://cn2.pa-server.ru/img/19/2026/04/86857873/1777244890.4323.webp"
+    "image": "/uploads/fallback.svg",
+    "remoteImage": "https://cn2.pa-server.ru/img/19/2026/04/86857873/1777244890.4323.webp"
   },
   {
     "id": 16,
@@ -237,7 +252,8 @@
     "volume": "1500 см³",
     "power": "140 л.с. (103.0 кВт)",
     "country": "Китай",
-    "image": "https://cn2.pa-server.ru/img/19/2026/04/86857886/1777244947.9099.webp"
+    "image": "/uploads/fallback.svg",
+    "remoteImage": "https://cn2.pa-server.ru/img/19/2026/04/86857886/1777244947.9099.webp"
   },
   {
     "id": 17,
@@ -252,7 +268,8 @@
     "volume": "1500 см³",
     "power": "140 л.с. (103.0 кВт)",
     "country": "Китай",
-    "image": "https://cn2.pa-server.ru/img/19/2026/04/86858435/1777245069.3321.webp"
+    "image": "/uploads/fallback.svg",
+    "remoteImage": "https://cn2.pa-server.ru/img/19/2026/04/86858435/1777245069.3321.webp"
   },
   {
     "id": 18,
@@ -267,7 +284,8 @@
     "volume": "1500 см³",
     "power": "140 л.с. (103.0 кВт)",
     "country": "Китай",
-    "image": "https://cn2.pa-server.ru/img/19/2026/04/86858445/1777245067.3152.webp"
+    "image": "/uploads/fallback.svg",
+    "remoteImage": "https://cn2.pa-server.ru/img/19/2026/04/86858445/1777245067.3152.webp"
   },
   {
     "id": 19,
@@ -282,7 +300,8 @@
     "volume": "1500 см³",
     "power": "140 л.с. (103.0 кВт)",
     "country": "Китай",
-    "image": "https://cn2.pa-server.ru/img/19/2026/04/86858469/1777245067.347.webp"
+    "image": "/uploads/fallback.svg",
+    "remoteImage": "https://cn2.pa-server.ru/img/19/2026/04/86858469/1777245067.347.webp"
   },
   {
     "id": 20,
@@ -297,7 +316,8 @@
     "volume": "1500 см³",
     "power": "140 л.с. (103.0 кВт)",
     "country": "Китай",
-    "image": "https://cn2.pa-server.ru/img/19/2026/04/86858713/1777245308.3192.webp"
+    "image": "/uploads/fallback.svg",
+    "remoteImage": "https://cn2.pa-server.ru/img/19/2026/04/86858713/1777245308.3192.webp"
   },
   {
     "id": 21,
@@ -312,6 +332,7 @@
     "volume": "1500 см³",
     "power": "140 л.с. (103.0 кВт)",
     "country": "Китай",
-    "image": "https://cn2.pa-server.ru/img/19/2026/04/87132859/1777273146.3021.webp"
+    "image": "/uploads/fallback.svg",
+    "remoteImage": "https://cn2.pa-server.ru/img/19/2026/04/87132859/1777273146.3021.webp"
   }
 ]

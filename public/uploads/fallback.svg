@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-label="Фото автомобиля недоступно">
+  <rect width="1200" height="800" fill="#18181b"/>
+  <path d="M220 470h64l50-128c18-46 49-70 95-70h342c46 0 77 24 95 70l50 128h64c28 0 50 22 50 50v118h-92c-9 43-47 76-92 76s-83-33-92-76H446c-9 43-47 76-92 76s-83-33-92-76h-92V520c0-28 22-50 50-50Z" fill="#27272a"/>
+  <path d="M382 354c8-20 20-28 42-28h352c22 0 34 8 42 28l40 104H342l40-104Z" fill="#3f3f46"/>
+  <circle cx="354" cy="638" r="42" fill="#09090b"/>
+  <circle cx="846" cy="638" r="42" fill="#09090b"/>
+  <text x="600" y="210" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700" fill="#facc15">AUTO VECTOR</text>
+  <text x="600" y="760" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="28" fill="#a1a1aa">Фото временно недоступно</text>
+</svg>

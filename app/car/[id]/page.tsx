@@ -50,7 +50,6 @@ export default function CarPage() {
     );
   }
 
-  const selectedImage = car.image;
   const formattedPrice = `¥ ${car.price.toLocaleString()}`;
 
   return (
@@ -89,15 +88,14 @@ export default function CarPage() {
 
         {/* MAIN IMAGE */}
         <img
-          src={selectedImage}
+          src={car.image}
           alt={car.title}
           className="
   absolute
   inset-0
   w-full
   h-full
-  object-contain
-  md:object-cover
+  object-cover
 "
         />
 

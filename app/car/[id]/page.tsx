@@ -88,14 +88,14 @@ export default function CarPage() {
         <div className="max-w-6xl mx-auto px-6">
 
           {/* MAIN IMAGE */}
-          <div className="relative w-full max-w-5xl mx-auto h-[280px] md:h-[520px] overflow-hidden rounded-3xl">
+          <div className="relative w-full max-w-5xl mx-auto h-[320px] md:h-[560px] overflow-hidden rounded-3xl bg-zinc-950 border border-white/10">
             <img
               src={car.image}
               alt={car.title}
               className="
                 w-full
                 h-full
-                object-cover
+                object-contain
               "
             />
           </div>

@@ -3,6 +3,10 @@
 import cars from "../../data/cars.json";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useEffect, useState, type FormEvent } from "react";
+
+const TELEGRAM_URL = "https://t.me/DenTrosPro";
+const RESERVATION_DURATION_MS = 24 * 60 * 60 * 1000;
 
 type Car = (typeof cars)[number] &
   Partial<{
@@ -27,6 +31,42 @@ export default function CarPage() {
   const carId = Number(params.id);
 
   const car = cars.find((c) => c.id === carId) as Car | undefined;
+  const reservationStorageKey = `autovector-reservation-${carId}`;
+  const [isReservationOpen, setIsReservationOpen] = useState(false);
+  const [isReserved, setIsReserved] = useState(false);
+  const [reservationStatus, setReservationStatus] = useState("");
+  const [reservationError, setReservationError] = useState("");
+  const [isSubmittingReservation, setIsSubmittingReservation] = useState(false);
+  const [currentCarUrl, setCurrentCarUrl] = useState(
+    `https://autovector.pro/car/${carId}`
+  );
+  const [reservationForm, setReservationForm] = useState({
+    name: "",
+    phone: "",
+    contact: "",
+    comment: "",
+  });
+
+  useEffect(() => {
+    const expiresAt = Number(localStorage.getItem(reservationStorageKey));
+
+    if (expiresAt > Date.now()) {
+      setIsReserved(true);
+      const timeout = window.setTimeout(() => {
+        localStorage.removeItem(reservationStorageKey);
+        setIsReserved(false);
+      }, expiresAt - Date.now());
+
+      return () => window.clearTimeout(timeout);
+    }
+
+    localStorage.removeItem(reservationStorageKey);
+    setIsReserved(false);
+  }, [reservationStorageKey]);
+
+  useEffect(() => {
+    setCurrentCarUrl(window.location.href || `https://autovector.pro/car/${carId}`);
+  }, [carId]);
 
   if (!car) {
     return (
@@ -61,6 +101,65 @@ export default function CarPage() {
   const formattedPrice = `¥ ${car.price.toLocaleString()}`;
   const displayTitle = getCarDisplayTitle(car.title);
   const lotNumber = getCarLotNumber(car.title);
+  const telegramText = encodeURIComponent(
+    [
+      "🔥 Заявка с сайта AutoVector",
+      "Здравствуйте! Интересует авто:",
+      displayTitle,
+      lotNumber ? `Лот: ${lotNumber}` : "",
+      `Ссылка: ${currentCarUrl}`,
+    ]
+      .filter(Boolean)
+      .join("\n")
+  );
+  const telegramContactUrl = `${TELEGRAM_URL}?text=${telegramText}`;
+
+  const handleReservationSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setReservationError("");
+    setReservationStatus("");
+    setIsSubmittingReservation(true);
+
+    const response = await fetch("/api/request", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        type: "reservation",
+        carTitle: displayTitle,
+        carId: String(car.id),
+        carUrl: currentCarUrl,
+        lotNumber,
+        name: reservationForm.name,
+        phone: reservationForm.phone,
+        contact: reservationForm.contact,
+        comment: reservationForm.comment,
+      }),
+    });
+
+    const data = await response.json();
+
+    setIsSubmittingReservation(false);
+
+    if (!data.success) {
+      setReservationError("Не удалось отправить бронь. Попробуйте позже или напишите менеджеру.");
+      return;
+    }
+
+    localStorage.setItem(
+      reservationStorageKey,
+      String(Date.now() + RESERVATION_DURATION_MS)
+    );
+    setIsReserved(true);
+    setReservationStatus("Авто предварительно забронировано на 24 часа. Менеджер свяжется с вами.");
+    setReservationForm({
+      name: "",
+      phone: "",
+      contact: "",
+      comment: "",
+    });
+  };
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -134,6 +233,12 @@ export default function CarPage() {
             <p className="text-sm text-gray-500">
               *Стоимость ориентировочная
             </p>
+
+            {isReserved && (
+              <div className="mt-6 inline-flex rounded-full bg-red-600 px-5 py-2 text-sm font-bold text-white">
+                Забронировано на 24 часа
+              </div>
+            )}
 
           </div>
 
@@ -210,7 +315,9 @@ export default function CarPage() {
 
   {/* TELEGRAM */}
   <a
-    href="#"
+    href={telegramContactUrl}
+    target="_blank"
+    rel="noopener noreferrer"
     className="
       flex
       items-center
@@ -240,15 +347,54 @@ export default function CarPage() {
   </a>
 
   {/* MAX */}
-  <a
-    href="#"
+  <div className="group relative">
+    <button
+      type="button"
+      disabled
+      className="
+        flex
+        items-center
+        justify-center
+        gap-4
+        w-full
+        bg-white
+        text-black
+        py-4
+        rounded-2xl
+        font-bold
+        text-lg
+        opacity-70
+        cursor-not-allowed
+        transition
+        duration-300
+      "
+    >
+
+      <img
+        src="/max.png"
+        alt="max"
+        className="w-8 h-8"
+      />
+
+      Скоро в MAX
+
+    </button>
+
+    <div className="pointer-events-none absolute left-1/2 top-full z-20 mt-3 -translate-x-1/2 whitespace-nowrap rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white opacity-0 shadow-xl transition group-hover:opacity-100">
+      Интеграция MAX готовится
+    </div>
+  </div>
+
+  <button
+    type="button"
+    onClick={() => {
+      setReservationStatus("");
+      setReservationError("");
+      setIsReservationOpen(true);
+    }}
     className="
-      flex
-      items-center
-      justify-center
-      gap-4
       w-full
-      bg-white
+      bg-yellow-400
       text-black
       py-4
       rounded-2xl
@@ -256,20 +402,18 @@ export default function CarPage() {
       text-lg
       transition
       duration-300
-      hover:bg-yellow-400
       hover:scale-[1.02]
+      hover:bg-yellow-300
     "
   >
+    Забронировать авто на 24 часа
+  </button>
 
-    <img
-      src="/max.png"
-      alt="max"
-      className="w-8 h-8"
-    />
-
-    Написать в MAX
-
-  </a>
+  {isReserved && (
+    <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-5 py-4 text-sm font-semibold text-red-200">
+      Забронировано на 24 часа
+    </div>
+  )}
 
 </div>
 
@@ -392,6 +536,117 @@ export default function CarPage() {
   </div>
 
 </section>
+
+      {isReservationOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 py-8 backdrop-blur-md">
+          <div className="w-full max-w-2xl rounded-3xl border border-white/10 bg-zinc-900 p-6 md:p-8 shadow-2xl">
+            <div className="mb-6 flex items-start justify-between gap-6">
+              <div>
+                <h2 className="text-3xl font-bold">
+                  Забронировать авто на 24 часа
+                </h2>
+                <p className="mt-2 text-sm text-gray-400">
+                  {displayTitle}
+                  {lotNumber ? ` • Лот: ${lotNumber}` : ""}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsReservationOpen(false)}
+                className="rounded-full border border-white/10 px-4 py-2 text-sm text-gray-300 transition hover:border-yellow-400 hover:text-yellow-400"
+              >
+                Закрыть
+              </button>
+            </div>
+
+            {reservationStatus ? (
+              <div className="rounded-2xl border border-yellow-400/30 bg-yellow-400/10 p-5 text-yellow-200">
+                {reservationStatus}
+              </div>
+            ) : (
+              <form onSubmit={handleReservationSubmit} className="space-y-4">
+                <div className="rounded-2xl border border-white/10 bg-black/40 p-4 text-sm text-gray-300">
+                  <div>Авто: {displayTitle}</div>
+                  <div>ID авто: {car.id}</div>
+                  {lotNumber && <div>Лот: {lotNumber}</div>}
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <input
+                    type="text"
+                    required
+                    placeholder="Имя"
+                    value={reservationForm.name}
+                    onChange={(event) =>
+                      setReservationForm((current) => ({
+                        ...current,
+                        name: event.target.value,
+                      }))
+                    }
+                    className="rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none transition focus:border-yellow-400"
+                  />
+
+                  <input
+                    type="tel"
+                    required
+                    placeholder="Телефон"
+                    value={reservationForm.phone}
+                    onChange={(event) =>
+                      setReservationForm((current) => ({
+                        ...current,
+                        phone: event.target.value,
+                      }))
+                    }
+                    className="rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none transition focus:border-yellow-400"
+                  />
+                </div>
+
+                <input
+                  type="text"
+                  required
+                  placeholder="Telegram или MAX"
+                  value={reservationForm.contact}
+                  onChange={(event) =>
+                    setReservationForm((current) => ({
+                      ...current,
+                      contact: event.target.value,
+                    }))
+                  }
+                  className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none transition focus:border-yellow-400"
+                />
+
+                <textarea
+                  placeholder="Комментарий"
+                  value={reservationForm.comment}
+                  onChange={(event) =>
+                    setReservationForm((current) => ({
+                      ...current,
+                      comment: event.target.value,
+                    }))
+                  }
+                  className="h-32 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none transition focus:border-yellow-400"
+                />
+
+                {reservationError && (
+                  <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-5 py-4 text-sm text-red-200">
+                    {reservationError}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={isSubmittingReservation}
+                  className="w-full rounded-2xl bg-yellow-400 py-5 text-lg font-bold text-black transition hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isSubmittingReservation ? "Отправляем..." : "Отправить бронь"}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
     </main>
   );
 }

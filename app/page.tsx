@@ -129,6 +129,15 @@ const response = await fetch("/api/request", {
       € {settings.euroRate}
     </div>
 
+    <div className="flex flex-col text-sm leading-tight text-white">
+      <a href="tel:+79898029929" className="hover:text-yellow-400 transition">
+        +7 989 802 9929
+      </a>
+      <a href="tel:+79086760707" className="hover:text-yellow-400 transition">
+        +7 908 676 0707
+      </a>
+    </div>
+
     <a
       href="#request-form"
       className="
@@ -198,6 +207,15 @@ const response = await fetch("/api/request", {
 
     <div className="text-sm text-gray-300">
       € {settings.euroRate}
+    </div>
+
+    <div className="flex flex-col gap-2 text-base text-white">
+      <a href="tel:+79898029929">
+        +7 989 802 9929
+      </a>
+      <a href="tel:+79086760707">
+        +7 908 676 0707
+      </a>
     </div>
 
     <a
@@ -780,6 +798,41 @@ focus:shadow-yellow-400/10
 
   </div>
 
+      <footer className="mt-20 border-t border-white/10 bg-black px-6 py-12 md:px-10">
+        <div className="mx-auto max-w-6xl">
+          <h2 className="mb-6 text-3xl font-bold">
+            Наши контакты
+          </h2>
+
+          <div className="grid gap-4 text-lg text-gray-300 md:grid-cols-2">
+            <div className="flex gap-3">
+              <span>📞</span>
+              <div>
+                <div>Телефон:</div>
+                <a href="tel:+79898029929" className="block text-white transition hover:text-yellow-400">
+                  +7 989 802 9929
+                </a>
+                <a href="tel:+79086760707" className="block text-white transition hover:text-yellow-400">
+                  +7 908 676 0707
+                </a>
+              </div>
+            </div>
+
+            <a
+              href="https://t.me/DenTrosPro"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white transition hover:text-yellow-400"
+            >
+              ✈ Telegram: @DenTrosPro
+            </a>
+
+            <div>📍 Краснодар</div>
+            <div>🚗 AutoVector</div>
+            <div>⏰ Работаем ежедневно</div>
+          </div>
+        </div>
+      </footer>
 
     </main>
   );

@@ -45,17 +45,27 @@ body {
   }
 
   100% {
-    transform: scale(1.045) translate3d(-0.8%, 0.6%, 0);
+    transform: scale(1.03) translate3d(-0.6%, 0.4%, 0);
+  }
+}
+
+@keyframes autovector-card-mobile-zoom {
+  0% {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+
+  100% {
+    transform: scale(1.045) translate3d(-1%, 0.7%, 0);
   }
 }
 
 @keyframes autovector-card-soft-zoom-hover {
   0% {
-    transform: scale(1.025) translate3d(0, 0, 0);
+    transform: scale(1.012) translate3d(0, 0, 0);
   }
 
   100% {
-    transform: scale(1.06) translate3d(-0.8%, 0.6%, 0);
+    transform: scale(1.03) translate3d(-0.6%, 0.4%, 0);
   }
 }
 
@@ -66,19 +76,33 @@ body {
   }
 
   .autovector-card-zoom {
-    animation: autovector-card-soft-zoom 18s ease-in-out infinite alternate;
-    transition: transform 700ms ease;
+    animation: autovector-card-soft-zoom 22s ease-in-out infinite alternate;
+    transform-origin: center;
+    transition: filter 1200ms ease-out;
     will-change: transform;
   }
+}
 
+@media (prefers-reduced-motion: no-preference) and (max-width: 767px) {
+  .autovector-card-zoom-mobile {
+    animation: autovector-card-mobile-zoom 18s ease-in-out infinite alternate;
+    transform-origin: center;
+    will-change: transform;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (min-width: 768px) {
   .group:hover .autovector-card-zoom {
     animation-name: autovector-card-soft-zoom-hover;
+    animation-duration: 16s;
+    filter: brightness(1.04);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .autovector-soft-zoom,
-  .autovector-card-zoom {
+  .autovector-card-zoom,
+  .autovector-card-zoom-mobile {
     animation: none;
     transform: none;
     transition: none;

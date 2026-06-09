@@ -549,8 +549,9 @@ focus:shadow-lg
 focus:shadow-yellow-400/10
           bg-zinc-900
           transition
-          duration-500
-          hover:scale-[1.02]
+          duration-1000
+          ease-in-out
+          hover:scale-[1.01]
           hover:border-white/30
           hover:shadow-2xl
           hover:shadow-black/50
@@ -569,9 +570,10 @@ focus:shadow-yellow-400/10
               h-full
               object-cover
               autovector-card-zoom
+              autovector-card-zoom-mobile
               transition
-              duration-700
-              motion-safe:group-hover:scale-105
+              duration-1000
+              ease-in-out
             "
           />
 

@@ -7,12 +7,14 @@ import { useEffect, useState, type FormEvent } from "react";
 
 const TELEGRAM_URL = "https://t.me/DenTrosPro";
 const RESERVATION_DURATION_MS = 24 * 60 * 60 * 1000;
+const FALLBACK_IMAGE = "/uploads/fallback.svg";
 
 type Car = (typeof cars)[number] &
   Partial<{
     color: string;
     drive: string;
     fuel: string;
+    images: string[];
     priceRu: string;
     transmission: string;
   }>;
@@ -101,6 +103,7 @@ export default function CarPage() {
   const formattedPrice = `¥ ${car.price.toLocaleString()}`;
   const displayTitle = getCarDisplayTitle(car.title);
   const lotNumber = getCarLotNumber(car.title);
+  const mainImage = car.image || FALLBACK_IMAGE;
   const telegramText = encodeURIComponent(
     [
       "🔥 Заявка с сайта AutoVector",
@@ -199,8 +202,11 @@ export default function CarPage() {
           {/* MAIN IMAGE */}
           <div className="relative w-full max-w-5xl mx-auto h-[320px] md:h-[560px] overflow-hidden rounded-3xl bg-zinc-950 border border-white/10">
             <img
-              src={car.image}
+              src={mainImage}
               alt={displayTitle}
+              onError={(event) => {
+                event.currentTarget.src = FALLBACK_IMAGE;
+              }}
               className="
                 w-full
                 h-full
@@ -208,6 +214,10 @@ export default function CarPage() {
               "
             />
           </div>
+
+          <p className="mx-auto mt-4 max-w-5xl text-sm leading-relaxed text-gray-400">
+            Фотографии взяты из исходной карточки автомобиля. Перед покупкой мы дополнительно проверяем актуальность предложения и состояние машины.
+          </p>
 
           {/* MAIN INFO */}
           <div className="mt-8 md:mt-10">

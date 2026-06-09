@@ -3,6 +3,40 @@ import { useState } from "react";
 import cars from "./data/cars.json";
 import { settings } from "./data/settings";
 
+const BROKEN_IMAGE_MARKERS = ["fallback", "undefined", "null"];
+const FALLBACK_IMAGE = "/uploads/fallback.svg";
+
+function isValidImageUrl(image: unknown) {
+  if (typeof image !== "string") {
+    return false;
+  }
+
+  const trimmed = image.trim();
+
+  return (
+    trimmed.length > 0 &&
+    !BROKEN_IMAGE_MARKERS.some((marker) => trimmed.toLowerCase().includes(marker))
+  );
+}
+
+function getCarImageUrls(car: (typeof cars)[number]) {
+  const rawImages = Array.isArray(car.images) ? car.images : [];
+  const images = [...rawImages, car.image].filter(isValidImageUrl) as string[];
+
+  return Array.from(new Set(images));
+}
+
+function getPrimaryImage(car: (typeof cars)[number], failedImages: string[] = []) {
+  return (
+    getCarImageUrls(car).find((image) => !failedImages.includes(image)) ||
+    FALLBACK_IMAGE
+  );
+}
+
+function hasUsableImages(car: (typeof cars)[number], failedImages: string[] = []) {
+  return getCarImageUrls(car).some((image) => !failedImages.includes(image));
+}
+
 function getCarDisplayTitle(title: string) {
   return title.replace(/\s*,?\s*лот\s*№\s*\d+/i, "").trim();
 }
@@ -23,6 +57,7 @@ const [comment, setComment] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("");
   const [mobileMenu, setMobileMenu] = useState(false);
+  const [failedImages, setFailedImages] = useState<string[]>([]);
   const sendRequest = async () => {
 
   
@@ -61,6 +96,35 @@ const response = await fetch("/api/request", {
   }
 
 };
+  const filteredCars = cars
+    .filter((car) => {
+      const matchesSearch = car.title
+        .toLowerCase()
+        .includes(search.toLowerCase());
+      const matchesYear = selectedYear === "" || car.year === selectedYear;
+      const matchesPrice =
+        selectedPrice === "" || car.price <= Number(selectedPrice);
+      const matchesCountry =
+        selectedCountry === "" || car.country === selectedCountry;
+
+      return matchesSearch && matchesYear && matchesPrice && matchesCountry;
+    })
+    .sort(
+      (a, b) =>
+        Number(hasUsableImages(b, failedImages)) -
+        Number(hasUsableImages(a, failedImages))
+    )
+    .slice(0, 5);
+  const handleCardImageError = (image: string) => {
+    if (image === FALLBACK_IMAGE) {
+      return;
+    }
+
+    setFailedImages((current) =>
+      current.includes(image) ? current : [...current, image]
+    );
+  };
+
   return (
     <main className="min-h-screen bg-black text-white">
       
@@ -446,71 +510,13 @@ hover:shadow-yellow-400/20
       duration-300
     "
   >
-    Найти ({cars
-  .filter((car) => {
-
-    const matchesSearch =
-  car.title
-    .toLowerCase()
-    .includes(search.toLowerCase());
-    const matchesYear =
-      selectedYear === "" ||
-      car.year === selectedYear;
-
-    const carPrice = car.price;
-    
-
-    const matchesPrice =
-      selectedPrice === "" ||
-      carPrice <= Number(selectedPrice);
-
-    const matchesCountry =
-      selectedCountry === "" ||
-      car.country === selectedCountry;
-
-    
-
-return (
-  matchesSearch &&
-  matchesYear &&
-  matchesPrice &&
-  matchesCountry
-);
-
-  }).length})
+    Найти ({filteredCars.length})
   </button>
 
 </div>
   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
 
-    {cars
-  .filter((car) => {
-
-    const matchesSearch =
-      car.title
-  .toLowerCase()
-  .includes(search.toLowerCase());
-
-    const matchesYear =
-    selectedYear === "" ||
-car.year === selectedYear;
-
-const carPrice = car.price;
-
-
-const matchesPrice =
-  selectedPrice === "" ||
-  carPrice <= Number(selectedPrice);
-
-
-    return (
-  matchesSearch &&
-  matchesYear &&
-  matchesPrice
-);
-
-  })
-  .map((car) => (
+    {filteredCars.map((car) => (
 
       <div
         key={car.id}
@@ -539,8 +545,9 @@ focus:shadow-yellow-400/10
         <div className="relative overflow-hidden h-[420px]">
 
           <img
-            src={car.image}
+            src={getPrimaryImage(car, failedImages)}
             alt={car.title}
+            onError={() => handleCardImageError(getPrimaryImage(car, failedImages))}
             className="
               w-full
               h-full

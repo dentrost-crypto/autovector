@@ -26,40 +26,61 @@ body {
 }
 
 @keyframes autovector-soft-zoom {
-  from {
-    transform: scale(1);
+  0% {
+    transform: scale(1) translate3d(0, 0, 0);
   }
 
-  to {
-    transform: scale(1.075);
+  50% {
+    transform: scale(1.035) translate3d(-1%, 0.8%, 0);
+  }
+
+  100% {
+    transform: scale(1.06) translate3d(1%, -1%, 0);
   }
 }
 
 @keyframes autovector-card-soft-zoom {
-  from {
-    transform: scale(1.015);
+  0% {
+    transform: scale(1) translate3d(0, 0, 0);
   }
 
-  to {
-    transform: scale(1.06);
+  100% {
+    transform: scale(1.045) translate3d(-0.8%, 0.6%, 0);
+  }
+}
+
+@keyframes autovector-card-soft-zoom-hover {
+  0% {
+    transform: scale(1.025) translate3d(0, 0, 0);
+  }
+
+  100% {
+    transform: scale(1.06) translate3d(-0.8%, 0.6%, 0);
   }
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .autovector-soft-zoom {
-    animation: autovector-soft-zoom 18s ease-out forwards;
+    animation: autovector-soft-zoom 22s ease-in-out infinite alternate;
+    will-change: transform;
   }
 
   .autovector-card-zoom {
-    animation: autovector-card-soft-zoom 14s ease-in-out infinite alternate;
+    animation: autovector-card-soft-zoom 18s ease-in-out infinite alternate;
     transition: transform 700ms ease;
     will-change: transform;
   }
 
-  @media (min-width: 768px) {
-    .autovector-card-zoom {
-      animation: none;
-      transform: scale(1);
-    }
+  .group:hover .autovector-card-zoom {
+    animation-name: autovector-card-soft-zoom-hover;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .autovector-soft-zoom,
+  .autovector-card-zoom {
+    animation: none;
+    transform: none;
+    transition: none;
   }
 }

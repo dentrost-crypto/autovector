@@ -367,8 +367,8 @@ const response = await fetch("/api/request", {
           className="
             absolute
             inset-0
-            bg-black/45
-            md:bg-black/60
+            bg-black/40
+            md:bg-black/52
           "
         />
 

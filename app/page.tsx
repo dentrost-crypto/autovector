@@ -37,8 +37,28 @@ function hasUsableImages(car: (typeof cars)[number], failedImages: string[] = []
   return getCarImageUrls(car).some((image) => !failedImages.includes(image));
 }
 
+function getEstimatedRussiaPrice(
+  car: (typeof cars)[number] & { priceToRussiaWithMargin?: number }
+) {
+  // TODO: replace temporary value with priceToRussiaWithMargin later.
+  return car.priceToRussiaWithMargin || car.price;
+}
+
 function getCarDisplayTitle(title: string) {
   return title.replace(/\s*,?\s*лот\s*№\s*\d+/i, "").trim();
+}
+
+function getCarModelTitle(title: string) {
+  return getCarDisplayTitle(title)
+    .replace(/\s+20\d{2}\s*(?:г\.?|Рі\.?)?$/i, "")
+    .replace(/\bseries\b/i, "Series")
+    .trim();
+}
+
+function getCarYearLabel(car: (typeof cars)[number]) {
+  const year = String(car.year || car.title).match(/\b(20\d{2})\b/)?.[1] || "";
+
+  return year ? `${year} \u0433.` : "";
 }
 
 function getCarLotNumber(title: string) {
@@ -185,9 +205,17 @@ const response = await fetch("/api/request", {
       Авто из Японии
     </a>
 
+    <a
+      href="#about"
+      className="hover:text-yellow-400 transition duration-300"
+    >
+      {"\u041e \u043d\u0430\u0441"}
+    </a>
+
     <div className="text-lg text-yellow-400 font-semibold">
       ¥ {settings.yuanRate}
     </div>
+
 
     <div className="text-sm text-gray-300">
       € {settings.euroRate}
@@ -253,17 +281,21 @@ const response = await fetch("/api/request", {
     "
   >
 
-    <a href="#">
+    <a href="#" onClick={() => setMobileMenu(false)}>
       Авто из Китая
     </a>
 
-    <a href="#">
+    <a href="#" onClick={() => setMobileMenu(false)}>
       Авто из Кореи
     </a>
 
-    <a href="#">
+    <a href="#" onClick={() => setMobileMenu(false)}>
       Авто из Японии
     </a>
+    <a href="#about" onClick={() => setMobileMenu(false)}>
+      {"\u041e \u043d\u0430\u0441"}
+    </a>
+
 
     <div className="text-sm text-gray-300">
       ¥ {settings.yuanRate}
@@ -284,6 +316,7 @@ const response = await fetch("/api/request", {
 
     <a
       href="#request-form"
+      onClick={() => setMobileMenu(false)}
       className="
         bg-yellow-400
         text-black
@@ -302,14 +335,15 @@ const response = await fetch("/api/request", {
 )}
 
 {/* HERO */}
-     {/* HERO */}
 <section
   className="
     relative
-    min-h-[600px]
+    min-h-[560px]
+    md:min-h-[600px]
     flex
     items-center
-    px-10
+    px-6
+    md:px-10
     overflow-hidden
   "
 >
@@ -324,6 +358,7 @@ const response = await fetch("/api/request", {
             w-full
             h-full
             object-cover
+            autovector-soft-zoom
           "
         />
 
@@ -332,38 +367,31 @@ const response = await fetch("/api/request", {
           className="
             absolute
             inset-0
-            bg-black/60
+            bg-black/45
+            md:bg-black/60
           "
         />
 
         {/* CONTENT */}
         <div className="relative z-10 max-w-3xl">
 
-          <h2 className="text-5xl md:text-7xl font-bold leading-tight mb-8">
-            Автомобили из Китая, Кореи и Японии
+          <h2 className="text-[2.55rem] md:text-7xl font-bold leading-[1.08] md:leading-tight mb-5 md:mb-8">
+            {"\u0410\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u0438 \u0438\u0437 \u041a\u0438\u0442\u0430\u044f, \u041a\u043e\u0440\u0435\u0438 \u0438 \u042f\u043f\u043e\u043d\u0438\u0438"}
           </h2>
 
-          <p className="text-xl text-gray-300 mb-10">
-            Подбор, проверка и доставка автомобилей напрямую с зарубежных площадок.
+          <p className="text-lg text-gray-200 mb-3 md:hidden">
+            {"\u0410\u0432\u0442\u043e \u043f\u043e\u0434 \u0437\u0430\u043a\u0430\u0437 \u043d\u0430\u043f\u0440\u044f\u043c\u0443\u044e \u0438\u0437 \u0410\u0437\u0438\u0438"}
           </p>
 
-          <button
-            className="
-              bg-white
-              text-black
-              px-8
-              py-4
-              rounded-2xl
-              text-xl
-              font-semibold
-              transition
-              duration-300
-              hover:bg-yellow-400
-              hover:scale-105
-            "
-          >
-            Смотреть автомобили
-          </button>
+          <p className="mb-8 text-sm font-semibold text-white/80 md:hidden">
+            {"\u041f\u0440\u043e\u0432\u0435\u0440\u044f\u0435\u043c \u0430\u0432\u0442\u043e \u043f\u0435\u0440\u0435\u0434 \u043f\u043e\u043a\u0443\u043f\u043a\u043e\u0439"}
+          </p>
+
+          <p className="hidden text-xl text-gray-300 mb-10 md:block">
+            {"\u041f\u043e\u0434\u0431\u043e\u0440, \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0438 \u0434\u043e\u0441\u0442\u0430\u0432\u043a\u0430 \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u0435\u0439 \u043d\u0430\u043f\u0440\u044f\u043c\u0443\u044e \u0441 \u0437\u0430\u0440\u0443\u0431\u0435\u0436\u043d\u044b\u0445 \u043f\u043b\u043e\u0449\u0430\u0434\u043e\u043a."}
+          </p>
+
+
 
         </div>
       </section>
@@ -393,14 +421,15 @@ onChange={(e) => setSearch(e.target.value)}
     className="
       bg-zinc-900
       border
-      border-white/10
-hover:border-yellow-400/50
+      border-white/20
+hover:border-yellow-400/60
 focus:border-yellow-400
 focus:shadow-lg
-focus:shadow-yellow-400/10
+focus:shadow-yellow-400/15
       rounded-xl
       px-5
-      py-3
+      py-4
+      md:px-6
       text-white
       outline-none
       focus:border-yellow-400
@@ -414,14 +443,15 @@ onChange={(e) => setSelectedYear(e.target.value)}
     className="
       bg-zinc-900
       border
-      border-white/10
-hover:border-yellow-400/50
+      border-white/20
+hover:border-yellow-400/60
 focus:border-yellow-400
 focus:shadow-lg
-focus:shadow-yellow-400/10
+focus:shadow-yellow-400/15
       rounded-xl
       px-5
-      py-3
+      py-4
+      md:px-6
       text-white
       outline-none
       focus:border-yellow-400
@@ -450,14 +480,15 @@ focus:shadow-yellow-400/10
   className="
     bg-zinc-900
     border
-    border-white/10
-    hover:border-yellow-400/50
+    border-white/20
+    hover:border-yellow-400/60
     focus:border-yellow-400
     focus:shadow-lg
-    focus:shadow-yellow-400/10
+    focus:shadow-yellow-400/15
     rounded-xl
     px-5
-    py-3
+    py-4
+    md:px-6
     text-white
     outline-none
   "
@@ -477,12 +508,13 @@ focus:shadow-yellow-400/10
   className="
     bg-zinc-900
     border
-    border-white/10
-    hover:border-yellow-400/50
+    border-white/20
+    hover:border-yellow-400/60
     focus:border-yellow-400
     rounded-xl
     px-5
-    py-3
+    py-4
+    md:px-6
     text-white
     outline-none
     transition
@@ -495,23 +527,7 @@ focus:shadow-yellow-400/10
   <option>Япония</option>
 
 </select>
-  <button
-    className="
-      bg-yellow-400
-      text-black
-      px-6
-      py-3
-      rounded-xl
-      font-bold
-      hover:scale-105
-      hover:shadow-xl
-hover:shadow-yellow-400/20
-      transition
-      duration-300
-    "
-  >
-    Найти ({filteredCars.length})
-  </button>
+
 
 </div>
   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
@@ -542,7 +558,7 @@ focus:shadow-yellow-400/10
       >
 
         {/* IMAGE */}
-        <div className="relative overflow-hidden h-[420px]">
+        <div className="relative overflow-hidden h-[420px] md:h-[460px]">
 
           <img
             src={getPrimaryImage(car, failedImages)}
@@ -552,9 +568,10 @@ focus:shadow-yellow-400/10
               w-full
               h-full
               object-cover
+              autovector-card-zoom
               transition
               duration-700
-              group-hover:scale-110
+              motion-safe:group-hover:scale-105
             "
           />
 
@@ -565,8 +582,8 @@ focus:shadow-yellow-400/10
               inset-0
               bg-gradient-to-t
               from-black
-              via-black/30
-              to-transparent
+              via-black/70
+              to-black/5
             "
           />
 
@@ -582,38 +599,30 @@ focus:shadow-yellow-400/10
             "
           >
 
-            <h4 className="text-3xl font-bold mb-3">
-              {getCarDisplayTitle(car.title)}
+            <h4 className="mb-3 text-2xl font-bold leading-tight md:text-3xl">
+              {getCarModelTitle(car.title)}
             </h4>
 
-            {getCarLotNumber(car.title) && (
-              <p className="text-sm text-gray-400 mb-3">
-                Лот: {getCarLotNumber(car.title)}
-              </p>
-            )}
+            <div className="mb-5 space-y-4">
+              <div className="flex flex-wrap gap-2">
+                {getCarYearLabel(car) && (
+                  <span className="rounded-full border border-white/15 bg-black/45 px-3 py-1 text-sm font-semibold text-white backdrop-blur">
+                    {getCarYearLabel(car)}
+                  </span>
+                )}
+                <span className="rounded-full border border-white/15 bg-black/45 px-3 py-1 text-sm font-semibold text-white backdrop-blur">
+                  {car.mileage}
+                </span>
+              </div>
 
-            <p className="text-3xl text-yellow-400 font-bold mb-4">
- ≈ {(car.price + car.delivery + car.fee).toLocaleString()} ₽
-</p>
-
-<p className="text-sm text-gray-400 mt-2">
-  Цена в Китае: {car.price.toLocaleString()} ₽
-</p>
-  <p className="text-sm text-gray-400">
-  Доставка: {(car.delivery || 0).toLocaleString()} ₽
-</p>
-
-<p className="text-sm text-gray-400">
-  Комиссия и оформление: {(car.fee || 0).toLocaleString()} ₽
-</p>
-
-<p className="text-sm text-gray-500 mt-1">
-  *Стоимость ориентировочная
-</p>
-
-            <div className="space-y-2 text-gray-300 text-lg mb-6">
-              <p>Пробег: {car.mileage}</p>
-              <p>Двигатель: {car.engine}</p>
+              <div>
+                <p className="text-3xl font-black text-yellow-400 md:text-4xl">
+                  {"\u2248"} {getEstimatedRussiaPrice(car).toLocaleString("ru-RU")} {"\u20bd"}
+                </p>
+                <p className="mt-1 text-xs leading-relaxed text-gray-400">
+                  {"*\u0431\u0435\u0437 \u0434\u043e\u0441\u0442\u0430\u0432\u043a\u0438 \u043f\u043e \u0420\u0424 \u0434\u043e \u0432\u0430\u0448\u0435\u0433\u043e \u0433\u043e\u0440\u043e\u0434\u0430"}
+                </p>
+              </div>
             </div>
 
             <a
@@ -642,6 +651,116 @@ focus:shadow-yellow-400/10
 
     ))}
 
+  </div>
+</section>
+{/* ABOUT */}
+<section
+  id="about"
+  className="
+    border-y
+    border-white/10
+    bg-zinc-950/95
+    px-6
+    py-16
+    md:px-10
+    md:py-24
+  "
+>
+  <div className="mx-auto max-w-6xl">
+    <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+      <div className="max-w-2xl">
+        <p className="mb-3 text-sm font-semibold uppercase tracking-[0.22em] text-yellow-400/90">
+          AutoVector
+        </p>
+
+        <h2 className="mb-6 text-4xl font-black leading-tight md:text-5xl">
+          {"\u041e \u043d\u0430\u0441"}
+        </h2>
+
+        <div className="space-y-5 text-base leading-8 text-gray-300 md:text-lg">
+          <p>
+            {"AutoVector \u2014 \u0441\u0435\u0440\u0432\u0438\u0441 \u043f\u043e\u0434\u0431\u043e\u0440\u0430 \u0438 \u043f\u043e\u0441\u0442\u0430\u0432\u043a\u0438 \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u0435\u0439 \u0438\u0437 \u041a\u0438\u0442\u0430\u044f, \u041a\u043e\u0440\u0435\u0438 \u0438 \u042f\u043f\u043e\u043d\u0438\u0438."}
+          </p>
+
+          <div>
+            <p>
+              {"\u041c\u044b \u043f\u043e\u043c\u043e\u0433\u0430\u0435\u043c \u043f\u043e\u0434\u043e\u0431\u0440\u0430\u0442\u044c \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044c \u043d\u0430\u043f\u0440\u044f\u043c\u0443\u044e \u0441 \u0437\u0430\u0440\u0443\u0431\u0435\u0436\u043d\u044b\u0445 \u043f\u043b\u043e\u0449\u0430\u0434\u043e\u043a:"}
+            </p>
+            <ul className="mt-3 space-y-2 text-white/85">
+              <li>{"\u2014 \u0431\u0435\u0437 \u0441\u043a\u0440\u044b\u0442\u044b\u0445 \u0441\u0445\u0435\u043c,"}</li>
+              <li>{"\u2014 \u0431\u0435\u0437 \u0441\u043b\u0443\u0447\u0430\u0439\u043d\u044b\u0445 \u043f\u043e\u0441\u0440\u0435\u0434\u043d\u0438\u043a\u043e\u0432,"}</li>
+              <li>{"\u2014 \u0441 \u043f\u0440\u043e\u0437\u0440\u0430\u0447\u043d\u043e\u0439 \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u043e\u0439 \u0438 \u0441\u043e\u043f\u0440\u043e\u0432\u043e\u0436\u0434\u0435\u043d\u0438\u0435\u043c \u0441\u0434\u0435\u043b\u043a\u0438."}</li>
+            </ul>
+          </div>
+
+          <p className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-white shadow-2xl shadow-black/20 backdrop-blur">
+            {"\ud83d\udccd \u041d\u0430\u0448\u0438 \u043e\u0444\u0438\u0441\u044b \u0438 \u043f\u0430\u0440\u0442\u043d\u0451\u0440\u044b \u0440\u0430\u0431\u043e\u0442\u0430\u044e\u0442 \u0432:"}
+            <br />
+            {"\u041a\u0440\u0430\u0441\u043d\u043e\u0434\u0430\u0440\u0435, \u041c\u043e\u0441\u043a\u0432\u0435, \u0423\u043b\u0430\u043d-\u0423\u0434\u044d \u0438 \u0427\u0438\u0442\u0435."}
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="mb-6 text-3xl font-bold md:text-4xl">
+          {"\u041a\u0430\u043a \u043f\u0440\u043e\u0445\u043e\u0434\u0438\u0442 \u0441\u0434\u0435\u043b\u043a\u0430"}
+        </h3>
+
+        <div className="space-y-3">
+          {[
+            "\u0412\u044b \u0432\u044b\u0431\u0438\u0440\u0430\u0435\u0442\u0435 \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044c \u0438\u0437 \u043a\u0430\u0442\u0430\u043b\u043e\u0433\u0430 \u0438\u043b\u0438 \u043e\u0441\u0442\u0430\u0432\u043b\u044f\u0435\u0442\u0435 \u0437\u0430\u044f\u0432\u043a\u0443 \u043d\u0430 \u043f\u043e\u0434\u0431\u043e\u0440.",
+            "\u0417\u0430\u043a\u043b\u044e\u0447\u0430\u0435\u043c \u0434\u043e\u0433\u043e\u0432\u043e\u0440 \u0438 \u0444\u0438\u043a\u0441\u0438\u0440\u0443\u0435\u043c \u043f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u044b \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044f \u0438 \u0441\u0442\u043e\u0438\u043c\u043e\u0441\u0442\u044c.",
+            "\u0412\u044b \u0432\u043d\u043e\u0441\u0438\u0442\u0435 \u043f\u0435\u0440\u0432\u044b\u0439 \u0430\u0432\u0430\u043d\u0441 \u2014 \u043f\u043e\u0441\u043b\u0435 \u044d\u0442\u043e\u0433\u043e \u043c\u044b \u0431\u0440\u043e\u043d\u0438\u0440\u0443\u0435\u043c \u0438 \u0432\u044b\u043a\u0443\u043f\u0430\u0435\u043c \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044c.",
+            "\u0410\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044c \u043f\u0440\u043e\u0445\u043e\u0434\u0438\u0442 \u043e\u0444\u043e\u0440\u043c\u043b\u0435\u043d\u0438\u0435, \u043f\u043e\u0434\u0433\u043e\u0442\u043e\u0432\u043a\u0443 \u043a \u043e\u0442\u043f\u0440\u0430\u0432\u043a\u0435, \u0434\u043e\u0441\u0442\u0430\u0432\u043a\u0443 \u0438 \u0442\u0430\u043c\u043e\u0436\u0435\u043d\u043d\u043e\u0435 \u043e\u0444\u043e\u0440\u043c\u043b\u0435\u043d\u0438\u0435 \u0432 \u0420\u0424.",
+            "\u041f\u043e\u0441\u043b\u0435 \u043f\u0440\u0438\u0431\u044b\u0442\u0438\u044f \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044f \u0432\u044b \u043e\u043f\u043b\u0430\u0447\u0438\u0432\u0430\u0435\u0442\u0435 \u043e\u0441\u0442\u0430\u0432\u0448\u0443\u044e\u0441\u044f \u0447\u0430\u0441\u0442\u044c \u0441\u0443\u043c\u043c\u044b.",
+            "\u0412\u044b \u043f\u043e\u043b\u0443\u0447\u0430\u0435\u0442\u0435 \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044c \u0432 \u0441\u043e\u0433\u043b\u0430\u0441\u043e\u0432\u0430\u043d\u043d\u043e\u043c \u043c\u0435\u0441\u0442\u0435 \u0432\u044b\u0434\u0430\u0447\u0438.",
+          ].map((step, index) => (
+            <div
+              key={step}
+              className="flex gap-4 rounded-2xl border border-white/10 bg-white/[0.025] p-4 backdrop-blur transition hover:border-yellow-400/40 md:p-5"
+            >
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-yellow-400 text-sm font-black text-black shadow-lg shadow-yellow-400/20">
+                {index + 1}
+              </span>
+              <p className="text-sm leading-7 text-gray-300 md:text-base">
+                {step}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <div className="mt-12 grid gap-8 border-t border-white/10 pt-10 lg:grid-cols-[0.9fr_1.1fr]">
+      <div>
+        <h3 className="mb-5 text-3xl font-bold">
+          {"\u0427\u0442\u043e \u0434\u043b\u044f \u043d\u0430\u0441 \u0432\u0430\u0436\u043d\u043e"}
+        </h3>
+        <ul className="grid gap-3 text-base text-gray-300 md:grid-cols-2">
+          {[
+            "\u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044f \u043f\u0435\u0440\u0435\u0434 \u043f\u043e\u043a\u0443\u043f\u043a\u043e\u0439;",
+            "\u0440\u0435\u0430\u043b\u044c\u043d\u044b\u0435 \u0444\u043e\u0442\u043e \u0438 \u0438\u043d\u0444\u043e\u0440\u043c\u0430\u0446\u0438\u044f \u043f\u043e \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044e;",
+            "\u043f\u0440\u043e\u0437\u0440\u0430\u0447\u043d\u044b\u0439 \u0440\u0430\u0441\u0447\u0451\u0442 \u0441\u0442\u043e\u0438\u043c\u043e\u0441\u0442\u0438;",
+            "\u0441\u043e\u043f\u0440\u043e\u0432\u043e\u0436\u0434\u0435\u043d\u0438\u0435 \u0441\u0434\u0435\u043b\u043a\u0438 \u043d\u0430 \u0432\u0441\u0435\u0445 \u044d\u0442\u0430\u043f\u0430\u0445;",
+            "\u043f\u043e\u0441\u0442\u043e\u044f\u043d\u043d\u0430\u044f \u0441\u0432\u044f\u0437\u044c \u0441 \u043a\u043b\u0438\u0435\u043d\u0442\u043e\u043c.",
+          ].map((item) => (
+            <li key={item} className="flex gap-3">
+              <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-yellow-400" />
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="rounded-3xl border border-yellow-400/25 bg-yellow-400/10 p-6 text-lg leading-8 text-white md:p-8">
+        <p>
+          {"AutoVector \u2014 \u044d\u0442\u043e \u043d\u0435 \u043f\u043e\u0442\u043e\u043a\u043e\u0432\u0430\u044f \u043f\u043b\u043e\u0449\u0430\u0434\u043a\u0430."}
+        </p>
+        <p className="mt-3 text-white/85">
+          {"\u041c\u044b \u0434\u0435\u043b\u0430\u0435\u043c \u0443\u043f\u043e\u0440 \u043d\u0430 \u0438\u043d\u0434\u0438\u0432\u0438\u0434\u0443\u0430\u043b\u044c\u043d\u044b\u0439 \u043f\u043e\u0434\u0445\u043e\u0434, \u043f\u043e\u043d\u044f\u0442\u043d\u044b\u0439 \u043f\u0440\u043e\u0446\u0435\u0441\u0441 \u0438 \u0434\u043e\u043b\u0433\u043e\u0441\u0440\u043e\u0447\u043d\u043e\u0435 \u0434\u043e\u0432\u0435\u0440\u0438\u0435."}
+        </p>
+      </div>
+    </div>
   </div>
 </section>
 {/* REQUEST FORM */}
@@ -834,7 +953,15 @@ focus:shadow-yellow-400/10
               ✈ Telegram: @DenTrosPro
             </a>
 
-            <div>📍 Краснодар</div>
+            <div className="flex gap-3">
+              <span>📍</span>
+              <div>
+                <div>{"\u041a\u0440\u0430\u0441\u043d\u043e\u0434\u0430\u0440"}</div>
+                <div className="text-white/80">
+                  {"\u0443\u043b. \u041c\u0443\u0440\u0430\u0442\u0430 \u0410\u0445\u0435\u0434\u0436\u0430\u043a\u0430 10 \u0410"}
+                </div>
+              </div>
+            </div>
             <div>🚗 AutoVector</div>
             <div>⏰ Работаем ежедневно</div>
           </div>

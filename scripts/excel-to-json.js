@@ -1,16 +1,43 @@
 const XLSX = require("xlsx");
 const fs = require("fs");
 
+const EXCEL_PATH = "C:/Users/Den/Desktop/car_site/app/data/korex_latest.xlsx";
+const DEBUG_LIMIT = 5;
+
+const COLUMNS = {
+  title: "\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435",
+  link: "\u0421\u0441\u044b\u043b\u043a\u0430",
+  price: "\u0426\u0435\u043d\u0430 \u0432 \u041a\u0438\u0442\u0430\u0435",
+  year: "\u0413\u043e\u0434",
+  mileage: "\u041f\u0440\u043e\u0431\u0435\u0433",
+  engine: "\u0414\u0432\u0438\u0433\u0430\u0442\u0435\u043b\u044c",
+  volume: "\u041e\u0431\u044a\u0451\u043c",
+  power: "\u041c\u043e\u0449\u043d\u043e\u0441\u0442\u044c",
+  photo: "\u0424\u043e\u0442\u043e",
+};
+
 function cleanNumber(value) {
   if (!value) return 0;
 
   return Number(String(value).replace(/[^\d]/g, ""));
 }
 
+function normalizeSpaces(value) {
+  return String(value || "").replace(/\s+/g, " ").trim();
+}
+
 function getCell(row, ...keys) {
+  const normalizedKeys = Object.keys(row).reduce((acc, key) => {
+    acc[normalizeSpaces(key).toLowerCase()] = key;
+    return acc;
+  }, {});
+
   for (const key of keys) {
-    if (row[key] !== undefined && row[key] !== null) {
-      return row[key];
+    const normalizedKey = normalizeSpaces(key).toLowerCase();
+    const actualKey = normalizedKeys[normalizedKey];
+
+    if (actualKey && row[actualKey] !== undefined && row[actualKey] !== null) {
+      return row[actualKey];
     }
   }
 
@@ -54,30 +81,60 @@ function parseImages(value, fallbackImage) {
   return fallbackImage ? [fallbackImage] : [];
 }
 
-const workbook = XLSX.readFile("C:/Users/Den/Desktop/car_site/app/data/korex_latest.xlsx");
+function getYear(value) {
+  return String(value || "").match(/\b(20\d{2})\b/)?.[1] || "";
+}
+
+function cleanTitle(value, fallbackYear) {
+  const text = normalizeSpaces(value);
+  const year = getYear(text) || getYear(fallbackYear);
+  const beforeMileage = text.split(/,\s*\u043f\u0440\u043e\u0431\u0435\u0433/i)[0].trim();
+  const modelMatch = beforeMileage.match(/\bBMW\s+(.+?)(?:\s+20\d{2}|$)/i);
+  const model = modelMatch ? modelMatch[1].trim() : beforeMileage;
+
+  return normalizeSpaces(["BMW", model, year ? `${year} \u0433.` : ""].join(" "));
+}
+
+function cleanMileage(...values) {
+  const text = normalizeSpaces(values.filter(Boolean).join(" "));
+  const match =
+    text.match(/\u043f\u0440\u043e\u0431\u0435\u0433\s*([\d\s]+)\s*\u043a\u043c/i) ||
+    text.match(/([\d\s]{2,})\s*\u043a\u043c/i);
+
+  if (!match) {
+    return "";
+  }
+
+  const digits = match[1].replace(/\D/g, "");
+
+  return digits ? `${Number(digits).toLocaleString("ru-RU")} \u043a\u043c` : "";
+}
+
+const workbook = XLSX.readFile(EXCEL_PATH);
 const sheetName = workbook.SheetNames[0];
 const worksheet = workbook.Sheets[sheetName];
-
-const DEBUG_LIMIT = 5;
 const rows = XLSX.utils.sheet_to_json(worksheet).slice(0, DEBUG_LIMIT);
 
 const cars = rows.map((car, index) => {
-  const fallbackImage = getCell(car, "Фото", "Р¤РѕС‚Рѕ");
+  const rawTitle = getCell(car, COLUMNS.title);
+  const rawYear = getCell(car, COLUMNS.year);
+  const rawMileage = getCell(car, COLUMNS.mileage);
+  const fallbackImage = getCell(car, COLUMNS.photo);
   const images = parseImages(getCell(car, "images"), fallbackImage);
 
   return {
     id: index + 1,
-    title: getCell(car, "Название", "РќР°Р·РІР°РЅРёРµ"),
-    link: getCell(car, "Ссылка", "РЎСЃС‹Р»РєР°"),
-    price: cleanNumber(getCell(car, "Цена в Китае", "Р¦РµРЅР° РІ РљРёС‚Р°Рµ")),
+    title: cleanTitle(rawTitle, rawYear),
+    link: getCell(car, COLUMNS.link),
+    price: cleanNumber(getCell(car, COLUMNS.price)),
     delivery: 0,
     fee: 0,
-    year: getCell(car, "Год", "Р“РѕРґ"),
-    mileage: getCell(car, "Пробег", "РџСЂРѕР±РµРі"),
-    engine: getCell(car, "Двигатель", "Р”РІРёРіР°С‚РµР»СЊ"),
-    volume: getCell(car, "Объём", "РћР±СЉС‘Рј"),
-    power: getCell(car, "Мощность", "РњРѕС‰РЅРѕСЃС‚СЊ"),
-    country: "Китай",
+    year: getYear(rawYear) || getYear(rawTitle),
+    mileage: cleanMileage(rawMileage, rawTitle),
+    engine: getCell(car, COLUMNS.engine),
+    volume: getCell(car, COLUMNS.volume),
+    power: getCell(car, COLUMNS.power),
+    country: "\u041a\u0438\u0442\u0430\u0439",
     image: images[0] || "",
     images,
   };
@@ -85,4 +142,4 @@ const cars = rows.map((car, index) => {
 
 fs.writeFileSync("./app/data/cars.json", JSON.stringify(cars, null, 2));
 
-console.log(`Готово. Загружено авто: ${cars.length}`);
+console.log(`Done. Loaded cars: ${cars.length}`);

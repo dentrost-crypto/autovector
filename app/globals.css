@@ -24,3 +24,42 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes autovector-soft-zoom {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.075);
+  }
+}
+
+@keyframes autovector-card-soft-zoom {
+  from {
+    transform: scale(1.015);
+  }
+
+  to {
+    transform: scale(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .autovector-soft-zoom {
+    animation: autovector-soft-zoom 18s ease-out forwards;
+  }
+
+  .autovector-card-zoom {
+    animation: autovector-card-soft-zoom 14s ease-in-out infinite alternate;
+    transition: transform 700ms ease;
+    will-change: transform;
+  }
+
+  @media (min-width: 768px) {
+    .autovector-card-zoom {
+      animation: none;
+      transform: scale(1);
+    }
+  }
+}

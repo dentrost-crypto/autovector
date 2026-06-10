@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
 function buildMessage(body: Record<string, string>) {
   if (body.type === "reservation") {
@@ -47,32 +46,10 @@ ${body.carUrl ? `Ссылка на автомобиль: ${body.carUrl}` : ""}
 
 export async function POST(req: Request) {
   try {
-    console.log("[api/request] env diagnostics", {
-      TELEGRAM_TOKEN_type: typeof TELEGRAM_TOKEN,
-      TELEGRAM_CHAT_ID_type: typeof CHAT_ID,
-      TELEGRAM_BOT_TOKEN_type: typeof TELEGRAM_BOT_TOKEN,
-      TELEGRAM_TOKEN_exists: Boolean(TELEGRAM_TOKEN),
-      TELEGRAM_CHAT_ID_exists: Boolean(CHAT_ID),
-      TELEGRAM_BOT_TOKEN_exists: Boolean(TELEGRAM_BOT_TOKEN),
-    });
-
     if (!TELEGRAM_TOKEN || !CHAT_ID) {
-      if (!TELEGRAM_TOKEN && !TELEGRAM_BOT_TOKEN) {
-        console.log("Missing TELEGRAM_BOT_TOKEN");
-      }
-
-      if (!TELEGRAM_TOKEN) {
-        console.log("Missing TELEGRAM_TOKEN");
-      }
-
-      if (!CHAT_ID) {
-        console.log("Missing TELEGRAM_CHAT_ID");
-      }
-
       console.error("[api/request] Telegram is not configured", {
         hasToken: Boolean(TELEGRAM_TOKEN),
         hasChatId: Boolean(CHAT_ID),
-        hasBotToken: Boolean(TELEGRAM_BOT_TOKEN),
       });
 
       return NextResponse.json(
@@ -108,7 +85,6 @@ export async function POST(req: Request) {
 
       console.error("[api/request] Telegram sendMessage failed", {
         status: telegramResponse.status,
-        body,
         telegramError,
       });
 
@@ -127,7 +103,6 @@ export async function POST(req: Request) {
       success: true,
     });
   } catch (error) {
-    console.log("Invalid payload");
     console.error("[api/request] Request failed", error);
 
     return NextResponse.json(

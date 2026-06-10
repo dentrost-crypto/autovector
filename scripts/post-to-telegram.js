@@ -6,7 +6,6 @@ const ENV_PATH = path.join(ROOT_DIR, ".env.local");
 const CARS_PATH = path.join(ROOT_DIR, "app", "data", "cars.json");
 const POSTED_PATH = path.join(ROOT_DIR, "app", "data", "posted-cars.json");
 const SITE_URL = "https://www.autovector.pro";
-const POST_LIMIT = 5;
 const CNY_TO_RUB = 10.5;
 const RUSSIA_DELIVERY_COST_RUB = 900000;
 
@@ -58,6 +57,12 @@ function formatCnyPrice(price) {
 
 function calculateRussiaPrice(priceCny) {
   return parsePriceNumber(priceCny) * CNY_TO_RUB + RUSSIA_DELIVERY_COST_RUB;
+}
+
+function getPostLimit() {
+  const parsed = Number(process.env.POST_LIMIT || 1);
+
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : 1;
 }
 
 function getLocalImagePath(car) {
@@ -146,6 +151,7 @@ async function main() {
 
   const isDryRun = process.env.DRY_RUN === "true";
   const shouldResetPostedCars = process.env.RESET_POSTED_CARS === "true";
+  const postLimit = getPostLimit();
   const token = process.env.TELEGRAM_TOKEN;
   const channelId = process.env.TELEGRAM_CHANNEL_ID || "@avtoimort";
 
@@ -165,12 +171,12 @@ async function main() {
   }
 
   const carsToPost = cars
-    .slice(0, POST_LIMIT)
-    .filter((car) => !postedIds.includes(car.id));
+    .filter((car) => !postedIds.includes(car.id))
+    .slice(0, postLimit);
 
   console.log("Telegram autopost settings:");
   console.log(`- channel id: ${channelId}`);
-  console.log(`- POST_LIMIT: ${POST_LIMIT}`);
+  console.log(`- POST_LIMIT: ${postLimit}`);
   console.log(`- cars found: ${cars.length}`);
   console.log(`- already posted: ${postedIds.length}`);
   console.log(`- will send: ${carsToPost.length}`);

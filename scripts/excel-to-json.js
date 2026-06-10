@@ -1,8 +1,9 @@
 const XLSX = require("xlsx");
 const fs = require("fs");
 
-const EXCEL_PATH = "C:/Users/Den/Desktop/car_site/app/data/korex_latest.xlsx";
-const DEBUG_LIMIT = 5;
+const EXCEL_PATH = "./app/data/korex_latest.xlsx";
+const DEBUG_LIMIT = 21;
+const FALLBACK_IMAGE = "/uploads/fallback.svg";
 
 const COLUMNS = {
   title: "\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435",
@@ -81,6 +82,20 @@ function parseImages(value, fallbackImage) {
   return fallbackImage ? [fallbackImage] : [];
 }
 
+function getExistingLocalImages(carId) {
+  const localImages = [];
+
+  for (let index = 1; index <= 4; index += 1) {
+    const publicPath = `/uploads/cars/${carId}/${index}.webp`;
+
+    if (fs.existsSync(`./public${publicPath}`)) {
+      localImages.push(publicPath);
+    }
+  }
+
+  return localImages;
+}
+
 function getYear(value) {
   return String(value || "").match(/\b(20\d{2})\b/)?.[1] || "";
 }
@@ -120,7 +135,13 @@ const cars = rows.map((car, index) => {
   const rawYear = getCell(car, COLUMNS.year);
   const rawMileage = getCell(car, COLUMNS.mileage);
   const fallbackImage = getCell(car, COLUMNS.photo);
-  const images = parseImages(getCell(car, "images"), fallbackImage);
+  const localImages = getExistingLocalImages(index + 1);
+  const parsedImages = parseImages(getCell(car, "images"), "");
+  const images = localImages.length > 0 ? localImages : parsedImages;
+  const remoteImages = uniqueStrings([
+    ...parseImages(getCell(car, "remoteImages"), ""),
+    fallbackImage,
+  ]);
 
   return {
     id: index + 1,
@@ -134,9 +155,24 @@ const cars = rows.map((car, index) => {
     engine: getCell(car, COLUMNS.engine),
     volume: getCell(car, COLUMNS.volume),
     power: getCell(car, COLUMNS.power),
+    modelName: getCell(car, "modelName"),
+    manufacturer: getCell(car, "manufacturer"),
+    energyType: getCell(car, "energyType"),
+    engineFull: getCell(car, "engineFull"),
+    gearbox: getCell(car, "gearbox"),
+    driveType: getCell(car, "driveType"),
+    wltcFuelConsumption: getCell(car, "wltcFuelConsumption"),
+    maxPowerKw: getCell(car, "maxPowerKw"),
+    maxTorqueNm: getCell(car, "maxTorqueNm"),
+    dimensions: getCell(car, "dimensions"),
+    wheelbase: getCell(car, "wheelbase"),
+    seats: getCell(car, "seats"),
+    fuelTankVolume: getCell(car, "fuelTankVolume"),
+    tireSize: getCell(car, "tireSize"),
     country: "\u041a\u0438\u0442\u0430\u0439",
-    image: images[0] || "",
+    image: images[0] || FALLBACK_IMAGE,
     images,
+    remoteImages,
   };
 });
 

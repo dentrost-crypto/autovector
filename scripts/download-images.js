@@ -2,7 +2,10 @@ const fs = require("fs/promises");
 const path = require("path");
 
 const carsPath = path.join(process.cwd(), "app", "data", "cars.json");
-const uploadsDir = path.join(process.cwd(), "public", "uploads");
+const uploadsRoot = path.join(process.cwd(), "public", "uploads", "cars");
+const legacyUploadsRoot = path.join(process.cwd(), "public", "uploads");
+const fallbackImage = "/uploads/fallback.svg";
+const MAX_LOCAL_IMAGES = 4;
 
 const imageRequestHeaders = {
   "User-Agent":
@@ -11,93 +14,157 @@ const imageRequestHeaders = {
   Accept: "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*",
 };
 
-async function downloadImage(car) {
-  const remoteImage =
-    car.remoteImage ||
-    (car.image && !car.image.startsWith("/uploads/") ? car.image : "");
+function isRemoteImageUrl(value) {
+  return (
+    typeof value === "string" &&
+    /^https?:\/\//i.test(value.trim()) &&
+    !value.includes("fallback.svg")
+  );
+}
 
-  if (!remoteImage) {
-    console.warn(`Skip car ${car.id}: no remote image URL`);
+function getRemoteImageSources(car) {
+  const sources = [
+    ...(Array.isArray(car.remoteImages) ? car.remoteImages : []),
+    ...(Array.isArray(car.images) ? car.images : []),
+    car.image,
+    car.remoteImage,
+  ].filter(isRemoteImageUrl);
+
+  return Array.from(new Set(sources.map((source) => source.trim())));
+}
+
+async function getExistingLocalImages(car) {
+  const localImages = [];
+  const carDir = path.join(uploadsRoot, String(car.id));
+
+  for (let index = 1; index <= MAX_LOCAL_IMAGES; index += 1) {
+    const fileName = `${index}.webp`;
+    const filePath = path.join(carDir, fileName);
+    const publicPath = `/uploads/cars/${car.id}/${fileName}`;
+
+    try {
+      await fs.access(filePath);
+      localImages.push(publicPath);
+    } catch (error) {
+      // This local image does not exist yet.
+    }
+  }
+
+  return localImages;
+}
+
+async function downloadImage(url, filePath) {
+  const response = await fetch(url, {
+    headers: imageRequestHeaders,
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  const contentType = response.headers.get("content-type") || "";
+
+  if (!contentType.startsWith("image/")) {
+    throw new Error(`Unexpected content type: ${contentType || "unknown"}`);
+  }
+
+  const buffer = Buffer.from(await response.arrayBuffer());
+
+  if (buffer.length === 0) {
+    throw new Error("Downloaded empty file");
+  }
+
+  await fs.writeFile(filePath, buffer);
+}
+
+async function updateCarImages(car) {
+  const sources = getRemoteImageSources(car);
+  const carDir = path.join(uploadsRoot, String(car.id));
+  const localImages = await getExistingLocalImages(car);
+
+  if (localImages.length > 0) {
     return {
-      image: car.image || "",
-      remoteImage: "",
-      downloaded: false,
+      ...car,
+      image: localImages[0],
+      images: localImages,
+      remoteImage: sources[0] || car.remoteImage || "",
+      remoteImages: sources,
     };
   }
 
-  try {
-    const response = await fetch(remoteImage, {
-      headers: imageRequestHeaders,
-    });
+  await fs.mkdir(carDir, { recursive: true });
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
+  for (const [index, source] of sources.slice(0, MAX_LOCAL_IMAGES).entries()) {
+    const fileName = `${index + 1}.webp`;
+    const filePath = path.join(carDir, fileName);
+    const publicPath = `/uploads/cars/${car.id}/${fileName}`;
+
+    try {
+      await downloadImage(source, filePath);
+      localImages.push(publicPath);
+      console.log(`Downloaded car ${car.id} image ${index + 1}: ${source}`);
+    } catch (error) {
+      console.warn(
+        [
+          `Failed to download car ${car.id} image ${index + 1}`,
+          `title: ${car.title || "unknown"}`,
+          `url: ${source}`,
+          `error: ${error.message}`,
+        ].join("\n")
+      );
     }
+  }
 
-    const contentType = response.headers.get("content-type") || "";
+  if (localImages.length === 0) {
+    const legacyFilePath = path.join(legacyUploadsRoot, `car-${car.id}.webp`);
+    const filePath = path.join(carDir, "1.webp");
+    const publicPath = `/uploads/cars/${car.id}/1.webp`;
 
-    if (!contentType.startsWith("image/")) {
-      throw new Error(`Unexpected content type: ${contentType || "unknown"}`);
+    try {
+      await fs.copyFile(legacyFilePath, filePath);
+      localImages.push(publicPath);
+      console.log(`Reused legacy local image for car ${car.id}: ${legacyFilePath}`);
+    } catch (error) {
+      // No legacy local image exists for this car.
     }
+  }
 
-    const fileName = `car-${car.id}.webp`;
-    const filePath = path.join(uploadsDir, fileName);
-    const buffer = Buffer.from(await response.arrayBuffer());
-
-    await fs.writeFile(filePath, buffer);
-
+  if (localImages.length === 0) {
     return {
-      image: `/uploads/${fileName}`,
-      remoteImage,
-      downloaded: true,
-    };
-  } catch (error) {
-    console.warn(
-      [
-        `Failed to download image for car ${car.id}`,
-        `title: ${car.title || "unknown"}`,
-        `url: ${remoteImage}`,
-        `error: ${error.stack || error.message}`,
-      ].join("\n")
-    );
-
-    return {
-      image: car.image || "",
-      remoteImage,
-      downloaded: false,
+      ...car,
+      image: fallbackImage,
+      images: [],
+      remoteImage: sources[0] || car.remoteImage || "",
+      remoteImages: sources,
     };
   }
+
+  return {
+    ...car,
+    image: localImages[0],
+    images: localImages,
+    remoteImage: sources[0] || car.remoteImage || "",
+    remoteImages: sources,
+  };
 }
 
 async function main() {
-  await fs.mkdir(uploadsDir, { recursive: true });
+  await fs.mkdir(uploadsRoot, { recursive: true });
 
   const cars = JSON.parse(await fs.readFile(carsPath, "utf8"));
   const updatedCars = [];
-  let downloadedCount = 0;
 
   for (const car of cars) {
-    const result = await downloadImage(car);
-
-    if (result.downloaded) {
-      downloadedCount += 1;
-    }
-
-    updatedCars.push({
-      ...car,
-      image: result.image,
-      remoteImage: result.remoteImage,
-    });
+    updatedCars.push(await updateCarImages(car));
   }
 
   await fs.writeFile(carsPath, `${JSON.stringify(updatedCars, null, 2)}\n`);
 
-  const localImageCount = updatedCars.filter((car) =>
-    String(car.image).startsWith("/uploads/car-")
+  const readyCount = updatedCars.filter((car) =>
+    String(car.image).startsWith("/uploads/cars/")
   ).length;
 
-  console.log(`Downloaded this run: ${downloadedCount}/${updatedCars.length}`);
-  console.log(`Local car images ready: ${localImageCount}/${updatedCars.length}`);
+  console.log(`Cars with local images: ${readyCount}/${updatedCars.length}`);
 }
 
 main().catch((error) => {

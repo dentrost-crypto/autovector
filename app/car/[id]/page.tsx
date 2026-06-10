@@ -18,8 +18,19 @@ type Car = (typeof cars)[number] &
     drive: string;
     fuel: string;
     images: string[];
+    driveType: string;
+    energyType: string;
+    engineFull: string;
+    fuelTankVolume: string;
+    gearbox: string;
+    manufacturer: string;
+    maxPowerKw: string;
+    maxTorqueNm: string;
+    modelName: string;
     priceRu: string;
+    seats: string;
     transmission: string;
+    wheelbase: string;
   }>;
 
 function getCarDisplayTitle(title: string) {
@@ -80,6 +91,39 @@ function formatCnyPrice(price: unknown) {
 
 function calculateRussiaPrice(priceCny: unknown) {
   return parsePriceNumber(priceCny) * CNY_TO_RUB + RUSSIA_DELIVERY_COST_RUB;
+}
+
+function hasUsefulValue(value: unknown) {
+  if (typeof value !== "string") {
+    return false;
+  }
+
+  const trimmed = value.trim();
+
+  return (
+    trimmed.length > 0 &&
+    trimmed.toLowerCase() !== "\u0443\u0442\u043e\u0447\u043d\u044f\u0435\u0442\u0441\u044f" &&
+    !/^\([^)]*\)$/.test(trimmed)
+  );
+}
+
+function hasUsefulEngineFull(value: unknown, energyType: unknown) {
+  if (!hasUsefulValue(value)) {
+    return false;
+  }
+
+  const engine = String(value).trim().toLowerCase();
+  const energy = String(energyType || "").trim().toLowerCase();
+
+  return engine !== energy && engine !== "\u0431\u0435\u043d\u0437\u0438\u043d";
+}
+
+function hasUsefulEnergyType(value: unknown) {
+  if (!hasUsefulValue(value)) {
+    return false;
+  }
+
+  return String(value).trim().toLowerCase() !== "\u0431\u0435\u043d\u0437\u0438\u043d";
 }
 
 export default function CarPage() {
@@ -181,6 +225,25 @@ export default function CarPage() {
       .join("\n")
   );
   const telegramContactUrl = `${TELEGRAM_URL}?text=${telegramText}`;
+  const equipmentItems = [
+    ["\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435 \u043c\u043e\u0434\u0435\u043b\u0438", car.modelName],
+    ["\u041f\u0440\u043e\u0438\u0437\u0432\u043e\u0434\u0438\u0442\u0435\u043b\u044c", car.manufacturer],
+    [
+      "\u0422\u0438\u043f \u044d\u043d\u0435\u0440\u0433\u0438\u0438",
+      hasUsefulEnergyType(car.energyType) ? car.energyType : "",
+    ],
+    [
+      "\u0414\u0432\u0438\u0433\u0430\u0442\u0435\u043b\u044c",
+      hasUsefulEngineFull(car.engineFull, car.energyType) ? car.engineFull : "",
+    ],
+    ["\u041a\u043e\u0440\u043e\u0431\u043a\u0430 \u043f\u0435\u0440\u0435\u0434\u0430\u0447", car.gearbox],
+    ["\u041f\u0440\u0438\u0432\u043e\u0434", car.driveType],
+    ["\u041c\u0430\u043a\u0441. \u043c\u043e\u0449\u043d\u043e\u0441\u0442\u044c", car.maxPowerKw],
+    ["\u041a\u0440\u0443\u0442\u044f\u0449\u0438\u0439 \u043c\u043e\u043c\u0435\u043d\u0442", car.maxTorqueNm],
+    ["\u041a\u043e\u043b\u0451\u0441\u043d\u0430\u044f \u0431\u0430\u0437\u0430", car.wheelbase],
+    ["\u041a\u043e\u043b\u0438\u0447\u0435\u0441\u0442\u0432\u043e \u043c\u0435\u0441\u0442", car.seats],
+    ["\u041e\u0431\u044a\u0451\u043c \u0431\u0430\u043a\u0430", car.fuelTankVolume],
+  ].filter(([, value]) => hasUsefulValue(value));
 
   const handleReservationSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -371,6 +434,7 @@ export default function CarPage() {
 
         <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10">
 
+          <div className="space-y-10">
           {/* CHARACTERISTICS */}
           <div className="bg-zinc-900 rounded-3xl p-8">
 
@@ -392,7 +456,7 @@ export default function CarPage() {
 
               <div className="flex justify-between">
                 <span>Объём</span>
-                <span>{car.engine}</span>
+                <span>{car.volume || "уточняется"}</span>
               </div>
 
               <div className="flex justify-between">
@@ -402,26 +466,36 @@ export default function CarPage() {
 
               <div className="flex justify-between">
                 <span>Топливо</span>
-                <span>{car.fuel || car.engine}</span>
-              </div>
-
-              <div className="flex justify-between">
-                <span>Трансмиссия</span>
-                <span>{car.transmission || "уточняется"}</span>
-              </div>
-
-              <div className="flex justify-between">
-                <span>Привод</span>
-                <span>{car.drive || "уточняется"}</span>
-              </div>
-
-              <div className="flex justify-between">
-                <span>Цвет</span>
-                <span>{car.color || "уточняется"}</span>
+                <span>{car.fuel || car.energyType || car.engine}</span>
               </div>
 
             </div>
 
+          </div>
+
+          {equipmentItems.length > 0 && (
+            <div className="rounded-3xl bg-zinc-900 p-8">
+              <h2 className="mb-8 text-3xl font-bold">
+                {"\u041a\u043e\u043c\u043f\u043b\u0435\u043a\u0442\u0430\u0446\u0438\u044f \u0438 \u043f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u044b"}
+              </h2>
+
+              <div className="space-y-5 text-gray-300">
+                {equipmentItems.map(([label, value]) => (
+                  <div
+                    key={label}
+                    className="flex flex-col gap-1 border-b border-white/10 pb-4 last:border-b-0 last:pb-0 sm:flex-row sm:justify-between sm:gap-6"
+                  >
+                    <span className="text-sm uppercase tracking-wide text-gray-500">
+                      {label}
+                    </span>
+                    <span className="text-base font-semibold text-white sm:text-right">
+                      {value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           </div>
 
           {/* CONTACT */}
@@ -622,7 +696,7 @@ export default function CarPage() {
 
               <div className="space-y-2 text-gray-300 text-lg mb-6">
                 <p>Пробег: {similarCar.mileage}</p>
-                <p>Объём: {similarCar.engine}</p>
+                <p>Объём: {similarCar.volume || "уточняется"}</p>
               </div>
 
               <a

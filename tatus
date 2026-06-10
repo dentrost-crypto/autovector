@@ -1,0 +1,115 @@
+warning: in the working copy of 'app/page.tsx', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/app/page.tsx b/app/page.tsx[m
+[1mindex d051b3d..6fa3fe7 100644[m
+[1m--- a/app/page.tsx[m
+[1m+++ b/app/page.tsx[m
+[36m@@ -78,6 +78,7 @@[m [mconst [comment, setComment] = useState("");[m
+   const [selectedCountry, setSelectedCountry] = useState("");[m
+   const [mobileMenu, setMobileMenu] = useState(false);[m
+   const [failedImages, setFailedImages] = useState<string[]>([]);[m
+[32m+[m[32m  const [selectedCardImages, setSelectedCardImages] = useState<Record<number, string>>({});[m
+   const sendRequest = async () => {[m
+ [m
+   [m
+[36m@@ -144,6 +145,13 @@[m [mconst response = await fetch("/api/request", {[m
+       current.includes(image) ? current : [...current, image][m
+     );[m
+   };[m
+[32m+[m[32m  const getCardImages = (car: (typeof cars)[number]) => {[m
+[32m+[m[32m    const images = getCarImageUrls(car).filter([m
+[32m+[m[32m      (image) => !failedImages.includes(image)[m
+[32m+[m[32m    );[m
+[32m+[m
+[32m+[m[32m    return images.length > 0 ? images : [FALLBACK_IMAGE];[m
+[32m+[m[32m  };[m
+ [m
+   return ([m
+     <main className="min-h-screen bg-black text-white">[m
+[36m@@ -532,7 +540,15 @@[m [mfocus:shadow-yellow-400/15[m
+ </div>[m
+   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">[m
+ [m
+[31m-    {filteredCars.map((car) => ([m
+[32m+[m[32m    {filteredCars.map((car) => {[m
+[32m+[m[32m      const cardImages = getCardImages(car).slice(0, 4);[m
+[32m+[m[32m      const selectedImage = selectedCardImages[car.id];[m
+[32m+[m[32m      const primaryImage =[m
+[32m+[m[32m        selectedImage && cardImages.includes(selectedImage)[m
+[32m+[m[32m          ? selectedImage[m
+[32m+[m[32m          : cardImages[0];[m
+[32m+[m
+[32m+[m[32m      return ([m
+ [m
+       <div[m
+         key={car.id}[m
+[36m@@ -562,15 +578,13 @@[m [mfocus:shadow-yellow-400/10[m
+         <div className="relative overflow-hidden h-[420px] md:h-[460px]">[m
+ [m
+           <img[m
+[31m-            src={getPrimaryImage(car, failedImages)}[m
+[32m+[m[32m            src={primaryImage}[m
+             alt={car.title}[m
+[31m-            onError={() => handleCardImageError(getPrimaryImage(car, failedImages))}[m
+[32m+[m[32m            onError={() => handleCardImageError(primaryImage)}[m
+             className="[m
+               w-full[m
+               h-full[m
+               object-cover[m
+[31m-              autovector-card-zoom[m
+[31m-              autovector-card-zoom-mobile[m
+               transition[m
+               duration-1000[m
+               ease-in-out[m
+[36m@@ -649,9 +663,51 @@[m [mfocus:shadow-yellow-400/10[m
+ [m
+           </div>[m
+         </div>[m
+[32m+[m
+[32m+[m[32m        {cardImages.length > 1 && ([m
+[32m+[m[32m          <div className="flex gap-2 overflow-x-auto border-t border-white/10 bg-black/80 p-3">[m
+[32m+[m[32m            {cardImages.map((image, index) => ([m
+[32m+[m[32m              <button[m
+[32m+[m[32m                key={image}[m
+[32m+[m[32m                type="button"[m
+[32m+[m[32m                aria-label={`Фото ${index + 1}`}[m
+[32m+[m[32m                onClick={() =>[m
+[32m+[m[32m                  setSelectedCardImages((current) => ({[m
+[32m+[m[32m                    ...current,[m
+[32m+[m[32m                    [car.id]: image,[m
+[32m+[m[32m                  }))[m
+[32m+[m[32m                }[m
+[32m+[m[32m                className={`[m
+[32m+[m[32m                  h-14[m
+[32m+[m[32m                  w-20[m
+[32m+[m[32m                  shrink-0[m
+[32m+[m[32m                  overflow-hidden[m
+[32m+[m[32m                  rounded-xl[m
+[32m+[m[32m                  border[m
+[32m+[m[32m                  bg-zinc-950[m
+[32m+[m[32m                  transition[m
+[32m+[m[32m                  duration-300[m
+[32m+[m[32m                  ${[m
+[32m+[m[32m                    image === primaryImage[m
+[32m+[m[32m                      ? "border-yellow-400"[m
+[32m+[m[32m                      : "border-white/15 hover:border-white/40"[m
+[32m+[m[32m                  }[m
+[32m+[m[32m                `}[m
+[32m+[m[32m              >[m
+[32m+[m[32m                <img[m
+[32m+[m[32m                  src={image}[m
+[32m+[m[32m                  alt={`${car.title} ${index + 1}`}[m
+[32m+[m[32m                  onError={() => handleCardImageError(image)}[m
+[32m+[m[32m                  className="h-full w-full object-cover"[m
+[32m+[m[32m                />[m
+[32m+[m[32m              </button>[m
+[32m+[m[32m            ))}[m
+[32m+[m[32m          </div>[m
+[32m+[m[32m        )}[m
+       </div>[m
+ [m
+[31m-    ))}[m
+[32m+[m[32m      );[m
+[32m+[m[32m    })}[m
+ [m
+   </div>[m
+ </section>[m

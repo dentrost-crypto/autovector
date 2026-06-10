@@ -151,8 +151,7 @@ const response = await fetch("/api/request", {
       (a, b) =>
         Number(hasUsableImages(b, failedImages)) -
         Number(hasUsableImages(a, failedImages))
-    )
-    .slice(0, 5);
+    );
   const handleCardImageError = (image: string) => {
     if (image === FALLBACK_IMAGE) {
       return;

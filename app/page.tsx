@@ -5,6 +5,8 @@ import { settings } from "./data/settings";
 
 const BROKEN_IMAGE_MARKERS = ["fallback", "undefined", "null"];
 const FALLBACK_IMAGE = "/uploads/fallback.svg";
+const CNY_TO_RUB = 10.5;
+const RUSSIA_DELIVERY_COST_RUB = 900000;
 
 function isValidImageUrl(image: unknown) {
   if (typeof image !== "string") {
@@ -37,11 +39,27 @@ function hasUsableImages(car: (typeof cars)[number], failedImages: string[] = []
   return getCarImageUrls(car).some((image) => !failedImages.includes(image));
 }
 
-function getEstimatedRussiaPrice(
-  car: (typeof cars)[number] & { priceToRussiaWithMargin?: number }
-) {
-  // TODO: replace temporary value with priceToRussiaWithMargin later.
-  return car.priceToRussiaWithMargin || car.price;
+function parsePriceNumber(price: unknown) {
+  if (typeof price === "number" && Number.isFinite(price)) {
+    return price;
+  }
+
+  if (typeof price !== "string") {
+    return 0;
+  }
+
+  const normalized = price.replace(/[^\d.,]/g, "").replace(",", ".");
+  const parsed = Number(normalized);
+
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function formatRubPrice(price: number) {
+  return `${Math.round(price).toLocaleString("ru-RU")} \u20bd`;
+}
+
+function calculateRussiaPrice(priceCny: unknown) {
+  return parsePriceNumber(priceCny) * CNY_TO_RUB + RUSSIA_DELIVERY_COST_RUB;
 }
 
 function getCarDisplayTitle(title: string) {
@@ -618,10 +636,10 @@ focus:shadow-yellow-400/10
 
               <div>
                 <p className="text-3xl font-black text-yellow-400 md:text-4xl">
-                  {"\u2248"} {getEstimatedRussiaPrice(car).toLocaleString("ru-RU")} {"\u20bd"}
+                  {"\u2248"} {formatRubPrice(calculateRussiaPrice(car.price))}
                 </p>
                 <p className="mt-1 text-xs leading-relaxed text-gray-400">
-                  {"*\u0431\u0435\u0437 \u0434\u043e\u0441\u0442\u0430\u0432\u043a\u0438 \u043f\u043e \u0420\u0424 \u0434\u043e \u0432\u0430\u0448\u0435\u0433\u043e \u0433\u043e\u0440\u043e\u0434\u0430"}
+                  {"\u043e\u0440\u0438\u0435\u043d\u0442\u0438\u0440 \u043f\u043e\u0434 \u043a\u043b\u044e\u0447 \u0432 \u0420\u0424"}
                 </p>
               </div>
             </div>

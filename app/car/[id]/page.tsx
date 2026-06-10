@@ -9,6 +9,8 @@ const TELEGRAM_URL = "https://t.me/DenTrosPro";
 const RESERVATION_DURATION_MS = 24 * 60 * 60 * 1000;
 const FALLBACK_IMAGE = "/uploads/fallback.svg";
 const BROKEN_IMAGE_MARKERS = ["fallback", "undefined", "null"];
+const CNY_TO_RUB = 10.5;
+const RUSSIA_DELIVERY_COST_RUB = 900000;
 
 type Car = (typeof cars)[number] &
   Partial<{
@@ -51,6 +53,33 @@ function getCarImages(car: Car) {
   const uniqueImages = Array.from(new Set(images));
 
   return uniqueImages.length > 0 ? uniqueImages : [FALLBACK_IMAGE];
+}
+
+function parsePriceNumber(price: unknown) {
+  if (typeof price === "number" && Number.isFinite(price)) {
+    return price;
+  }
+
+  if (typeof price !== "string") {
+    return 0;
+  }
+
+  const normalized = price.replace(/[^\d.,]/g, "").replace(",", ".");
+  const parsed = Number(normalized);
+
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function formatRubPrice(price: number) {
+  return `${Math.round(price).toLocaleString("ru-RU")} \u20bd`;
+}
+
+function formatCnyPrice(price: unknown) {
+  return `\u00a5 ${parsePriceNumber(price).toLocaleString("ru-RU")}`;
+}
+
+function calculateRussiaPrice(priceCny: unknown) {
+  return parsePriceNumber(priceCny) * CNY_TO_RUB + RUSSIA_DELIVERY_COST_RUB;
 }
 
 export default function CarPage() {
@@ -131,7 +160,8 @@ export default function CarPage() {
     );
   }
 
-  const formattedPrice = `¥ ${car.price.toLocaleString()}`;
+  const formattedPrice = formatCnyPrice(car.price);
+  const formattedRussiaPrice = formatRubPrice(calculateRussiaPrice(car.price));
   const displayTitle = getCarDisplayTitle(car.title);
   const lotNumber = getCarLotNumber(car.title);
   const carImages = getCarImages(car).slice(0, 4);
@@ -158,45 +188,55 @@ export default function CarPage() {
     setReservationStatus("");
     setIsSubmittingReservation(true);
 
-    const response = await fetch("/api/request", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    try {
+      const reservationPayload = {
         type: "reservation",
-        carTitle: displayTitle,
+        carTitle: car.title,
+        carDisplayTitle: displayTitle,
         carId: String(car.id),
         carUrl: currentCarUrl,
         lotNumber,
         name: reservationForm.name,
         phone: reservationForm.phone,
         contact: reservationForm.contact,
+        telegram: reservationForm.contact,
+        budget: "",
+        carRequest: displayTitle,
         comment: reservationForm.comment,
-      }),
-    });
+      };
 
-    const data = await response.json();
+      const response = await fetch("/api/request", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(reservationPayload),
+      });
 
-    setIsSubmittingReservation(false);
+      const data = await response.json().catch(() => ({ success: false }));
 
-    if (!data.success) {
-      setReservationError("Не удалось отправить бронь. Попробуйте позже или напишите менеджеру.");
-      return;
+      if (!response.ok || !data.success) {
+        setReservationError("\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u043e\u0442\u043f\u0440\u0430\u0432\u0438\u0442\u044c \u0431\u0440\u043e\u043d\u044c. \u041f\u043e\u043f\u0440\u043e\u0431\u0443\u0439\u0442\u0435 \u043f\u043e\u0437\u0436\u0435 \u0438\u043b\u0438 \u043d\u0430\u043f\u0438\u0448\u0438\u0442\u0435 \u043c\u0435\u043d\u0435\u0434\u0436\u0435\u0440\u0443.");
+        return;
+      }
+
+      localStorage.setItem(
+        reservationStorageKey,
+        String(Date.now() + RESERVATION_DURATION_MS)
+      );
+      setIsReserved(true);
+      setReservationStatus("\u0410\u0432\u0442\u043e \u043f\u0440\u0435\u0434\u0432\u0430\u0440\u0438\u0442\u0435\u043b\u044c\u043d\u043e \u0437\u0430\u0431\u0440\u043e\u043d\u0438\u0440\u043e\u0432\u0430\u043d\u043e \u043d\u0430 24 \u0447\u0430\u0441\u0430. \u041c\u0435\u043d\u0435\u0434\u0436\u0435\u0440 \u0441\u0432\u044f\u0436\u0435\u0442\u0441\u044f \u0441 \u0432\u0430\u043c\u0438.");
+      setReservationForm({
+        name: "",
+        phone: "",
+        contact: "",
+        comment: "",
+      });
+    } catch {
+      setReservationError("\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u043e\u0442\u043f\u0440\u0430\u0432\u0438\u0442\u044c \u0431\u0440\u043e\u043d\u044c. \u041f\u043e\u043f\u0440\u043e\u0431\u0443\u0439\u0442\u0435 \u043f\u043e\u0437\u0436\u0435 \u0438\u043b\u0438 \u043d\u0430\u043f\u0438\u0448\u0438\u0442\u0435 \u043c\u0435\u043d\u0435\u0434\u0436\u0435\u0440\u0443.");
+    } finally {
+      setIsSubmittingReservation(false);
     }
-
-    localStorage.setItem(
-      reservationStorageKey,
-      String(Date.now() + RESERVATION_DURATION_MS)
-    );
-    setIsReserved(true);
-    setReservationStatus("Авто предварительно забронировано на 24 часа. Менеджер свяжется с вами.");
-    setReservationForm({
-      name: "",
-      phone: "",
-      contact: "",
-      comment: "",
-    });
   };
 
   return (
@@ -303,7 +343,7 @@ export default function CarPage() {
             )}
 
             <p className="text-4xl md:text-5xl text-yellow-400 font-bold mb-2">
-              ≈ {car.priceRu || formattedPrice}
+              {"\u2248"} {formattedRussiaPrice}
             </p>
 
             <p className="text-lg text-gray-300 mb-1">
@@ -311,7 +351,7 @@ export default function CarPage() {
             </p>
 
             <p className="text-sm text-gray-500">
-              *Стоимость ориентировочная
+              {"*\u041e\u0440\u0438\u0435\u043d\u0442\u0438\u0440\u043e\u0432\u043e\u0447\u043d\u0430\u044f \u0446\u0435\u043d\u0430 \u043f\u043e\u0434 \u043a\u043b\u044e\u0447 \u0432 \u0420\u0424"}
             </p>
 
             {isReserved && (
@@ -577,7 +617,7 @@ export default function CarPage() {
               )}
 
               <p className="text-3xl text-yellow-400 font-bold mb-4">
-                {similarCar.price}
+                {"\u2248"} {formatRubPrice(calculateRussiaPrice(similarCar.price))}
               </p>
 
               <div className="space-y-2 text-gray-300 text-lg mb-6">

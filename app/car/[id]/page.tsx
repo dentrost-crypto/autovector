@@ -8,6 +8,7 @@ import { useEffect, useState, type FormEvent } from "react";
 const TELEGRAM_URL = "https://t.me/DenTrosPro";
 const RESERVATION_DURATION_MS = 24 * 60 * 60 * 1000;
 const FALLBACK_IMAGE = "/uploads/fallback.svg";
+const BROKEN_IMAGE_MARKERS = ["fallback", "undefined", "null"];
 
 type Car = (typeof cars)[number] &
   Partial<{
@@ -25,6 +26,31 @@ function getCarDisplayTitle(title: string) {
 
 function getCarLotNumber(title: string) {
   return title.match(/лот\s*№\s*(\d+)/i)?.[1] || "";
+}
+
+
+function isValidImageUrl(image: unknown) {
+  if (typeof image !== "string") {
+    return false;
+  }
+
+  const trimmed = image.trim();
+
+  return (
+    trimmed.length > 0 &&
+    !BROKEN_IMAGE_MARKERS.some((marker) => trimmed.toLowerCase().includes(marker))
+  );
+}
+
+function getCarImages(car: Car) {
+  const images = [
+    ...(Array.isArray(car.images) ? car.images : []),
+    car.image,
+  ].filter(isValidImageUrl) as string[];
+
+  const uniqueImages = Array.from(new Set(images));
+
+  return uniqueImages.length > 0 ? uniqueImages : [FALLBACK_IMAGE];
 }
 
 export default function CarPage() {
@@ -48,6 +74,7 @@ export default function CarPage() {
     contact: "",
     comment: "",
   });
+  const [selectedImage, setSelectedImage] = useState("");
 
   useEffect(() => {
     const expiresAt = Number(localStorage.getItem(reservationStorageKey));
@@ -68,6 +95,10 @@ export default function CarPage() {
 
   useEffect(() => {
     setCurrentCarUrl(window.location.href || `https://autovector.pro/car/${carId}`);
+  }, [carId]);
+
+  useEffect(() => {
+    setSelectedImage("");
   }, [carId]);
 
   if (!car) {
@@ -103,7 +134,11 @@ export default function CarPage() {
   const formattedPrice = `¥ ${car.price.toLocaleString()}`;
   const displayTitle = getCarDisplayTitle(car.title);
   const lotNumber = getCarLotNumber(car.title);
-  const mainImage = car.image || FALLBACK_IMAGE;
+  const carImages = getCarImages(car).slice(0, 4);
+  const mainImage =
+    selectedImage && carImages.includes(selectedImage)
+      ? selectedImage
+      : carImages[0];
   const telegramText = encodeURIComponent(
     [
       "🔥 Заявка с сайта AutoVector",
@@ -214,6 +249,41 @@ export default function CarPage() {
               "
             />
           </div>
+
+          {carImages.length > 1 && (
+            <div className="mx-auto mt-4 flex max-w-5xl gap-3 overflow-x-auto rounded-2xl border border-white/10 bg-zinc-950/90 p-3">
+              {carImages.map((image, index) => (
+                <button
+                  key={image}
+                  type="button"
+                  aria-label={`Фото ${index + 1}`}
+                  onClick={() => setSelectedImage(image)}
+                  className={`
+                    h-16
+                    w-24
+                    shrink-0
+                    overflow-hidden
+                    rounded-xl
+                    border
+                    bg-black
+                    transition
+                    duration-300
+                    ${
+                      image === mainImage
+                        ? "border-yellow-400"
+                        : "border-white/15 hover:border-white/50"
+                    }
+                  `}
+                >
+                  <img
+                    src={image}
+                    alt={`${displayTitle} ${index + 1}`}
+                    className="h-full w-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
 
           <p className="mx-auto mt-4 max-w-5xl text-sm leading-relaxed text-gray-400">
             Фотографии взяты из исходной карточки автомобиля. Перед покупкой мы дополнительно проверяем актуальность предложения и состояние машины.

@@ -12,8 +12,13 @@
     "volume": "1500 см³",
     "power": "135 л.с. (99.3 кВт)",
     "country": "Китай",
-    "image": "https://cn2.pa-server.ru/img/19/2026/04/83356300/1775240582.6787.webp",
+    "image": "/uploads/cars/1/1.webp",
     "images": [
+      "/uploads/cars/1/1.webp",
+      "/uploads/cars/1/2.webp",
+      "/uploads/cars/1/3.webp"
+    ],
+    "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/04/83356300/1775240582.6787.webp",
       "https://cn2.pa-server.ru/img/19/2026/04/83356300/1775240584.2652.webp",
       "https://cn2.pa-server.ru/img/19/2026/04/83356300/1775240585.3933.webp",
@@ -38,8 +43,14 @@
     "volume": "1500 см³",
     "power": "140 л.с. (103.0 кВт)",
     "country": "Китай",
-    "image": "https://cn2.pa-server.ru/img/19/2026/04/83854368/1775467022.8412.webp",
+    "image": "/uploads/cars/2/1.webp",
     "images": [
+      "/uploads/cars/2/1.webp",
+      "/uploads/cars/2/2.webp",
+      "/uploads/cars/2/3.webp",
+      "/uploads/cars/2/4.webp"
+    ],
+    "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/04/83854368/1775467022.8412.webp",
       "https://cn2.pa-server.ru/img/19/2026/04/83854368/1775467024.171.webp",
       "https://cn2.pa-server.ru/img/19/2026/04/83854368/1775467025.4411.webp",
@@ -75,8 +86,14 @@
     "volume": "1500 см³",
     "power": "140 л.с. (103.0 кВт)",
     "country": "Китай",
-    "image": "https://cn2.pa-server.ru/img/19/2026/04/84680391/1775795522.5921.webp",
+    "image": "/uploads/cars/3/1.webp",
     "images": [
+      "/uploads/cars/3/1.webp",
+      "/uploads/cars/3/2.webp",
+      "/uploads/cars/3/3.webp",
+      "/uploads/cars/3/4.webp"
+    ],
+    "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/04/84680391/1775795522.5921.webp",
       "https://cn2.pa-server.ru/img/19/2026/04/84680391/1775795523.4385.webp",
       "https://cn2.pa-server.ru/img/19/2026/04/84680391/1775795524.3466.webp",
@@ -118,8 +135,14 @@
     "volume": "1500 см³",
     "power": "140 л.с. (103.0 кВт)",
     "country": "Китай",
-    "image": "https://cn2.pa-server.ru/img/19/2026/04/84850133/1775882822.7281.webp",
+    "image": "/uploads/cars/4/1.webp",
     "images": [
+      "/uploads/cars/4/1.webp",
+      "/uploads/cars/4/2.webp",
+      "/uploads/cars/4/3.webp",
+      "/uploads/cars/4/4.webp"
+    ],
+    "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/04/84850133/1775882822.7281.webp",
       "https://cn2.pa-server.ru/img/19/2026/04/84850133/1775882823.7049.webp",
       "https://cn2.pa-server.ru/img/19/2026/04/84850133/1775882824.8993.webp",
@@ -145,8 +168,14 @@
     "volume": "1500 см³",
     "power": "140 л.с. (103.0 кВт)",
     "country": "Китай",
-    "image": "https://cn2.pa-server.ru/img/19/2026/04/84851710/1775884022.6416.webp",
+    "image": "/uploads/cars/5/1.webp",
     "images": [
+      "/uploads/cars/5/1.webp",
+      "/uploads/cars/5/2.webp",
+      "/uploads/cars/5/3.webp",
+      "/uploads/cars/5/4.webp"
+    ],
+    "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/04/84851710/1775884022.6416.webp",
       "https://cn2.pa-server.ru/img/19/2026/04/84851710/1775884023.4839.webp",
       "https://cn2.pa-server.ru/img/19/2026/04/84851710/1775884024.2452.webp",

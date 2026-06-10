@@ -569,13 +569,12 @@ focus:shadow-yellow-400/10
               w-full
               h-full
               object-cover
-              autovector-card-zoom
-              autovector-card-zoom-mobile
               transition
               duration-1000
               ease-in-out
             "
           />
+
 
           {/* OVERLAY */}
           <div
@@ -649,6 +648,7 @@ focus:shadow-yellow-400/10
 
           </div>
         </div>
+
       </div>
 
     ))}

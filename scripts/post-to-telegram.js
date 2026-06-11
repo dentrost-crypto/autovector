@@ -59,6 +59,111 @@ function calculateRussiaPrice(priceCny) {
   return parsePriceNumber(priceCny) * CNY_TO_RUB + RUSSIA_DELIVERY_COST_RUB;
 }
 
+function hasUsefulValue(value) {
+  if (typeof value !== "string") {
+    return false;
+  }
+
+  const trimmed = value.trim();
+
+  return trimmed.length > 0 && !/^\([^)]*\)$/.test(trimmed);
+}
+
+function addLine(lines, text) {
+  if (text) {
+    lines.push(text);
+  }
+}
+
+function getUsefulValue(value) {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return String(value);
+  }
+
+  if (typeof value !== "string") {
+    return "";
+  }
+
+  const trimmed = value.trim();
+
+  if (!trimmed || /^\([^)]*\)$/.test(trimmed) || /уточняется/i.test(trimmed)) {
+    return "";
+  }
+
+  return trimmed;
+}
+
+function formatEngineVolume(value) {
+  const text = getUsefulValue(value);
+  const match = text.match(/(\d{4})\s*см/i);
+
+  if (!match) {
+    return text;
+  }
+
+  const liters = Number(match[1]) / 1000;
+
+  return `${liters.toLocaleString("ru-RU", { maximumFractionDigits: 1 })} л`;
+}
+
+function formatDimensions(value) {
+  return getUsefulValue(value).replace(/[xх*]/gi, "×");
+}
+
+function parseMileageKm(value) {
+  const match = String(value || "").match(/([\d\s]+)\s*км/i);
+
+  if (!match) {
+    return 0;
+  }
+
+  return Number(match[1].replace(/\D/g, ""));
+}
+
+function getBrand(car) {
+  const text = `${car.modelName || ""} ${car.title || ""}`.toLowerCase();
+
+  if (text.includes("bmw")) {
+    return "bmw";
+  }
+
+  if (text.includes("toyota")) {
+    return "toyota";
+  }
+
+  return "default";
+}
+
+function getModelFamily(car) {
+  const text = `${car.modelName || ""} ${car.title || ""}`;
+
+  if (/x1/i.test(text)) {
+    return "кроссовер";
+  }
+
+  if (/corolla/i.test(text)) {
+    return "седан";
+  }
+
+  if (/1\s*(series|серии)/i.test(text)) {
+    return "городской хэтчбек";
+  }
+
+  return "автомобиль";
+}
+
+function formatShortPrice(price) {
+  const value = Math.round(price);
+
+  if (value >= 1000000) {
+    return `${(value / 1000000).toLocaleString("ru-RU", {
+      maximumFractionDigits: 1,
+    })} млн ₽`;
+  }
+
+  return formatRubPrice(value);
+}
+
 function getPostLimit() {
   const parsed = Number(process.env.POST_LIMIT || 1);
 
@@ -80,22 +185,306 @@ function getLocalImagePath(car) {
   return fs.existsSync(localPath) ? localPath : "";
 }
 
-function buildMessage(car) {
-  const carUrl = `${SITE_URL}/car/${car.id}`;
-  const priceRub = formatRubPrice(calculateRussiaPrice(car.price));
+function getLocalImagePaths(car) {
+  const images = Array.isArray(car.images) ? car.images : [];
+  const seen = new Set();
 
-  return [
-    `🚘 ${car.title}`,
+  return [...images, car.image]
+    .filter((item) => typeof item === "string" && item.startsWith("/uploads/cars/"))
+    .filter((item) => {
+      if (seen.has(item)) {
+        return false;
+      }
+
+      seen.add(item);
+      return true;
+    })
+    .map((image) => path.join(ROOT_DIR, "public", image.replace(/^\//, "")))
+    .filter((localPath) => fs.existsSync(localPath));
+}
+
+function buildTemplateCarPost(car) {
+  const carUrl = `${SITE_URL}/car/${car.id}`;
+  const imagePaths = getLocalImagePaths(car);
+  const imagePath = imagePaths[0] || getLocalImagePath(car);
+  const priceCny = formatCnyPrice(car.price);
+  const priceRubNumber = calculateRussiaPrice(car.price);
+  const priceRub = formatRubPrice(priceRubNumber);
+  const title = car.modelName || car.title;
+  const brand = getBrand(car);
+  const modelFamily = getModelFamily(car);
+  const mileageKm = parseMileageKm(car.mileage);
+  const lowMileage = mileageKm > 0 && mileageKm <= 50000;
+  const lowFuelConsumption =
+    parsePriceNumber(car.fuelConsumption || car.wltcFuelConsumption) > 0 &&
+    parsePriceNumber(car.fuelConsumption || car.wltcFuelConsumption) <= 6.5;
+  const strongPrice = priceRubNumber > 0 && priceRubNumber < 2000000;
+  const highlights = [];
+  const suitableFor = [];
+  const reasons = [];
+  const engineParts = [
+    formatEngineVolume(car.engineVolume || car.volume),
+    getUsefulValue(car.maxPowerKw) ? `${getUsefulValue(car.maxPowerKw)} кВт` : "",
+    getUsefulValue(car.torqueNm || car.maxTorqueNm)
+      ? `${getUsefulValue(car.torqueNm || car.maxTorqueNm)} Н·м`
+      : "",
+  ].filter(Boolean);
+  const fuelConsumption = getUsefulValue(car.fuelConsumption || car.wltcFuelConsumption);
+  const acceleration0100 = getUsefulValue(car.acceleration0100);
+  const maxSpeed = getUsefulValue(car.maxSpeed);
+  const dimensions = formatDimensions(car.dimensions);
+
+  if (brand === "bmw") {
+    highlights.push(
+      "BMW выбирают за ощущение статуса, уверенную управляемость и более собранный характер в ежедневных поездках."
+    );
+    reasons.push("• премиальный бренд с сильным визуальным образом и хорошей узнаваемостью");
+    suitableFor.push("современный статусный автомобиль без лишней показности");
+  } else if (brand === "toyota") {
+    highlights.push(
+      "Toyota — спокойный выбор для тех, кто ценит надёжность, ликвидность и понятные расходы на владение."
+    );
+    reasons.push("• Toyota обычно выбирают за надёжность, ликвидность и предсказуемое обслуживание");
+    suitableFor.push("надёжный автомобиль для себя или семьи");
+  } else {
+    highlights.push(
+      "Это вариант под заказ из Азии для тех, кому важны понятные исходные данные, свежий год и проверка перед покупкой."
+    );
+    reasons.push("• есть понятные исходные данные по автомобилю до запроса");
+    suitableFor.push("автомобиль с прозрачными исходными данными");
+  }
+
+  if (/m\s*sport/i.test(`${title} ${car.title}`)) {
+    reasons.push("• версия M Sport добавляет более выразительный внешний вид и ощущение комплектации выше классом");
+    suitableFor.push("красивый автомобиль, который приятно видеть каждый день");
+  }
+
+  if (fuelConsumption) {
+    reasons.push(`• расход WLTC ${fuelConsumption} л/100 км помогает заранее оценить экономичность`);
+  }
+
+  if (lowFuelConsumption) {
+    highlights.push(
+      "Заявленный расход выглядит спокойным для повседневной эксплуатации: меньше лишних трат на регулярных поездках."
+    );
+    suitableFor.push("экономичные поездки по городу и делам");
+  }
+
+  if (getUsefulValue(car.torqueNm || car.maxTorqueNm)) {
+    reasons.push(`• ${getUsefulValue(car.torqueNm || car.maxTorqueNm)} Н·м крутящего момента — хороший ориентир по тяге и динамике`);
+  }
+
+  if (lowMileage) {
+    reasons.push(`• пробег ${car.mileage} выглядит аккуратным для своего года`);
+    suitableFor.push("вариант с умеренным пробегом");
+  } else if (car.mileage) {
+    reasons.push(`• пробег указан сразу: ${car.mileage}, проще оценить вариант до запроса`);
+  }
+
+  if (strongPrice) {
+    reasons.push(`• ориентир под ключ до 2 млн ₽: около ${formatShortPrice(priceRubNumber)}`);
+    suitableFor.push("сильное предложение по цене под ключ");
+  }
+
+  if (hasUsefulValue(car.gearbox)) {
+    reasons.push(`• коробка передач: ${car.gearbox}`);
+  }
+
+  if (hasUsefulValue(car.driveType)) {
+    reasons.push(`• привод: ${car.driveType}`);
+  }
+
+  if (engineParts.length > 0) {
+    reasons.push(`• двигатель: ${engineParts.join(" / ")}`);
+  }
+
+  if (acceleration0100 || maxSpeed) {
+    reasons.push(
+      [
+        acceleration0100 ? `разгон 0–100: ${acceleration0100} с` : "",
+        maxSpeed ? `макс. скорость: ${maxSpeed} км/ч` : "",
+      ]
+        .filter(Boolean)
+        .join("; ")
+    );
+  }
+
+  if (dimensions) {
+    reasons.push(`• габариты: ${dimensions} мм`);
+  }
+
+  if (hasUsefulValue(car.seats)) {
+    suitableFor.push(`${car.seats}-местный салон для семьи и повседневных задач`);
+  }
+
+  suitableFor.push("комфортные поездки по городу и за город");
+  suitableFor.push(`ликвидный ${modelFamily} с понятной историей предложения`);
+
+  const text = [
+    `🚘 ${title}`,
     "",
-    `Год: ${car.year || "уточняется"}`,
-    `Пробег: ${car.mileage || "уточняется"}`,
-    `Цена: ≈ ${priceRub}`,
-    `Цена в Китае: ${formatCnyPrice(car.price)}`,
+    highlights.slice(0, 2).join(" "),
+    `Год: ${car.year || "уточняется"}, пробег: ${car.mileage || "уточняется"}. Вариант для тех, кто хочет красивый, понятный и комфортный автомобиль под ключ.`,
     "",
+    "Подойдёт если вы ищете:",
+    ...Array.from(new Set(suitableFor)).slice(0, 3).map((item) => `• ${item}`),
+    "",
+    "Почему этот вариант интересен:",
+    ...Array.from(new Set(reasons))
+      .slice(0, 5)
+      .map((item) => item.replace("хороший ориентир", "сильный плюс")),
+    "",
+    `💰 Под ключ в РФ: ≈ ${priceRub}`,
+    `🇨🇳 Цена в Китае: ${priceCny}`,
+    "",
+    "📲 Смотреть авто:",
     carUrl,
     "",
-    "Оставить заявку / забронировать авто",
+    "Напишите менеджеру — подскажем по наличию, расчёту и следующему шагу.",
+    "",
+    "Актуальность предложения и состояние автомобиля дополнительно проверяем перед покупкой.",
   ].join("\n");
+
+  return {
+    title,
+    text,
+    imagePath,
+    imagePaths,
+    images: imagePaths,
+    carUrl,
+    source: "template",
+  };
+}
+
+function buildAiCarData(car, carUrl) {
+  return {
+    title: car.title,
+    modelName: car.modelName,
+    year: car.year,
+    mileage: car.mileage,
+    priceCny: formatCnyPrice(car.price),
+    calculatedRubPrice: `≈ ${formatRubPrice(calculateRussiaPrice(car.price))}`,
+    gearbox: getUsefulValue(car.gearbox),
+    driveType: getUsefulValue(car.driveType),
+    engineVolume: getUsefulValue(car.engineVolume || car.volume),
+    power: getUsefulValue(car.power),
+    torqueNm: getUsefulValue(car.torqueNm || car.maxTorqueNm),
+    fuelConsumption: getUsefulValue(car.fuelConsumption || car.wltcFuelConsumption),
+    acceleration0100: getUsefulValue(car.acceleration0100),
+    maxSpeed: getUsefulValue(car.maxSpeed),
+    dimensions: getUsefulValue(car.dimensions),
+    seats: getUsefulValue(car.seats),
+    carUrl,
+  };
+}
+
+function removeEmptyFields(value) {
+  return Object.fromEntries(
+    Object.entries(value).filter(([, fieldValue]) => {
+      if (fieldValue === undefined || fieldValue === null) {
+        return false;
+      }
+
+      if (typeof fieldValue === "string") {
+        return fieldValue.trim().length > 0;
+      }
+
+      return true;
+    })
+  );
+}
+
+async function generateAiPostText(carData) {
+  const apiKey = process.env.OPENAI_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("OPENAI_API_KEY is not set.");
+  }
+
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+      temperature: 0.75,
+      max_tokens: 700,
+      messages: [
+        {
+          role: "system",
+          content:
+            "Ты маркетолог AutoVector. Пиши живые продающие Telegram-посты на русском языке. Не выдумывай факты, не обещай гарантию, используй только переданные данные.",
+        },
+        {
+          role: "user",
+          content: [
+            "Создай продающий Telegram-пост на русском языке для автомобиля.",
+            "Пиши для аудитории женщин и мужчин 35–55 лет, которые хотят свежий, понятный и надёжный автомобиль из Азии под ключ.",
+            "Не пиши как автоэксперт для автоэкспертов.",
+            "Сделай текст живым, понятным и доверительным.",
+            "",
+            "Структура поста:",
+            "- цепляющий заголовок;",
+            "- 2–3 предложения эмоционального описания;",
+            "- 5–7 преимуществ автомобиля;",
+            "- цена в Китае;",
+            "- ориентир под ключ в РФ;",
+            "- ссылка на карточку;",
+            "- призыв написать менеджеру / оставить заявку;",
+            "- дисклеймер: актуальность предложения и состояние автомобиля дополнительно проверяем перед покупкой.",
+            "",
+            "Важно:",
+            "- не обещать гарантию;",
+            "- не выдумывать факты;",
+            "- если какого-то параметра нет, не упоминать его;",
+            "- не писать слишком длинно;",
+            "- стиль Telegram: живой, продающий, но без дешёвого крика.",
+            "",
+            `Данные автомобиля:\n${JSON.stringify(removeEmptyFields(carData), null, 2)}`,
+          ].join("\n"),
+        },
+      ],
+    }),
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(`OpenAI API error: ${JSON.stringify(data)}`);
+  }
+
+  const text = data.choices?.[0]?.message?.content?.trim();
+
+  if (!text) {
+    throw new Error("OpenAI API returned an empty post text.");
+  }
+
+  return text;
+}
+
+async function buildCarPost(car) {
+  return buildTemplateCarPost(car);
+}
+
+// Publishing adapters. Later this can grow into:
+// async function publishToVk(post) { ... }
+// function prepareMaxPost(post) { ... }
+// future: buildCarVideo(post.images)
+// future: publishVideoToTelegram(videoPath, post.text)
+async function publishToTelegram(post) {
+  const token = process.env.TELEGRAM_TOKEN;
+  const channelId = process.env.TELEGRAM_CHANNEL_ID || "@avtoimort";
+
+  return post.imagePath
+    ? sendPhotoPost({
+        token,
+        channelId,
+        text: post.text,
+        imagePath: post.imagePath,
+      })
+    : sendTextPost({ token, channelId, text: post.text });
 }
 
 async function sendTextPost({ token, channelId, text }) {
@@ -127,12 +516,9 @@ async function sendPhotoPost({ token, channelId, text, imagePath }) {
   });
 }
 
-async function postCar({ token, channelId, car }) {
-  const message = buildMessage(car);
-  const imagePath = getLocalImagePath(car);
-  const response = imagePath
-    ? await sendPhotoPost({ token, channelId, text: message, imagePath })
-    : await sendTextPost({ token, channelId, text: message });
+async function postCar({ car }) {
+  const post = await buildCarPost(car);
+  const response = await publishToTelegram(post);
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok || !data.ok) {
@@ -142,7 +528,7 @@ async function postCar({ token, channelId, car }) {
   }
 
   console.log(
-    `Posted car ID ${car.id} ${imagePath ? "with photo" : "without photo"}`
+    `Posted car ID ${car.id} ${post.imagePath ? "with photo" : "without photo"}`
   );
 }
 
@@ -192,13 +578,15 @@ async function main() {
     console.log("DRY_RUN=true: posted-cars.json will not be changed.");
 
     for (const car of carsToPost) {
-      const imagePath = getLocalImagePath(car);
+      const post = await buildCarPost(car);
 
       console.log(
         [
           `Would post car ID ${car.id}: ${car.title}`,
-          `- url: ${SITE_URL}/car/${car.id}`,
-          `- photo: ${imagePath || "text post only"}`,
+          `Source: ${post.source}`,
+          JSON.stringify(post, null, 2),
+          "",
+          post.text,
         ].join("\n")
       );
     }
@@ -207,7 +595,7 @@ async function main() {
   }
 
   for (const car of carsToPost) {
-    await postCar({ token, channelId, car });
+    await postCar({ car });
     postedIds.push(car.id);
   }
 

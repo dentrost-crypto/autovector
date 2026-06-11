@@ -125,6 +125,39 @@ function cleanMileage(...values) {
   return digits ? `${Number(digits).toLocaleString("ru-RU")} \u043a\u043c` : "";
 }
 
+function cleanSpecValue(value) {
+  const text = normalizeSpaces(value);
+
+  if (!text || /^\([^)]*\)$/.test(text)) {
+    return "";
+  }
+
+  return text;
+}
+
+function getSpecCell(row, ...keys) {
+  return cleanSpecValue(getCell(row, ...keys));
+}
+
+function parseDimensions(dimensions) {
+  const text = normalizeSpaces(dimensions);
+  const match = text.match(/(\d{3,5})\D+(\d{3,5})\D+(\d{3,5})/);
+
+  if (!match) {
+    return {
+      bodyLength: "",
+      bodyWidth: "",
+      bodyHeight: "",
+    };
+  }
+
+  return {
+    bodyLength: `${match[1]} \u043c\u043c`,
+    bodyWidth: `${match[2]} \u043c\u043c`,
+    bodyHeight: `${match[3]} \u043c\u043c`,
+  };
+}
+
 const workbook = XLSX.readFile(EXCEL_PATH);
 const sheetName = workbook.SheetNames[0];
 const worksheet = workbook.Sheets[sheetName];
@@ -142,6 +175,14 @@ const cars = rows.map((car, index) => {
     ...parseImages(getCell(car, "remoteImages"), ""),
     fallbackImage,
   ]);
+  const dimensions = getSpecCell(
+    car,
+    "dimensions",
+    "\u0414\u043b\u0438\u043d\u0430*\u0448\u0438\u0440\u0438\u043d\u0430*\u0432\u044b\u0441\u043e\u0442\u0430",
+    "\u0414\u043b\u0438\u043d\u0430\u00d7\u0448\u0438\u0440\u0438\u043d\u0430\u00d7\u0432\u044b\u0441\u043e\u0442\u0430",
+    "\u0414\u043b\u0438\u043d\u0430 \u0445 \u0448\u0438\u0440\u0438\u043d\u0430 \u0445 \u0432\u044b\u0441\u043e\u0442\u0430"
+  );
+  const parsedDimensions = parseDimensions(dimensions);
 
   return {
     id: index + 1,
@@ -161,14 +202,67 @@ const cars = rows.map((car, index) => {
     engineFull: getCell(car, "engineFull"),
     gearbox: getCell(car, "gearbox"),
     driveType: getCell(car, "driveType"),
-    wltcFuelConsumption: getCell(car, "wltcFuelConsumption"),
-    maxPowerKw: getCell(car, "maxPowerKw"),
-    maxTorqueNm: getCell(car, "maxTorqueNm"),
-    dimensions: getCell(car, "dimensions"),
-    wheelbase: getCell(car, "wheelbase"),
-    seats: getCell(car, "seats"),
-    fuelTankVolume: getCell(car, "fuelTankVolume"),
-    tireSize: getCell(car, "tireSize"),
+    wltcFuelConsumption: getSpecCell(car, "wltcFuelConsumption"),
+    maxPowerKw: getSpecCell(car, "maxPowerKw"),
+    maxTorqueNm: getSpecCell(car, "maxTorqueNm"),
+    dimensions,
+    wheelbase: getSpecCell(car, "wheelbase"),
+    seats: getSpecCell(car, "seats"),
+    fuelTankVolume: getSpecCell(car, "fuelTankVolume"),
+    tireSize: getSpecCell(car, "tireSize"),
+    torqueNm: getSpecCell(
+      car,
+      "torqueNm",
+      "maxTorqueNm",
+      "\u041c\u0430\u043a\u0441\u0438\u043c\u0430\u043b\u044c\u043d\u044b\u0439 \u043a\u0440\u0443\u0442\u044f\u0449\u0438\u0439 \u043c\u043e\u043c\u0435\u043d\u0442",
+      "\u041a\u0440\u0443\u0442\u044f\u0449\u0438\u0439 \u043c\u043e\u043c\u0435\u043d\u0442"
+    ),
+    fuelConsumption: getSpecCell(
+      car,
+      "fuelConsumption",
+      "wltcFuelConsumption",
+      "\u0420\u0430\u0441\u0445\u043e\u0434 WLTC",
+      "\u0420\u0430\u0441\u0445\u043e\u0434 \u0442\u043e\u043f\u043b\u0438\u0432\u0430 WLTC",
+      "\u0420\u0430\u0441\u0445\u043e\u0434 \u0442\u043e\u043f\u043b\u0438\u0432\u0430"
+    ),
+    acceleration0100: getSpecCell(
+      car,
+      "acceleration0100",
+      "\u0420\u0430\u0437\u0433\u043e\u043d 0-100",
+      "\u0420\u0430\u0437\u0433\u043e\u043d 0-100 \u043a\u043c/\u0447",
+      "0-100"
+    ),
+    maxSpeed: getSpecCell(
+      car,
+      "maxSpeed",
+      "\u041c\u0430\u043a\u0441\u0438\u043c\u0430\u043b\u044c\u043d\u0430\u044f \u0441\u043a\u043e\u0440\u043e\u0441\u0442\u044c",
+      "\u041c\u0430\u043a\u0441. \u0441\u043a\u043e\u0440\u043e\u0441\u0442\u044c"
+    ),
+    engineVolume: getSpecCell(
+      car,
+      "engineVolume",
+      "engineVolumeMl",
+      "displacement",
+      COLUMNS.volume,
+      "\u041e\u0431\u044a\u0451\u043c \u0434\u0432\u0438\u0433\u0430\u0442\u0435\u043b\u044f"
+    ),
+    cylinders: getSpecCell(
+      car,
+      "cylinders",
+      "\u0426\u0438\u043b\u0438\u043d\u0434\u0440\u044b",
+      "\u041a\u043e\u043b-\u0432\u043e \u0446\u0438\u043b\u0438\u043d\u0434\u0440\u043e\u0432",
+      "\u0427\u0438\u0441\u043b\u043e \u0446\u0438\u043b\u0438\u043d\u0434\u0440\u043e\u0432"
+    ),
+    turboType: getSpecCell(
+      car,
+      "turboType",
+      "\u0422\u0438\u043f \u043d\u0430\u0434\u0434\u0443\u0432\u0430",
+      "\u0422\u0443\u0440\u0431\u0438\u043d\u0430",
+      "\u041d\u0430\u0434\u0434\u0443\u0432"
+    ),
+    bodyLength: getSpecCell(car, "bodyLength", "\u0414\u043b\u0438\u043d\u0430") || parsedDimensions.bodyLength,
+    bodyWidth: getSpecCell(car, "bodyWidth", "\u0428\u0438\u0440\u0438\u043d\u0430") || parsedDimensions.bodyWidth,
+    bodyHeight: getSpecCell(car, "bodyHeight", "\u0412\u044b\u0441\u043e\u0442\u0430") || parsedDimensions.bodyHeight,
     country: "\u041a\u0438\u0442\u0430\u0439",
     image: images[0] || FALLBACK_IMAGE,
     images,

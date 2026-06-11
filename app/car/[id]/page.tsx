@@ -22,13 +22,19 @@ type Car = (typeof cars)[number] &
     energyType: string;
     engineFull: string;
     fuelTankVolume: string;
+    fuelConsumption: string;
     gearbox: string;
+    acceleration0100: string;
+    dimensions: string;
+    engineVolume: string;
     manufacturer: string;
+    maxSpeed: string;
     maxPowerKw: string;
     maxTorqueNm: string;
     modelName: string;
     priceRu: string;
     seats: string;
+    torqueNm: string;
     transmission: string;
     wheelbase: string;
   }>;
@@ -124,6 +130,30 @@ function hasUsefulEnergyType(value: unknown) {
   }
 
   return String(value).trim().toLowerCase() !== "\u0431\u0435\u043d\u0437\u0438\u043d";
+}
+
+function getUsefulSpecValue(value: unknown) {
+  return hasUsefulValue(value) ? String(value).trim() : "";
+}
+
+function formatWithUnit(value: unknown, unit: string, unitPattern: RegExp) {
+  const text = getUsefulSpecValue(value);
+
+  if (!text) {
+    return "";
+  }
+
+  return unitPattern.test(text) ? text : `${text} ${unit}`;
+}
+
+function formatDimensions(value: unknown) {
+  const text = getUsefulSpecValue(value).replace(/[xх*]/gi, "\u00d7");
+
+  if (!text) {
+    return "";
+  }
+
+  return /\bмм\b/i.test(text) ? text : `${text} \u043c\u043c`;
 }
 
 export default function CarPage() {
@@ -238,11 +268,32 @@ export default function CarPage() {
     ],
     ["\u041a\u043e\u0440\u043e\u0431\u043a\u0430 \u043f\u0435\u0440\u0435\u0434\u0430\u0447", car.gearbox],
     ["\u041f\u0440\u0438\u0432\u043e\u0434", car.driveType],
-    ["\u041c\u0430\u043a\u0441. \u043c\u043e\u0449\u043d\u043e\u0441\u0442\u044c", car.maxPowerKw],
-    ["\u041a\u0440\u0443\u0442\u044f\u0449\u0438\u0439 \u043c\u043e\u043c\u0435\u043d\u0442", car.maxTorqueNm],
-    ["\u041a\u043e\u043b\u0451\u0441\u043d\u0430\u044f \u0431\u0430\u0437\u0430", car.wheelbase],
+    [
+      "\u041a\u0440\u0443\u0442\u044f\u0449\u0438\u0439 \u043c\u043e\u043c\u0435\u043d\u0442",
+      formatWithUnit(car.torqueNm || car.maxTorqueNm, "\u041d\u00b7\u043c", /\b\u041d[·\s-]?\u043c\b/i),
+    ],
+    [
+      "\u0420\u0430\u0437\u0433\u043e\u043d 0\u2013100",
+      formatWithUnit(car.acceleration0100, "\u0441", /\b\u0441\b/i),
+    ],
+    [
+      "\u0420\u0430\u0441\u0445\u043e\u0434 WLTC",
+      formatWithUnit(car.fuelConsumption, "\u043b/100 \u043a\u043c", /\u043b\s*\/\s*100\s*\u043a\u043c/i),
+    ],
+    [
+      "\u041c\u0430\u043a\u0441. \u0441\u043a\u043e\u0440\u043e\u0441\u0442\u044c",
+      formatWithUnit(car.maxSpeed, "\u043a\u043c/\u0447", /\u043a\u043c\s*\/\s*\u0447/i),
+    ],
+    ["\u0413\u0430\u0431\u0430\u0440\u0438\u0442\u044b", formatDimensions(car.dimensions)],
+    [
+      "\u041a\u043e\u043b\u0451\u0441\u043d\u0430\u044f \u0431\u0430\u0437\u0430",
+      formatWithUnit(car.wheelbase, "\u043c\u043c", /\b\u043c\u043c\b/i),
+    ],
     ["\u041a\u043e\u043b\u0438\u0447\u0435\u0441\u0442\u0432\u043e \u043c\u0435\u0441\u0442", car.seats],
-    ["\u041e\u0431\u044a\u0451\u043c \u0431\u0430\u043a\u0430", car.fuelTankVolume],
+    [
+      "\u041e\u0431\u044a\u0451\u043c \u0431\u0430\u043a\u0430",
+      formatWithUnit(car.fuelTankVolume, "\u043b", /\b\u043b\b/i),
+    ],
   ].filter(([, value]) => hasUsefulValue(value));
 
   const handleReservationSubmit = async (event: FormEvent<HTMLFormElement>) => {

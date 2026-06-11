@@ -3,7 +3,7 @@ name: Post Cars To Telegram
 on:
   workflow_dispatch:
   schedule:
-    - cron: "55 12 * * *"
+    - cron: "0 10 * * *"
 
 jobs:
   post-cars:

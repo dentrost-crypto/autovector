@@ -204,10 +204,23 @@ function getLocalImagePaths(car) {
     .filter((localPath) => fs.existsSync(localPath));
 }
 
+function getLocalVideoPath(car) {
+  const videoPath = path.join(
+    ROOT_DIR,
+    "public",
+    "generated",
+    "videos",
+    `car-${car.id}.mp4`
+  );
+
+  return fs.existsSync(videoPath) ? videoPath : "";
+}
+
 function buildTemplateCarPost(car) {
   const carUrl = `${SITE_URL}/car/${car.id}`;
   const imagePaths = getLocalImagePaths(car);
   const imagePath = imagePaths[0] || getLocalImagePath(car);
+  const videoPath = getLocalVideoPath(car);
   const priceRubNumber = calculateRussiaPrice(car.price);
   const priceRub = formatRubPrice(priceRubNumber);
   const title = car.modelName || car.title;
@@ -354,6 +367,7 @@ function buildTemplateCarPost(car) {
     imagePath,
     imagePaths,
     images: imagePaths,
+    videoPath,
     carUrl,
     source: "template",
   };
@@ -483,9 +497,25 @@ async function publishToTelegram(post) {
   const mode = getTelegramPostMode(post);
 
   console.log(`Caption length: ${captionLength}`);
+  console.log(`Video found: ${Boolean(post.videoPath)}`);
   console.log(`Telegram post mode: ${mode}`);
 
-  if (!post.imagePath) {
+  if (mode === "video_then_message") {
+    const videoResponse = await sendVideoPost({
+      token,
+      channelId,
+      videoPath: post.videoPath,
+    });
+    const videoData = await videoResponse.json().catch(() => ({}));
+
+    if (!videoResponse.ok || !videoData.ok) {
+      return videoResponse;
+    }
+
+    return sendTextPost({ token, channelId, text: post.text });
+  }
+
+  if (mode === "text_only") {
     return sendTextPost({ token, channelId, text: post.text });
   }
 
@@ -513,13 +543,17 @@ async function publishToTelegram(post) {
 }
 
 function getTelegramPostMode(post) {
+  if (post.videoPath) {
+    return "video_then_message";
+  }
+
   if (!post.imagePath) {
-    return "text";
+    return "text_only";
   }
 
   return post.text.length > TELEGRAM_CAPTION_SAFE_LIMIT
     ? "photo_then_message"
-    : "photo+caption";
+    : "photo_with_caption";
 }
 
 async function sendTextPost({ token, channelId, text }) {
@@ -560,6 +594,20 @@ async function sendPhotoOnlyPost({ token, channelId, imagePath }) {
   formData.append("photo", imageBlob, path.basename(imagePath));
 
   return fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+    method: "POST",
+    body: formData,
+  });
+}
+
+async function sendVideoPost({ token, channelId, videoPath }) {
+  const formData = new FormData();
+  const videoBuffer = fs.readFileSync(videoPath);
+  const videoBlob = new Blob([videoBuffer], { type: "video/mp4" });
+
+  formData.append("chat_id", channelId);
+  formData.append("video", videoBlob, path.basename(videoPath));
+
+  return fetch(`https://api.telegram.org/bot${token}/sendVideo`, {
     method: "POST",
     body: formData,
   });
@@ -636,6 +684,7 @@ async function main() {
           `Would post car ID ${car.id}: ${car.title}`,
           `Source: ${post.source}`,
           `Caption length: ${captionLength}`,
+          `Video found: ${Boolean(post.videoPath)}`,
           `Telegram post mode: ${telegramMode}`,
           JSON.stringify(post, null, 2),
           "",

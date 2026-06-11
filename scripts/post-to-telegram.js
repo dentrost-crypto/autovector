@@ -8,6 +8,7 @@ const POSTED_PATH = path.join(ROOT_DIR, "app", "data", "posted-cars.json");
 const SITE_URL = "https://www.autovector.pro";
 const CNY_TO_RUB = 10.5;
 const RUSSIA_DELIVERY_COST_RUB = 900000;
+const TELEGRAM_CAPTION_SAFE_LIMIT = 900;
 
 function loadEnvFile(filePath) {
   if (!fs.existsSync(filePath)) {
@@ -476,15 +477,47 @@ async function buildCarPost(car) {
 async function publishToTelegram(post) {
   const token = process.env.TELEGRAM_TOKEN;
   const channelId = process.env.TELEGRAM_CHANNEL_ID || "@avtoimort";
+  const captionLength = post.text.length;
+  const mode = getTelegramPostMode(post);
 
-  return post.imagePath
-    ? sendPhotoPost({
-        token,
-        channelId,
-        text: post.text,
-        imagePath: post.imagePath,
-      })
-    : sendTextPost({ token, channelId, text: post.text });
+  console.log(`Caption length: ${captionLength}`);
+  console.log(`Telegram post mode: ${mode}`);
+
+  if (!post.imagePath) {
+    return sendTextPost({ token, channelId, text: post.text });
+  }
+
+  if (mode === "photo_then_message") {
+    const photoResponse = await sendPhotoOnlyPost({
+      token,
+      channelId,
+      imagePath: post.imagePath,
+    });
+    const photoData = await photoResponse.json().catch(() => ({}));
+
+    if (!photoResponse.ok || !photoData.ok) {
+      return photoResponse;
+    }
+
+    return sendTextPost({ token, channelId, text: post.text });
+  }
+
+  return sendPhotoPost({
+    token,
+    channelId,
+    text: post.text,
+    imagePath: post.imagePath,
+  });
+}
+
+function getTelegramPostMode(post) {
+  if (!post.imagePath) {
+    return "text";
+  }
+
+  return post.text.length > TELEGRAM_CAPTION_SAFE_LIMIT
+    ? "photo_then_message"
+    : "photo+caption";
 }
 
 async function sendTextPost({ token, channelId, text }) {
@@ -508,6 +541,20 @@ async function sendPhotoPost({ token, channelId, text, imagePath }) {
 
   formData.append("chat_id", channelId);
   formData.append("caption", text);
+  formData.append("photo", imageBlob, path.basename(imagePath));
+
+  return fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+    method: "POST",
+    body: formData,
+  });
+}
+
+async function sendPhotoOnlyPost({ token, channelId, imagePath }) {
+  const formData = new FormData();
+  const imageBuffer = fs.readFileSync(imagePath);
+  const imageBlob = new Blob([imageBuffer], { type: "image/webp" });
+
+  formData.append("chat_id", channelId);
   formData.append("photo", imageBlob, path.basename(imagePath));
 
   return fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
@@ -579,11 +626,15 @@ async function main() {
 
     for (const car of carsToPost) {
       const post = await buildCarPost(car);
+      const captionLength = post.text.length;
+      const telegramMode = getTelegramPostMode(post);
 
       console.log(
         [
           `Would post car ID ${car.id}: ${car.title}`,
           `Source: ${post.source}`,
+          `Caption length: ${captionLength}`,
+          `Telegram post mode: ${telegramMode}`,
           JSON.stringify(post, null, 2),
           "",
           post.text,

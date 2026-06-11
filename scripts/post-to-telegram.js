@@ -208,7 +208,6 @@ function buildTemplateCarPost(car) {
   const carUrl = `${SITE_URL}/car/${car.id}`;
   const imagePaths = getLocalImagePaths(car);
   const imagePath = imagePaths[0] || getLocalImagePath(car);
-  const priceCny = formatCnyPrice(car.price);
   const priceRubNumber = calculateRussiaPrice(car.price);
   const priceRub = formatRubPrice(priceRubNumber);
   const title = car.modelName || car.title;
@@ -239,29 +238,29 @@ function buildTemplateCarPost(car) {
     highlights.push(
       "BMW выбирают за ощущение статуса, уверенную управляемость и более собранный характер в ежедневных поездках."
     );
-    reasons.push("• премиальный бренд с сильным визуальным образом и хорошей узнаваемостью");
+    reasons.push("• статусный внешний вид — машина выглядит дороже и увереннее в потоке");
     suitableFor.push("современный статусный автомобиль без лишней показности");
   } else if (brand === "toyota") {
     highlights.push(
       "Toyota — спокойный выбор для тех, кто ценит надёжность, ликвидность и понятные расходы на владение."
     );
-    reasons.push("• Toyota обычно выбирают за надёжность, ликвидность и предсказуемое обслуживание");
+    reasons.push("• спокойный выбор на каждый день: надёжность, ликвидность и понятные расходы");
     suitableFor.push("надёжный автомобиль для себя или семьи");
   } else {
     highlights.push(
       "Это вариант под заказ из Азии для тех, кому важны понятные исходные данные, свежий год и проверка перед покупкой."
     );
-    reasons.push("• есть понятные исходные данные по автомобилю до запроса");
+    reasons.push("• понятные исходные данные — легче принять решение без лишней суеты");
     suitableFor.push("автомобиль с прозрачными исходными данными");
   }
 
   if (/m\s*sport/i.test(`${title} ${car.title}`)) {
-    reasons.push("• версия M Sport добавляет более выразительный внешний вид и ощущение комплектации выше классом");
+    reasons.push("• M Sport добавляет выразительный вид и ощущение автомобиля выше классом");
     suitableFor.push("красивый автомобиль, который приятно видеть каждый день");
   }
 
   if (fuelConsumption) {
-    reasons.push(`• расход WLTC ${fuelConsumption} л/100 км помогает заранее оценить экономичность`);
+    reasons.push(`• расход WLTC ${fuelConsumption} л/100 км — меньше регулярных затрат на поездки`);
   }
 
   if (lowFuelConsumption) {
@@ -272,31 +271,31 @@ function buildTemplateCarPost(car) {
   }
 
   if (getUsefulValue(car.torqueNm || car.maxTorqueNm)) {
-    reasons.push(`• ${getUsefulValue(car.torqueNm || car.maxTorqueNm)} Н·м крутящего момента — хороший ориентир по тяге и динамике`);
+    reasons.push(`• ${getUsefulValue(car.torqueNm || car.maxTorqueNm)} Н·м — уверенная тяга для города и трассы`);
   }
 
   if (lowMileage) {
-    reasons.push(`• пробег ${car.mileage} выглядит аккуратным для своего года`);
+    reasons.push(`• пробег ${car.mileage} — приятный плюс для дальнейшей эксплуатации`);
     suitableFor.push("вариант с умеренным пробегом");
   } else if (car.mileage) {
-    reasons.push(`• пробег указан сразу: ${car.mileage}, проще оценить вариант до запроса`);
+    reasons.push(`• пробег указан сразу: ${car.mileage}, без лишних уточнений на старте`);
   }
 
   if (strongPrice) {
-    reasons.push(`• ориентир под ключ до 2 млн ₽: около ${formatShortPrice(priceRubNumber)}`);
+    reasons.push(`• цена под ключ около ${formatShortPrice(priceRubNumber)} — сильный аргумент для премиального бренда`);
     suitableFor.push("сильное предложение по цене под ключ");
   }
 
   if (hasUsefulValue(car.gearbox)) {
-    reasons.push(`• коробка передач: ${car.gearbox}`);
+    reasons.push(`• автоматическая коробка — комфортнее в ежедневном городском ритме`);
   }
 
   if (hasUsefulValue(car.driveType)) {
-    reasons.push(`• привод: ${car.driveType}`);
+    reasons.push(`• ${car.driveType} — понятное поведение в обычных поездках`);
   }
 
   if (engineParts.length > 0) {
-    reasons.push(`• двигатель: ${engineParts.join(" / ")}`);
+    reasons.push(`• двигатель ${engineParts.join(" / ")} — баланс динамики и повседневности`);
   }
 
   if (acceleration0100 || maxSpeed) {
@@ -323,20 +322,23 @@ function buildTemplateCarPost(car) {
 
   const text = [
     `🚘 ${title}`,
+    "━━━━━━━━━━━━",
     "",
     highlights.slice(0, 2).join(" "),
     `Год: ${car.year || "уточняется"}, пробег: ${car.mileage || "уточняется"}. Вариант для тех, кто хочет красивый, понятный и комфортный автомобиль под ключ.`,
     "",
-    "Подойдёт если вы ищете:",
+    "✨ Подойдёт если вы ищете:",
     ...Array.from(new Set(suitableFor)).slice(0, 3).map((item) => `• ${item}`),
     "",
-    "Почему этот вариант интересен:",
+    "🔥 Почему этот вариант интересен:",
     ...Array.from(new Set(reasons))
       .slice(0, 5)
       .map((item) => item.replace("хороший ориентир", "сильный плюс")),
     "",
-    `💰 Под ключ в РФ: ≈ ${priceRub}`,
-    `🇨🇳 Цена в Китае: ${priceCny}`,
+    "━━━━━━━━━━━━",
+    "💰 Цена",
+    `Под ключ в РФ: ≈ ${priceRub}`,
+    "━━━━━━━━━━━━",
     "",
     "📲 Смотреть авто:",
     carUrl,

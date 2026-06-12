@@ -83,8 +83,20 @@ function getCarLotNumber(title: string) {
   return title.match(/лот\s*№\s*(\d+)/i)?.[1] || "";
 }
 
+function getCarBrand(car: (typeof cars)[number]) {
+  const value = (car as { brand?: string }).brand;
+
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function getCarModel(car: (typeof cars)[number]) {
+  const value = (car as { model?: string }).model;
+
+  return typeof value === "string" ? value.trim() : "";
+}
+
 export default function Home() {
-  const [search, setSearch] = useState("");
+  const [selectedBrand, setSelectedBrand] = useState("");
   const [name, setName] = useState("");
 const [budget, setBudget] = useState("");
 const [carRequest, setCarRequest] = useState("");
@@ -92,7 +104,7 @@ const [phone, setPhone] = useState("");
 const [telegram, setTelegram] = useState("");
 const [comment, setComment] = useState("");
   const [selectedPrice, setSelectedPrice] = useState("");
-  const [selectedYear, setSelectedYear] = useState("");
+  const [selectedModel, setSelectedModel] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("");
   const [mobileMenu, setMobileMenu] = useState(false);
   const [failedImages, setFailedImages] = useState<string[]>([]);
@@ -134,18 +146,28 @@ const response = await fetch("/api/request", {
   }
 
 };
+  const brandOptions = Array.from(
+    new Set(cars.map(getCarBrand).filter(Boolean))
+  ).sort((a, b) => a.localeCompare(b, "ru"));
+  const modelOptions = Array.from(
+    new Set(
+      cars
+        .filter((car) => selectedBrand === "" || getCarBrand(car) === selectedBrand)
+        .map(getCarModel)
+        .filter(Boolean)
+    )
+  ).sort((a, b) => a.localeCompare(b, "ru"));
+
   const filteredCars = cars
     .filter((car) => {
-      const matchesSearch = car.title
-        .toLowerCase()
-        .includes(search.toLowerCase());
-      const matchesYear = selectedYear === "" || car.year === selectedYear;
+      const matchesBrand = selectedBrand === "" || getCarBrand(car) === selectedBrand;
+      const matchesModel = selectedModel === "" || getCarModel(car) === selectedModel;
       const matchesPrice =
         selectedPrice === "" || car.price <= Number(selectedPrice);
       const matchesCountry =
         selectedCountry === "" || car.country === selectedCountry;
 
-      return matchesSearch && matchesYear && matchesPrice && matchesCountry;
+      return matchesBrand && matchesModel && matchesPrice && matchesCountry;
     })
     .sort(
       (a, b) =>
@@ -430,63 +452,62 @@ const response = await fetch("/api/request", {
   "
 >
 
-  <input
-    type="text"
-    placeholder="Марка авто"
-    value={search}
-onChange={(e) => setSearch(e.target.value)}
+  <select
+    value={selectedBrand}
+    onChange={(e) => {
+      setSelectedBrand(e.target.value);
+      setSelectedModel("");
+    }}
     className="
       bg-zinc-900
       border
       border-white/20
-hover:border-yellow-400/60
-focus:border-yellow-400
-focus:shadow-lg
-focus:shadow-yellow-400/15
+      hover:border-yellow-400/60
+      focus:border-yellow-400
+      focus:shadow-lg
+      focus:shadow-yellow-400/15
       rounded-xl
       px-5
       py-4
       md:px-6
       text-white
       outline-none
-      focus:border-yellow-400
       transition
     "
-  />
+  >
+    <option value="">Марка авто</option>
+    {brandOptions.map((brand) => (
+      <option key={brand} value={brand}>
+        {brand}
+      </option>
+    ))}
+  </select>
 
   <select
-  value={selectedYear}
-onChange={(e) => setSelectedYear(e.target.value)}
+    value={selectedModel}
+    onChange={(e) => setSelectedModel(e.target.value)}
     className="
       bg-zinc-900
       border
       border-white/20
-hover:border-yellow-400/60
-focus:border-yellow-400
-focus:shadow-lg
-focus:shadow-yellow-400/15
+      hover:border-yellow-400/60
+      focus:border-yellow-400
+      focus:shadow-lg
+      focus:shadow-yellow-400/15
       rounded-xl
       px-5
       py-4
       md:px-6
       text-white
       outline-none
-      focus:border-yellow-400
     "
   >
-    <option value="">Все года</option>
-    <option>2026</option>
-<option>2025</option>
-<option>2024</option>
-<option>2023</option>
-<option>2022</option>
-<option>2021</option>
-<option>2020</option>
-<option>2019</option>
-<option>2018</option>
-<option>2017</option>
-<option>2016</option>
-<option>2015</option>
+    <option value="">Модель</option>
+    {modelOptions.map((model) => (
+      <option key={model} value={model}>
+        {model}
+      </option>
+    ))}
   </select>
 
   

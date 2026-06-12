@@ -2,7 +2,7 @@ const XLSX = require("xlsx");
 const fs = require("fs");
 
 const EXCEL_PATH = "./app/data/korex_latest.xlsx";
-const DEBUG_LIMIT = 21;
+const DEBUG_LIMIT = null;
 const FALLBACK_IMAGE = "/uploads/fallback.svg";
 
 const COLUMNS = {
@@ -100,14 +100,44 @@ function getYear(value) {
   return String(value || "").match(/\b(20\d{2})\b/)?.[1] || "";
 }
 
+function detectBrand(...values) {
+  const text = normalizeSpaces(values.filter(Boolean).join(" ")).toLowerCase();
+
+  if (text.includes("toyota")) return "Toyota";
+  if (text.includes("bmw")) return "BMW";
+
+  return "";
+}
+
+function detectModel(brand, ...values) {
+  const text = normalizeSpaces(values.filter(Boolean).join(" ")).toLowerCase();
+
+  if (brand === "Toyota") {
+    if (text.includes("corolla")) return "Corolla";
+    if (text.includes("rav4") || text.includes("rav 4")) return "RAV4";
+    if (text.includes("camry")) return "Camry";
+    if (text.includes("wildlander")) return "Wildlander";
+    if (text.includes("avalon")) return "Avalon";
+  }
+
+  if (brand === "BMW") {
+    if (/\bx2\b/.test(text)) return "X2";
+    if (/\bx1\b/.test(text)) return "X1";
+    if (/\b2\s*(series|серии|er)\b/.test(text) || /\b22[0-9]i\b/.test(text) || /\b218i\b/.test(text)) return "Series 2";
+    if (/\b1\s*(series|серии|er)\b/.test(text) || /\b12[0-9]i\b/.test(text) || /\b118i\b/.test(text)) return "Series 1";
+  }
+
+  return "";
+}
+
 function cleanTitle(value, fallbackYear) {
   const text = normalizeSpaces(value);
   const year = getYear(text) || getYear(fallbackYear);
   const beforeMileage = text.split(/,\s*\u043f\u0440\u043e\u0431\u0435\u0433/i)[0].trim();
-  const modelMatch = beforeMileage.match(/\bBMW\s+(.+?)(?:\s+20\d{2}|$)/i);
-  const model = modelMatch ? modelMatch[1].trim() : beforeMileage;
+  const brand = detectBrand(beforeMileage) || "BMW";
+  const model = detectModel(brand, beforeMileage) || beforeMileage.replace(new RegExp(`^${brand}\\s+`, "i"), "");
 
-  return normalizeSpaces(["BMW", model, year ? `${year} \u0433.` : ""].join(" "));
+  return normalizeSpaces([brand, model, year ? `${year} \u0433.` : ""].join(" "));
 }
 
 function cleanMileage(...values) {
@@ -161,12 +191,18 @@ function parseDimensions(dimensions) {
 const workbook = XLSX.readFile(EXCEL_PATH);
 const sheetName = workbook.SheetNames[0];
 const worksheet = workbook.Sheets[sheetName];
-const rows = XLSX.utils.sheet_to_json(worksheet).slice(0, DEBUG_LIMIT);
+const allRows = XLSX.utils.sheet_to_json(worksheet);
+const rows = DEBUG_LIMIT ? allRows.slice(0, DEBUG_LIMIT) : allRows;
 
 const cars = rows.map((car, index) => {
   const rawTitle = getCell(car, COLUMNS.title);
   const rawYear = getCell(car, COLUMNS.year);
   const rawMileage = getCell(car, COLUMNS.mileage);
+  const rawModelName = getCell(car, "modelName");
+  const rawManufacturer = getCell(car, "manufacturer");
+  const rawLink = getCell(car, COLUMNS.link);
+  const brand = getCell(car, "brand") || detectBrand(rawManufacturer, rawModelName, rawTitle, rawLink);
+  const model = getCell(car, "model") || detectModel(brand, rawModelName, rawTitle, rawLink);
   const fallbackImage = getCell(car, COLUMNS.photo);
   const localImages = getExistingLocalImages(index + 1);
   const parsedImages = parseImages(getCell(car, "images"), "");
@@ -187,7 +223,9 @@ const cars = rows.map((car, index) => {
   return {
     id: index + 1,
     title: cleanTitle(rawTitle, rawYear),
-    link: getCell(car, COLUMNS.link),
+    link: rawLink,
+    brand,
+    model,
     price: cleanNumber(getCell(car, COLUMNS.price)),
     delivery: 0,
     fee: 0,
@@ -196,8 +234,8 @@ const cars = rows.map((car, index) => {
     engine: getCell(car, COLUMNS.engine),
     volume: getCell(car, COLUMNS.volume),
     power: getCell(car, COLUMNS.power),
-    modelName: getCell(car, "modelName"),
-    manufacturer: getCell(car, "manufacturer"),
+    modelName: rawModelName,
+    manufacturer: rawManufacturer,
     energyType: getCell(car, "energyType"),
     engineFull: getCell(car, "engineFull"),
     gearbox: getCell(car, "gearbox"),

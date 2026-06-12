@@ -1,10 +1,12 @@
 const fs = require("fs");
 const path = require("path");
+const { spawnSync } = require("child_process");
 
 const ROOT_DIR = path.resolve(__dirname, "..");
 const ENV_PATH = path.join(ROOT_DIR, ".env.local");
 const CARS_PATH = path.join(ROOT_DIR, "app", "data", "cars.json");
 const POSTED_PATH = path.join(ROOT_DIR, "app", "data", "posted-cars.json");
+const BUILD_VIDEO_SCRIPT_PATH = path.join(ROOT_DIR, "scripts", "build-car-video.js");
 const SITE_URL = "https://www.autovector.pro";
 const CNY_TO_RUB = 10.5;
 const RUSSIA_DELIVERY_COST_RUB = 900000;
@@ -214,6 +216,51 @@ function getLocalVideoPath(car) {
   );
 
   return fs.existsSync(videoPath) ? videoPath : "";
+}
+
+function getExpectedVideoPath(car) {
+  return path.join(
+    ROOT_DIR,
+    "public",
+    "generated",
+    "videos",
+    `car-${car.id}.mp4`
+  );
+}
+
+function ensureVideoForCar(car) {
+  const videoPath = getExpectedVideoPath(car);
+  const videoExists = fs.existsSync(videoPath);
+
+  console.log(`Video exists: ${videoExists}`);
+
+  if (videoExists) {
+    return true;
+  }
+
+  console.log("Generating video...");
+
+  const result = spawnSync(
+    process.execPath,
+    [BUILD_VIDEO_SCRIPT_PATH, `--id=${car.id}`],
+    {
+      cwd: ROOT_DIR,
+      env: process.env,
+      encoding: "utf8",
+      stdio: "pipe",
+      windowsHide: true,
+    }
+  );
+
+  if (result.status === 0 && fs.existsSync(videoPath)) {
+    console.log("Video generated successfully");
+    return true;
+  }
+
+  console.error(result.stderr || result.stdout || "Video generation failed.");
+  console.log("Fallback to photo mode");
+
+  return false;
 }
 
 function buildTemplateCarPost(car) {
@@ -617,6 +664,8 @@ async function sendVideoPost({ token, channelId, videoPath }) {
 }
 
 async function postCar({ car }) {
+  ensureVideoForCar(car);
+
   const post = await buildCarPost(car);
   const response = await publishToTelegram(post);
   const data = await response.json().catch(() => ({}));

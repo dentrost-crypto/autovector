@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import cars from "./data/cars.json";
-import { settings } from "./data/settings";
+import rates from "./data/rates.json";
 
 const BROKEN_IMAGE_MARKERS = ["fallback", "undefined", "null"];
 const FALLBACK_IMAGE = "/uploads/fallback.svg";
@@ -62,6 +62,16 @@ function calculateRussiaPrice(priceCny: unknown) {
   return parsePriceNumber(priceCny) * CNY_TO_RUB + RUSSIA_DELIVERY_COST_RUB;
 }
 
+function getCarRubPrice(car: (typeof cars)[number]) {
+  const rawPrice = (car as { price: number | string }).price;
+
+  if (typeof rawPrice === "string" && rawPrice.includes("\u20bd")) {
+    return parsePriceNumber(rawPrice);
+  }
+
+  return calculateRussiaPrice(rawPrice);
+}
+
 function getCarDisplayTitle(title: string) {
   return title.replace(/\s*,?\s*лот\s*№\s*\d+/i, "").trim();
 }
@@ -95,6 +105,12 @@ function getCarModel(car: (typeof cars)[number]) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function getCarYear(car: (typeof cars)[number]) {
+  const year = Number((car as { year?: string | number }).year);
+
+  return Number.isInteger(year) ? year : 0;
+}
+
 export default function Home() {
   const [selectedBrand, setSelectedBrand] = useState("");
   const [name, setName] = useState("");
@@ -105,6 +121,7 @@ const [telegram, setTelegram] = useState("");
 const [comment, setComment] = useState("");
   const [selectedPrice, setSelectedPrice] = useState("");
   const [selectedModel, setSelectedModel] = useState("");
+  const [selectedYearRange, setSelectedYearRange] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("");
   const [mobileMenu, setMobileMenu] = useState(false);
   const [failedImages, setFailedImages] = useState<string[]>([]);
@@ -157,17 +174,53 @@ const response = await fetch("/api/request", {
         .filter(Boolean)
     )
   ).sort((a, b) => a.localeCompare(b, "ru"));
+  const currentYear = new Date().getFullYear();
+  const yearRanges = [
+    {
+      label: `${currentYear}\u2013${currentYear - 1}`,
+      min: currentYear - 1,
+      max: currentYear,
+    },
+    {
+      label: String(currentYear - 2),
+      min: currentYear - 2,
+      max: currentYear - 2,
+    },
+    {
+      label: `${currentYear - 3}\u2013${currentYear - 5}`,
+      min: currentYear - 5,
+      max: currentYear - 3,
+    },
+    {
+      label: `${currentYear - 6}\u2013${currentYear - 8}`,
+      min: currentYear - 8,
+      max: currentYear - 6,
+    },
+    {
+      label: `${currentYear - 9}\u2013${currentYear - 11}`,
+      min: currentYear - 11,
+      max: currentYear - 9,
+    },
+  ];
 
   const filteredCars = cars
     .filter((car) => {
       const matchesBrand = selectedBrand === "" || getCarBrand(car) === selectedBrand;
       const matchesModel = selectedModel === "" || getCarModel(car) === selectedModel;
+      const selectedRange = yearRanges.find((range) => range.label === selectedYearRange);
+      const carYear = getCarYear(car);
+      const matchesYear =
+        !selectedRange ||
+        (carYear >= selectedRange.min && carYear <= selectedRange.max);
       const matchesPrice =
-        selectedPrice === "" || car.price <= Number(selectedPrice);
+        selectedPrice === "" ||
+        (selectedPrice === "over-4000000"
+          ? getCarRubPrice(car) > 4000000
+          : getCarRubPrice(car) <= Number(selectedPrice));
       const matchesCountry =
         selectedCountry === "" || car.country === selectedCountry;
 
-      return matchesBrand && matchesModel && matchesPrice && matchesCountry;
+      return matchesBrand && matchesModel && matchesYear && matchesPrice && matchesCountry;
     })
     .sort(
       (a, b) =>
@@ -252,12 +305,12 @@ const response = await fetch("/api/request", {
     </a>
 
     <div className="text-lg text-yellow-400 font-semibold">
-      ¥ {settings.yuanRate}
+      ¥ {rates.CNY}
     </div>
 
 
     <div className="text-sm text-gray-300">
-      € {settings.euroRate}
+      € {rates.EUR}
     </div>
 
     <div className="flex flex-col text-sm leading-tight text-white">
@@ -337,11 +390,11 @@ const response = await fetch("/api/request", {
 
 
     <div className="text-sm text-gray-300">
-      ¥ {settings.yuanRate}
+      ¥ {rates.CNY}
     </div>
 
     <div className="text-sm text-gray-300">
-      € {settings.euroRate}
+      € {rates.EUR}
     </div>
 
     <div className="flex flex-col gap-2 text-base text-white">
@@ -510,7 +563,32 @@ const response = await fetch("/api/request", {
     ))}
   </select>
 
-  
+  <select
+    value={selectedYearRange}
+    onChange={(e) => setSelectedYearRange(e.target.value)}
+    className="
+      bg-zinc-900
+      border
+      border-white/20
+      hover:border-yellow-400/60
+      focus:border-yellow-400
+      focus:shadow-lg
+      focus:shadow-yellow-400/15
+      rounded-xl
+      px-5
+      py-4
+      md:px-6
+      text-white
+      outline-none
+    "
+  >
+    <option value="">Все года</option>
+    {yearRanges.map((range) => (
+      <option key={range.label} value={range.label}>
+        {range.label}
+      </option>
+    ))}
+  </select>
   
     <select
   value={selectedPrice}
@@ -533,11 +611,14 @@ const response = await fetch("/api/request", {
 >
 
   <option value="">Любая цена</option>
-  <option value="100000">до ¥100 000</option>
-  <option value="200000">до ¥200 000</option>
-  <option value="300000">до ¥300 000</option>
-  <option value="400000">до ¥400 000</option>
-  <option value="500000">до ¥500 000</option>
+  <option value="1200000">до 1.2 млн ₽</option>
+  <option value="1500000">до 1.5 млн ₽</option>
+  <option value="2000000">до 2 млн ₽</option>
+  <option value="2500000">до 2.5 млн ₽</option>
+  <option value="3000000">до 3 млн ₽</option>
+  <option value="3500000">до 3.5 млн ₽</option>
+  <option value="4000000">до 4 млн ₽</option>
+  <option value="over-4000000">свыше 4 млн ₽</option>
 
 </select>
 <select

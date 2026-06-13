@@ -3166,8 +3166,13 @@
     "bodyWidth": "1839 мм",
     "bodyHeight": "1673 мм",
     "country": "Китай",
-    "image": "/uploads/fallback.svg",
-    "images": [],
+    "image": "/uploads/cars/47/1.webp",
+    "images": [
+      "/uploads/cars/47/1.webp",
+      "/uploads/cars/47/2.webp",
+      "/uploads/cars/47/3.webp",
+      "/uploads/cars/47/4.webp"
+    ],
     "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/04/82894641/1775197682.6262.webp",
       "https://cn2.pa-server.ru/img/19/2026/04/82894641/1775197683.7291.webp",
@@ -3228,8 +3233,13 @@
     "bodyWidth": "1839 мм",
     "bodyHeight": "1673 мм",
     "country": "Китай",
-    "image": "/uploads/fallback.svg",
-    "images": [],
+    "image": "/uploads/cars/48/1.webp",
+    "images": [
+      "/uploads/cars/48/1.webp",
+      "/uploads/cars/48/2.webp",
+      "/uploads/cars/48/3.webp",
+      "/uploads/cars/48/4.webp"
+    ],
     "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/04/82896240/1775483102.0836.webp",
       "https://cn2.pa-server.ru/img/19/2026/04/82896240/1775483103.1251.webp",
@@ -3286,8 +3296,13 @@
     "bodyWidth": "1839 мм",
     "bodyHeight": "1673 мм",
     "country": "Китай",
-    "image": "/uploads/fallback.svg",
-    "images": [],
+    "image": "/uploads/cars/49/1.webp",
+    "images": [
+      "/uploads/cars/49/1.webp",
+      "/uploads/cars/49/2.webp",
+      "/uploads/cars/49/3.webp",
+      "/uploads/cars/49/4.webp"
+    ],
     "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/04/84157539/1775557863.2608.webp",
       "https://cn2.pa-server.ru/img/19/2026/04/84157539/1775557864.2365.webp",
@@ -3349,8 +3364,13 @@
     "bodyWidth": "1839 мм",
     "bodyHeight": "1673 мм",
     "country": "Китай",
-    "image": "/uploads/fallback.svg",
-    "images": [],
+    "image": "/uploads/cars/50/1.webp",
+    "images": [
+      "/uploads/cars/50/1.webp",
+      "/uploads/cars/50/2.webp",
+      "/uploads/cars/50/3.webp",
+      "/uploads/cars/50/4.webp"
+    ],
     "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/04/86896269/1777262165.2952.webp",
       "https://cn2.pa-server.ru/img/19/2026/04/86896269/1777262166.1395.webp",
@@ -3413,8 +3433,13 @@
     "bodyWidth": "1839 мм",
     "bodyHeight": "1673 мм",
     "country": "Китай",
-    "image": "/uploads/fallback.svg",
-    "images": [],
+    "image": "/uploads/cars/51/1.webp",
+    "images": [
+      "/uploads/cars/51/1.webp",
+      "/uploads/cars/51/2.webp",
+      "/uploads/cars/51/3.webp",
+      "/uploads/cars/51/4.webp"
+    ],
     "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/05/87920707/1777771026.0324.webp",
       "https://cn2.pa-server.ru/img/19/2026/05/87920707/1777771027.3958.webp",
@@ -3479,8 +3504,13 @@
     "bodyWidth": "1860 мм",
     "bodyHeight": "1665 мм",
     "country": "Китай",
-    "image": "/uploads/fallback.svg",
-    "images": [],
+    "image": "/uploads/cars/52/1.webp",
+    "images": [
+      "/uploads/cars/52/1.webp",
+      "/uploads/cars/52/2.webp",
+      "/uploads/cars/52/3.webp",
+      "/uploads/cars/52/4.webp"
+    ],
     "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/02/66251425/1770197892.836.webp",
       "https://cn2.pa-server.ru/img/19/2026/02/66251425/1770197894.836.webp",
@@ -3543,8 +3573,13 @@
     "bodyWidth": "1860 мм",
     "bodyHeight": "1660 мм",
     "country": "Китай",
-    "image": "/uploads/fallback.svg",
-    "images": [],
+    "image": "/uploads/cars/53/1.webp",
+    "images": [
+      "/uploads/cars/53/1.webp",
+      "/uploads/cars/53/2.webp",
+      "/uploads/cars/53/3.webp",
+      "/uploads/cars/53/4.webp"
+    ],
     "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/03/78025610/1773246661.8694.webp",
       "https://cn2.pa-server.ru/img/19/2026/03/78025610/1773246662.9984.webp",
@@ -3604,8 +3639,13 @@
     "bodyWidth": "1860 мм",
     "bodyHeight": "1660 мм",
     "country": "Китай",
-    "image": "/uploads/fallback.svg",
-    "images": [],
+    "image": "/uploads/cars/54/1.webp",
+    "images": [
+      "/uploads/cars/54/1.webp",
+      "/uploads/cars/54/2.webp",
+      "/uploads/cars/54/3.webp",
+      "/uploads/cars/54/4.webp"
+    ],
     "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/04/84698393/1775803442.9651.webp",
       "https://cn2.pa-server.ru/img/19/2026/04/84698393/1775803444.0445.webp",
@@ -3669,8 +3709,13 @@
     "bodyWidth": "1860 мм",
     "bodyHeight": "1660 мм",
     "country": "Китай",
-    "image": "/uploads/fallback.svg",
-    "images": [],
+    "image": "/uploads/cars/55/1.webp",
+    "images": [
+      "/uploads/cars/55/1.webp",
+      "/uploads/cars/55/2.webp",
+      "/uploads/cars/55/3.webp",
+      "/uploads/cars/55/4.webp"
+    ],
     "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/04/84698395/1775803442.9649.webp",
       "https://cn2.pa-server.ru/img/19/2026/04/84698395/1775803443.9491.webp",
@@ -3735,8 +3780,13 @@
     "bodyWidth": "1860 мм",
     "bodyHeight": "1660 мм",
     "country": "Китай",
-    "image": "/uploads/fallback.svg",
-    "images": [],
+    "image": "/uploads/cars/56/1.webp",
+    "images": [
+      "/uploads/cars/56/1.webp",
+      "/uploads/cars/56/2.webp",
+      "/uploads/cars/56/3.webp",
+      "/uploads/cars/56/4.webp"
+    ],
     "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/04/86172281/1776617161.9579.webp",
       "https://cn2.pa-server.ru/img/19/2026/04/86172281/1776617163.4602.webp",
@@ -3793,8 +3843,13 @@
     "bodyWidth": "1815 мм",
     "bodyHeight": "1462 мм",
     "country": "Китай",
-    "image": "/uploads/fallback.svg",
-    "images": [],
+    "image": "/uploads/cars/57/1.webp",
+    "images": [
+      "/uploads/cars/57/1.webp",
+      "/uploads/cars/57/2.webp",
+      "/uploads/cars/57/3.webp",
+      "/uploads/cars/57/4.webp"
+    ],
     "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/03/78311302/1773397262.6107.webp",
       "https://cn2.pa-server.ru/img/19/2026/03/78311302/1773397264.1996.webp",
@@ -3847,8 +3902,13 @@
     "bodyWidth": "1815 мм",
     "bodyHeight": "1478 мм",
     "country": "Китай",
-    "image": "/uploads/fallback.svg",
-    "images": [],
+    "image": "/uploads/cars/58/1.webp",
+    "images": [
+      "/uploads/cars/58/1.webp",
+      "/uploads/cars/58/2.webp",
+      "/uploads/cars/58/3.webp",
+      "/uploads/cars/58/4.webp"
+    ],
     "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/04/86659154/1776933062.0835.webp",
       "https://cn2.pa-server.ru/img/19/2026/04/86659154/1776933063.7756.webp",
@@ -3923,8 +3983,13 @@
     "bodyWidth": "1815 мм",
     "bodyHeight": "1462 мм",
     "country": "Китай",
-    "image": "/uploads/fallback.svg",
-    "images": [],
+    "image": "/uploads/cars/59/1.webp",
+    "images": [
+      "/uploads/cars/59/1.webp",
+      "/uploads/cars/59/2.webp",
+      "/uploads/cars/59/3.webp",
+      "/uploads/cars/59/4.webp"
+    ],
     "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/05/88691957/1778071387.785.webp",
       "https://cn2.pa-server.ru/img/19/2026/05/88691957/1778071388.7209.webp",
@@ -3992,8 +4057,13 @@
     "bodyWidth": "1815 мм",
     "bodyHeight": "1478 мм",
     "country": "Китай",
-    "image": "/uploads/fallback.svg",
-    "images": [],
+    "image": "/uploads/cars/60/1.webp",
+    "images": [
+      "/uploads/cars/60/1.webp",
+      "/uploads/cars/60/2.webp",
+      "/uploads/cars/60/3.webp",
+      "/uploads/cars/60/4.webp"
+    ],
     "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/05/88692430/1778071567.3706.webp",
       "https://cn2.pa-server.ru/img/19/2026/05/88692430/1778071568.5449.webp",
@@ -4060,8 +4130,13 @@
     "bodyWidth": "1815 мм",
     "bodyHeight": "1462 мм",
     "country": "Китай",
-    "image": "/uploads/fallback.svg",
-    "images": [],
+    "image": "/uploads/cars/61/1.webp",
+    "images": [
+      "/uploads/cars/61/1.webp",
+      "/uploads/cars/61/2.webp",
+      "/uploads/cars/61/3.webp",
+      "/uploads/cars/61/4.webp"
+    ],
     "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/05/88692761/1778071806.9998.webp",
       "https://cn2.pa-server.ru/img/19/2026/05/88692761/1778071808.5401.webp",
@@ -4121,8 +4196,13 @@
     "bodyWidth": "1806 мм",
     "bodyHeight": "1474 мм",
     "country": "Китай",
-    "image": "/uploads/fallback.svg",
-    "images": [],
+    "image": "/uploads/cars/62/1.webp",
+    "images": [
+      "/uploads/cars/62/1.webp",
+      "/uploads/cars/62/2.webp",
+      "/uploads/cars/62/3.webp",
+      "/uploads/cars/62/4.webp"
+    ],
     "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/03/79851003/1773933961.8829.webp",
       "https://cn2.pa-server.ru/img/19/2026/03/79851003/1773933963.2847.webp",
@@ -4195,8 +4275,13 @@
     "bodyWidth": "1806 мм",
     "bodyHeight": "1474 мм",
     "country": "Китай",
-    "image": "/uploads/fallback.svg",
-    "images": [],
+    "image": "/uploads/cars/63/1.webp",
+    "images": [
+      "/uploads/cars/63/1.webp",
+      "/uploads/cars/63/2.webp",
+      "/uploads/cars/63/3.webp",
+      "/uploads/cars/63/4.webp"
+    ],
     "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/04/83680865/1775394002.0947.webp",
       "https://cn2.pa-server.ru/img/19/2026/04/83680865/1775394002.9046.webp",
@@ -4260,8 +4345,13 @@
     "bodyWidth": "1806 мм",
     "bodyHeight": "1474 мм",
     "country": "Китай",
-    "image": "/uploads/fallback.svg",
-    "images": [],
+    "image": "/uploads/cars/64/1.webp",
+    "images": [
+      "/uploads/cars/64/1.webp",
+      "/uploads/cars/64/2.webp",
+      "/uploads/cars/64/3.webp",
+      "/uploads/cars/64/4.webp"
+    ],
     "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/04/84669988/1775785382.0217.webp",
       "https://cn2.pa-server.ru/img/19/2026/04/84669988/1775785383.0557.webp",
@@ -4321,8 +4411,13 @@
     "bodyWidth": "1806 мм",
     "bodyHeight": "1474 мм",
     "country": "Китай",
-    "image": "/uploads/fallback.svg",
-    "images": [],
+    "image": "/uploads/cars/65/1.webp",
+    "images": [
+      "/uploads/cars/65/1.webp",
+      "/uploads/cars/65/2.webp",
+      "/uploads/cars/65/3.webp",
+      "/uploads/cars/65/4.webp"
+    ],
     "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/04/84671271/1775785922.0038.webp",
       "https://cn2.pa-server.ru/img/19/2026/04/84671271/1775785923.2876.webp",
@@ -4386,8 +4481,13 @@
     "bodyWidth": "1806 мм",
     "bodyHeight": "1474 мм",
     "country": "Китай",
-    "image": "/uploads/fallback.svg",
-    "images": [],
+    "image": "/uploads/cars/66/1.webp",
+    "images": [
+      "/uploads/cars/66/1.webp",
+      "/uploads/cars/66/2.webp",
+      "/uploads/cars/66/3.webp",
+      "/uploads/cars/66/4.webp"
+    ],
     "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/04/85157618/1776045302.1999.webp",
       "https://cn2.pa-server.ru/img/19/2026/04/85157618/1776045302.9983.webp",
@@ -4447,8 +4547,13 @@
     "bodyWidth": "1836 мм",
     "bodyHeight": "1469 мм",
     "country": "Китай",
-    "image": "/uploads/fallback.svg",
-    "images": [],
+    "image": "/uploads/cars/67/1.webp",
+    "images": [
+      "/uploads/cars/67/1.webp",
+      "/uploads/cars/67/2.webp",
+      "/uploads/cars/67/3.webp",
+      "/uploads/cars/67/4.webp"
+    ],
     "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/05/87710922/1777636385.9617.webp",
       "https://cn2.pa-server.ru/img/19/2026/05/87710922/1777636387.0897.webp",
@@ -4501,8 +4606,13 @@
     "bodyWidth": "1836 мм",
     "bodyHeight": "1469 мм",
     "country": "Китай",
-    "image": "/uploads/fallback.svg",
-    "images": [],
+    "image": "/uploads/cars/68/1.webp",
+    "images": [
+      "/uploads/cars/68/1.webp",
+      "/uploads/cars/68/2.webp",
+      "/uploads/cars/68/3.webp",
+      "/uploads/cars/68/4.webp"
+    ],
     "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/05/88220352/1777892587.0809.webp",
       "https://cn2.pa-server.ru/img/19/2026/05/88220352/1777892588.3098.webp",
@@ -4569,8 +4679,13 @@
     "bodyWidth": "1836 мм",
     "bodyHeight": "1469 мм",
     "country": "Китай",
-    "image": "/uploads/fallback.svg",
-    "images": [],
+    "image": "/uploads/cars/69/1.webp",
+    "images": [
+      "/uploads/cars/69/1.webp",
+      "/uploads/cars/69/2.webp",
+      "/uploads/cars/69/3.webp",
+      "/uploads/cars/69/4.webp"
+    ],
     "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/05/89783276/1778802908.8676.webp",
       "https://cn2.pa-server.ru/img/19/2026/05/89783276/1778802910.2344.webp",
@@ -4633,8 +4748,13 @@
     "bodyWidth": "1836 мм",
     "bodyHeight": "1469 мм",
     "country": "Китай",
-    "image": "/uploads/fallback.svg",
-    "images": [],
+    "image": "/uploads/cars/70/1.webp",
+    "images": [
+      "/uploads/cars/70/1.webp",
+      "/uploads/cars/70/2.webp",
+      "/uploads/cars/70/3.webp",
+      "/uploads/cars/70/4.webp"
+    ],
     "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/05/89783280/1778802908.8765.webp",
       "https://cn2.pa-server.ru/img/19/2026/05/89783280/1778802910.3572.webp",
@@ -4698,8 +4818,13 @@
     "bodyWidth": "1836 мм",
     "bodyHeight": "1469 мм",
     "country": "Китай",
-    "image": "/uploads/fallback.svg",
-    "images": [],
+    "image": "/uploads/cars/71/1.webp",
+    "images": [
+      "/uploads/cars/71/1.webp",
+      "/uploads/cars/71/2.webp",
+      "/uploads/cars/71/3.webp",
+      "/uploads/cars/71/4.webp"
+    ],
     "remoteImages": [
       "https://cn2.pa-server.ru/img/19/2026/05/89942992/1778934368.2887.webp",
       "https://cn2.pa-server.ru/img/19/2026/05/89942992/1778934370.1136.webp",

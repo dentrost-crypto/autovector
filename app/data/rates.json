@@ -1,6 +1,6 @@
 {
-  "CNY": 11.4,
-  "EUR": 98.7,
-  "source": "fallback",
-  "updatedAt": null
+  "CNY": 10.6064,
+  "EUR": 82.9743,
+  "source": "https://www.cbr.ru/scripts/XML_daily.asp",
+  "updatedAt": "2026-06-13T08:50:52.182Z"
 }

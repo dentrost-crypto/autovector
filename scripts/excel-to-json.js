@@ -104,6 +104,7 @@ function detectBrand(...values) {
   const text = normalizeSpaces(values.filter(Boolean).join(" ")).toLowerCase();
 
   if (text.includes("toyota")) return "Toyota";
+  if (text.includes("volkswagen")) return "Volkswagen";
   if (text.includes("bmw")) return "BMW";
 
   return "";
@@ -118,6 +119,14 @@ function detectModel(brand, ...values) {
     if (text.includes("camry")) return "Camry";
     if (text.includes("wildlander")) return "Wildlander";
     if (text.includes("avalon")) return "Avalon";
+  }
+
+  if (brand === "Volkswagen") {
+    if (text.includes("tiguan-l") || text.includes("tiguan l")) return "Tiguan L";
+    if (text.includes("tayron")) return "Tayron";
+    if (text.includes("bora")) return "Bora";
+    if (text.includes("lavida")) return "Lavida";
+    if (text.includes("passat")) return "Passat";
   }
 
   if (brand === "BMW") {

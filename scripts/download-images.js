@@ -6,6 +6,9 @@ const uploadsRoot = path.join(process.cwd(), "public", "uploads", "cars");
 const legacyUploadsRoot = path.join(process.cwd(), "public", "uploads");
 const fallbackImage = "/uploads/fallback.svg";
 const MAX_LOCAL_IMAGES = 4;
+const DOWNLOAD_BRAND = process.env.DOWNLOAD_BRAND || "";
+const DOWNLOAD_ID_FROM = Number(process.env.DOWNLOAD_ID_FROM || 0);
+const DOWNLOAD_ID_TO = Number(process.env.DOWNLOAD_ID_TO || 0);
 
 const imageRequestHeaders = {
   "User-Agent":
@@ -31,6 +34,22 @@ function getRemoteImageSources(car) {
   ].filter(isRemoteImageUrl);
 
   return Array.from(new Set(sources.map((source) => source.trim())));
+}
+
+function shouldProcessCar(car) {
+  if (DOWNLOAD_BRAND && car.brand !== DOWNLOAD_BRAND) {
+    return false;
+  }
+
+  if (DOWNLOAD_ID_FROM > 0 && Number(car.id) < DOWNLOAD_ID_FROM) {
+    return false;
+  }
+
+  if (DOWNLOAD_ID_TO > 0 && Number(car.id) > DOWNLOAD_ID_TO) {
+    return false;
+  }
+
+  return true;
 }
 
 async function getExistingLocalImages(car) {
@@ -153,8 +172,15 @@ async function main() {
 
   const cars = JSON.parse(await fs.readFile(carsPath, "utf8"));
   const updatedCars = [];
+  let processedCount = 0;
 
   for (const car of cars) {
+    if (!shouldProcessCar(car)) {
+      updatedCars.push(car);
+      continue;
+    }
+
+    processedCount += 1;
     updatedCars.push(await updateCarImages(car));
   }
 
@@ -165,6 +191,7 @@ async function main() {
   ).length;
 
   console.log(`Cars with local images: ${readyCount}/${updatedCars.length}`);
+  console.log(`Processed cars: ${processedCount}/${updatedCars.length}`);
 }
 
 main().catch((error) => {

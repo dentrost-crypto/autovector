@@ -430,8 +430,7 @@ const response = await fetch("/api/request", {
 <section
   className="
     relative
-    min-h-[560px]
-    md:min-h-[600px]
+    min-h-[90vh]
     flex
     items-center
     px-6
@@ -442,14 +441,15 @@ const response = await fetch("/api/request", {
 
         {/* BACKGROUND */}
         <img
-          src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=2000&auto=format&fit=crop"
-          alt="car"
+          src="/uploads/cars/21/1.webp"
+          alt=""
           className="
             absolute
             inset-0
             w-full
             h-full
             object-cover
+            object-[62%_center]
             autovector-soft-zoom
           "
         />
@@ -459,38 +459,123 @@ const response = await fetch("/api/request", {
           className="
             absolute
             inset-0
-            bg-black/40
-            md:bg-black/52
+            bg-[linear-gradient(90deg,rgba(0,0,0,0.78)_0%,rgba(0,0,0,0.50)_38%,rgba(0,0,0,0.18)_100%)]
           "
         />
 
-        {/* CONTENT */}
-        <div className="relative z-10 max-w-3xl">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-black/10" />
 
-          <h2 className="text-[2.55rem] md:text-7xl font-bold leading-[1.08] md:leading-tight mb-5 md:mb-8">
-            {"\u0410\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u0438 \u0438\u0437 \u041a\u0438\u0442\u0430\u044f, \u041a\u043e\u0440\u0435\u0438 \u0438 \u042f\u043f\u043e\u043d\u0438\u0438"}
+        {/* CONTENT */}
+        <div className="relative z-10 max-w-5xl autovector-hero-reveal">
+
+          <p className="mb-6 text-xs font-semibold uppercase tracking-[0.28em] text-yellow-300/90 md:text-sm">
+            AutoVector
+          </p>
+
+          <h2 className="max-w-4xl text-[2.8rem] font-semibold leading-[0.98] md:text-7xl md:leading-[0.96]">
+            {"\u0410\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u0438 \u0438\u0437 \u041a\u043e\u0440\u0435\u0438, \u041a\u0438\u0442\u0430\u044f \u0438 \u042f\u043f\u043e\u043d\u0438\u0438 \u0431\u0435\u0437 \u0440\u0438\u0441\u043a\u0430 \u0438 \u043f\u0435\u0440\u0435\u043f\u043b\u0430\u0442"}
           </h2>
 
-          <p className="text-lg text-gray-200 mb-3 md:hidden">
-            {"\u0410\u0432\u0442\u043e \u043f\u043e\u0434 \u0437\u0430\u043a\u0430\u0437 \u043d\u0430\u043f\u0440\u044f\u043c\u0443\u044e \u0438\u0437 \u0410\u0437\u0438\u0438"}
+          <p className="mt-8 max-w-2xl text-lg leading-relaxed text-white/82 md:text-2xl md:leading-snug">
+            {"\u041c\u044b \u043d\u0430\u0445\u043e\u0434\u0438\u043c, \u043f\u0440\u043e\u0432\u0435\u0440\u044f\u0435\u043c \u0438 \u0434\u043e\u0441\u0442\u0430\u0432\u043b\u044f\u0435\u043c \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u0438 \u043f\u043e\u0434 \u043a\u043b\u044e\u0447 \u043f\u043e \u0432\u0441\u0435\u0439 \u0420\u043e\u0441\u0441\u0438\u0438."}
           </p>
 
-          <p className="mb-8 text-sm font-semibold text-white/80 md:hidden">
-            {"\u041f\u0440\u043e\u0432\u0435\u0440\u044f\u0435\u043c \u0430\u0432\u0442\u043e \u043f\u0435\u0440\u0435\u0434 \u043f\u043e\u043a\u0443\u043f\u043a\u043e\u0439"}
-          </p>
+          <div className="mt-12 flex flex-col gap-4 sm:flex-row">
+            <a
+              href="#request-form"
+              className="inline-flex items-center justify-center rounded-xl bg-yellow-400 px-7 py-4 text-base font-bold text-black shadow-2xl shadow-yellow-400/15 transition duration-300 hover:bg-yellow-300 hover:shadow-yellow-400/25 md:px-9"
+            >
+              {"\u041f\u043e\u0434\u043e\u0431\u0440\u0430\u0442\u044c \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044c"}
+            </a>
 
-          <p className="hidden text-xl text-gray-300 mb-10 md:block">
-            {"\u041f\u043e\u0434\u0431\u043e\u0440, \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0438 \u0434\u043e\u0441\u0442\u0430\u0432\u043a\u0430 \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u0435\u0439 \u043d\u0430\u043f\u0440\u044f\u043c\u0443\u044e \u0441 \u0437\u0430\u0440\u0443\u0431\u0435\u0436\u043d\u044b\u0445 \u043f\u043b\u043e\u0449\u0430\u0434\u043e\u043a."}
-          </p>
+            <a
+              href="#catalog"
+              className="inline-flex items-center justify-center rounded-xl border border-white/25 bg-white/8 px-7 py-4 text-base font-semibold text-white backdrop-blur-md transition duration-300 hover:border-white/45 hover:bg-white/14 md:px-9"
+            >
+              {"\u041f\u043e\u0441\u043c\u043e\u0442\u0440\u0435\u0442\u044c \u043a\u0430\u0442\u0430\u043b\u043e\u0433"}
+            </a>
+          </div>
 
+          <div className="mt-12 grid gap-3 text-sm font-medium text-white/78 sm:grid-cols-2 md:flex md:flex-wrap md:gap-6">
+            <span>{"\u2713 \u041f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0438\u0441\u0442\u043e\u0440\u0438\u0438"}</span>
+            <span>{"\u2713 \u0424\u043e\u0442\u043e \u0434\u043e \u043f\u043e\u043a\u0443\u043f\u043a\u0438"}</span>
+            <span>{"\u2713 \u041f\u043e\u043b\u043d\u043e\u0435 \u0441\u043e\u043f\u0440\u043e\u0432\u043e\u0436\u0434\u0435\u043d\u0438\u0435"}</span>
+            <span>{"\u2713 \u0414\u043e\u0441\u0442\u0430\u0432\u043a\u0430 \u043f\u043e \u0420\u0424"}</span>
+          </div>
+        </div>
+      </section>
 
+      {/* TRUST */}
+      <section
+        className="
+          relative
+          min-h-[85vh]
+          overflow-hidden
+          bg-[radial-gradient(circle_at_top_left,rgba(250,204,21,0.10),transparent_32%),linear-gradient(135deg,#050505_0%,#111111_48%,#050505_100%)]
+        "
+      >
+        <div className="grid min-h-[85vh] w-full items-stretch gap-12 pl-6 md:pl-10 lg:grid-cols-[0.33fr_0.67fr] lg:gap-16">
+          <div className="flex max-w-xl flex-col justify-center py-20 autovector-hero-reveal md:py-28 lg:pl-0">
+            <p className="mb-6 text-xs font-semibold uppercase tracking-[0.3em] text-yellow-300/90 md:text-sm">
+              {"\u0421\u041e\u041f\u0420\u041e\u0412\u041e\u0416\u0414\u0415\u041d\u0418\u0415 \u041f\u041e\u041a\u0423\u041f\u041a\u0418"}
+            </p>
 
+            <h3 className="max-w-xl text-4xl font-semibold leading-[1.08] text-white md:text-4xl xl:text-5xl xl:leading-[1.04]">
+              {"\u041c\u044b \u0441\u043e\u043f\u0440\u043e\u0432\u043e\u0436\u0434\u0430\u0435\u043c \u043f\u043e\u043a\u0443\u043f\u043a\u0443"}
+              <br />
+              {"\u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044f \u043f\u043e\u0434 \u043a\u043b\u044e\u0447"}
+            </h3>
+
+            <p className="mt-7 max-w-2xl text-lg leading-relaxed text-white/70 md:text-xl">
+              {"AutoVector \u043f\u043e\u043c\u043e\u0433\u0430\u0435\u0442 \u043f\u043e\u0434\u043e\u0431\u0440\u0430\u0442\u044c, \u043f\u0440\u043e\u0432\u0435\u0440\u0438\u0442\u044c, \u0432\u044b\u043a\u0443\u043f\u0438\u0442\u044c \u0438 \u0434\u043e\u0441\u0442\u0430\u0432\u0438\u0442\u044c \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044c \u0438\u0437 \u041a\u043e\u0440\u0435\u0438, \u041a\u0438\u0442\u0430\u044f \u0438\u043b\u0438 \u042f\u043f\u043e\u043d\u0438\u0438 \u0432 \u0432\u0430\u0448 \u0433\u043e\u0440\u043e\u0434."}
+            </p>
+
+            <div className="mt-12 grid grid-cols-2 gap-x-12 gap-y-10 border-y border-white/10 py-10 md:gap-x-16">
+              {[
+                ["200+", "\u043f\u043e\u0434\u043e\u0431\u0440\u0430\u043d\u043d\u044b\u0445 \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u0435\u0439"],
+                ["3 \u0441\u0442\u0440\u0430\u043d\u044b", "\u043f\u043e\u0438\u0441\u043a\u0430"],
+                ["100%", "\u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u043f\u0435\u0440\u0435\u0434 \u043f\u043e\u043a\u0443\u043f\u043a\u043e\u0439"],
+                ["24/7", "\u0441\u043e\u043f\u0440\u043e\u0432\u043e\u0436\u0434\u0435\u043d\u0438\u0435 \u043a\u043b\u0438\u0435\u043d\u0442\u0430"],
+              ].map(([value, label]) => (
+                <div key={value}>
+                  <p className="text-4xl font-semibold tracking-tight text-white md:text-5xl">
+                    {value}
+                  </p>
+                  <p className="mt-4 max-w-36 text-sm leading-relaxed text-white/55">
+                    {label}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <p className="mt-10 max-w-2xl text-lg leading-relaxed text-white/72">
+              {"\u0412\u044b \u043d\u0435 \u043e\u0441\u0442\u0430\u0435\u0442\u0435\u0441\u044c \u043e\u0434\u0438\u043d \u043d\u0430 \u043e\u0434\u0438\u043d \u0441 \u0430\u0443\u043a\u0446\u0438\u043e\u043d\u043e\u043c, \u043f\u0440\u043e\u0434\u0430\u0432\u0446\u043e\u043c, \u0434\u043e\u043a\u0443\u043c\u0435\u043d\u0442\u0430\u043c\u0438 \u0438 \u043b\u043e\u0433\u0438\u0441\u0442\u0438\u043a\u043e\u0439. \u041c\u044b \u0432\u0435\u0434\u0451\u043c \u043f\u0440\u043e\u0446\u0435\u0441\u0441 \u043e\u0442 \u043f\u0435\u0440\u0432\u043e\u0433\u043e \u043f\u043e\u0434\u0431\u043e\u0440\u0430 \u0434\u043e \u043f\u0435\u0440\u0435\u0434\u0430\u0447\u0438 \u043a\u043b\u044e\u0447\u0435\u0439."}
+            </p>
+
+            <a
+              href="#request-form"
+              className="mt-10 inline-flex items-center justify-center rounded-xl bg-yellow-400 px-8 py-4 text-base font-bold text-black shadow-2xl shadow-yellow-400/10 transition duration-300 hover:bg-yellow-300 hover:shadow-yellow-400/20"
+            >
+              {"\u041e\u0431\u0441\u0443\u0434\u0438\u0442\u044c \u043f\u043e\u0434\u0431\u043e\u0440"}
+            </a>
+          </div>
+
+          <div className="relative min-h-[560px] w-full overflow-hidden bg-zinc-950 lg:min-h-[85vh] xl:min-h-[820px]">
+            {/* Reserve trust image: https://www.chase.com/content/services/rendition/image.medium.jpg/unified-assets/photography/articles/education-center/auto/buying/seo-what-to-know-about-out-the-door-price-101025.jpg */}
+            <img
+              src="https://images-porsche.imgix.net/-/media/44C12A2B7BB94DF1A547ED331BDAEA47_8CC8227F3FBF4C76A7C1CEF1DEB76A71_017-text-media-content_4-3_1440x1080_defaultmobile_PS24DDBID0002_EU?auto=format&crop=focalpoint&q=70&w=2200"
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover object-[55%_center]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/10 via-transparent to-black/5" />
+            <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/55 to-transparent" />
+          </div>
         </div>
       </section>
 
       {/* CARS */}
       {/* CARS */}
-<section className="px-10 py-20">
+<section id="catalog" className="px-10 py-20">
 
   <h3 className="text-4xl font-bold mb-10">
     Автомобили в наличии

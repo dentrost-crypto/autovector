@@ -39,15 +39,32 @@ body {
   }
 }
 
+@keyframes autovector-hero-reveal {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .autovector-soft-zoom {
     animation: autovector-soft-zoom 22s ease-in-out infinite alternate;
     will-change: transform;
   }
+
+  .autovector-hero-reveal {
+    animation: autovector-hero-reveal 900ms ease-out both;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .autovector-soft-zoom {
+  .autovector-soft-zoom,
+  .autovector-hero-reveal {
     animation: none;
     transform: none;
     transition: none;

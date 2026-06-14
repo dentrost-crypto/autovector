@@ -238,7 +238,7 @@ export default function CarPage() {
   const formattedRussiaPrice = formatRubPrice(calculateRussiaPrice(car.price));
   const displayTitle = getCarDisplayTitle(car.title);
   const lotNumber = getCarLotNumber(car.title);
-  const carImages = getCarImages(car).slice(0, 4);
+  const carImages = getCarImages(car).slice(0, 10);
   const mainImage =
     selectedImage && carImages.includes(selectedImage)
       ? selectedImage

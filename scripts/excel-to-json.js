@@ -85,7 +85,7 @@ function parseImages(value, fallbackImage) {
 function getExistingLocalImages(carId) {
   const localImages = [];
 
-  for (let index = 1; index <= 4; index += 1) {
+  for (let index = 1; index <= 10; index += 1) {
     const publicPath = `/uploads/cars/${carId}/${index}.webp`;
 
     if (fs.existsSync(`./public${publicPath}`)) {
@@ -105,6 +105,7 @@ function detectBrand(...values) {
 
   if (text.includes("toyota")) return "Toyota";
   if (text.includes("volkswagen")) return "Volkswagen";
+  if (text.includes("honda")) return "Honda";
   if (text.includes("bmw")) return "BMW";
 
   return "";
@@ -127,6 +128,14 @@ function detectModel(brand, ...values) {
     if (text.includes("bora")) return "Bora";
     if (text.includes("lavida")) return "Lavida";
     if (text.includes("passat")) return "Passat";
+  }
+
+  if (brand === "Honda") {
+    if (text.includes("civic")) return "Civic";
+    if (text.includes("cr-v") || text.includes("crv") || text.includes("cr v")) return "CR-V";
+    if (text.includes("accord")) return "Accord";
+    if (text.includes("style")) return "Style";
+    if (text.includes("haoying")) return "Haoying";
   }
 
   if (brand === "BMW") {

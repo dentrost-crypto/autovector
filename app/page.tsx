@@ -441,7 +441,7 @@ const response = await fetch("/api/request", {
 
         {/* BACKGROUND */}
         <img
-          src="/uploads/cars/21/1.webp"
+          src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2400&auto=format&fit=crop"
           alt=""
           className="
             absolute

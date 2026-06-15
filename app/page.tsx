@@ -111,6 +111,35 @@ function getCarYear(car: (typeof cars)[number]) {
   return Number.isInteger(year) ? year : 0;
 }
 
+function diversifyCars(carList: (typeof cars)[number][]) {
+  const groups = new Map<string, (typeof cars)[number][]>();
+
+  carList.forEach((car) => {
+    const key = `${getCarBrand(car) || "brand"}-${getCarModel(car) || getCarModelTitle(car.title)}`;
+    groups.set(key, [...(groups.get(key) || []), car]);
+  });
+
+  const result: (typeof cars)[number][] = [];
+  let buckets = Array.from(groups.entries())
+    .map(([key, items]) => ({ key, items }))
+    .sort((a, b) => b.items.length - a.items.length);
+
+  while (buckets.length > 0) {
+    buckets.forEach((bucket) => {
+      const car = bucket.items.shift();
+      if (car) {
+        result.push(car);
+      }
+    });
+
+    buckets = buckets
+      .filter((bucket) => bucket.items.length > 0)
+      .sort((a, b) => b.items.length - a.items.length);
+  }
+
+  return result;
+}
+
 export default function Home() {
   const [selectedBrand, setSelectedBrand] = useState("");
   const [name, setName] = useState("");
@@ -227,6 +256,12 @@ const response = await fetch("/api/request", {
         Number(hasUsableImages(b, failedImages)) -
         Number(hasUsableImages(a, failedImages))
     );
+  const carsWithImages = filteredCars.filter((car) => hasUsableImages(car, failedImages));
+  const carsWithoutImages = filteredCars.filter((car) => !hasUsableImages(car, failedImages));
+  const catalogCars = [
+    ...diversifyCars(carsWithImages),
+    ...diversifyCars(carsWithoutImages),
+  ].slice(0, 20);
   const handleCardImageError = (image: string) => {
     if (image === FALLBACK_IMAGE) {
       return;
@@ -573,11 +608,105 @@ const response = await fetch("/api/request", {
         </div>
       </section>
 
-      {/* CARS */}
-      {/* CARS */}
-<section id="catalog" className="px-10 py-20">
+      {/* LIFESTYLE */}
+      <section className="bg-[#f5f3ef] px-6 py-12 text-zinc-950 md:px-10 md:py-16">
+        <div className="w-full">
+          <div className="mb-6 max-w-3xl md:mb-7">
+            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-zinc-500 md:text-sm">
+              AUTO VECTOR SELECTION
+            </p>
+            <h3 className="text-3xl font-semibold leading-[1.06] tracking-[-0.02em] md:text-5xl md:leading-[1.02]">
+              {"\u041f\u043e\u0434\u0431\u0435\u0440\u0438\u0442\u0435 \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044c \u043f\u043e\u0434 \u0441\u0432\u043e\u0439 \u043e\u0431\u0440\u0430\u0437 \u0436\u0438\u0437\u043d\u0438"}
+            </h3>
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-zinc-600 md:text-lg">
+              {"\u041c\u044b \u043d\u0430\u0439\u0434\u0451\u043c \u0438 \u0434\u043e\u0441\u0442\u0430\u0432\u0438\u043c \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044c, \u043a\u043e\u0442\u043e\u0440\u044b\u0439 \u0441\u043e\u043e\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u0443\u0435\u0442 \u0432\u0430\u0448\u0435\u043c\u0443 \u0441\u0442\u0438\u043b\u044e \u0436\u0438\u0437\u043d\u0438, \u0437\u0430\u0434\u0430\u0447\u0430\u043c \u0438 \u0431\u044e\u0434\u0436\u0435\u0442\u0443."}
+            </p>
+          </div>
 
-  <h3 className="text-4xl font-bold mb-10">
+          <div className="grid gap-5 md:grid-cols-3 xl:grid-cols-5">
+            {[
+              {
+                title: "SUV",
+                text: "\u0414\u043b\u044f \u043f\u0443\u0442\u0435\u0448\u0435\u0441\u0442\u0432\u0438\u0439, \u0443\u0432\u0435\u0440\u0435\u043d\u043d\u043e\u0441\u0442\u0438 \u0438 \u0434\u043e\u0440\u043e\u0433 \u0431\u0435\u0437 \u043e\u0433\u0440\u0430\u043d\u0438\u0447\u0435\u043d\u0438\u0439.",
+                cta: "\u041f\u043e\u0434\u043e\u0431\u0440\u0430\u0442\u044c SUV",
+                image: "/lifestyle/suv-rav4-card.jpg",
+                position: "object-[55%_center]",
+              },
+              {
+                title: "\u0411\u0438\u0437\u043d\u0435\u0441-\u043a\u043b\u0430\u0441\u0441",
+                text: "\u0410\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044c, \u043a\u043e\u0442\u043e\u0440\u044b\u0439 \u043f\u043e\u0434\u0447\u0451\u0440\u043a\u0438\u0432\u0430\u0435\u0442 \u0441\u0442\u0430\u0442\u0443\u0441 \u0438 \u0440\u0430\u0431\u043e\u0442\u0430\u0435\u0442 \u043d\u0430 \u0432\u0430\u0448 \u0438\u043c\u0438\u0434\u0436.",
+                cta: "\u041f\u043e\u0434\u043e\u0431\u0440\u0430\u0442\u044c \u0431\u0438\u0437\u043d\u0435\u0441-\u043a\u043b\u0430\u0441\u0441",
+                image: "/lifestyle/business-bmw-7-card.jpg",
+                position: "object-[54%_center]",
+              },
+              {
+                title: "\u0414\u043b\u044f \u0441\u0435\u043c\u044c\u0438",
+                text: "\u041f\u0440\u043e\u0441\u0442\u043e\u0440, \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u043e\u0441\u0442\u044c \u0438 \u043a\u043e\u043c\u0444\u043e\u0440\u0442 \u0434\u043b\u044f \u043f\u043e\u0435\u0437\u0434\u043e\u043a \u0441 \u0431\u043b\u0438\u0437\u043a\u0438\u043c\u0438.",
+                cta: "\u041f\u043e\u0434\u043e\u0431\u0440\u0430\u0442\u044c \u0441\u0435\u043c\u0435\u0439\u043d\u044b\u0439 \u0430\u0432\u0442\u043e",
+                image: "/lifestyle/family-kia-carnival-card.jpg",
+                position: "object-[58%_center]",
+              },
+              {
+                title: "\u0421\u043f\u043e\u0440\u0442 \u0438 \u044d\u043c\u043e\u0446\u0438\u0438",
+                text: "\u0414\u0438\u043d\u0430\u043c\u0438\u043a\u0430, \u0441\u0442\u0438\u043b\u044c \u0438 \u0443\u0434\u043e\u0432\u043e\u043b\u044c\u0441\u0442\u0432\u0438\u0435 \u043e\u0442 \u043a\u0430\u0436\u0434\u043e\u0439 \u043f\u043e\u0435\u0437\u0434\u043a\u0438.",
+                cta: "\u041f\u043e\u0434\u043e\u0431\u0440\u0430\u0442\u044c \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044c",
+                image: "/lifestyle/sport-camaro-card.jpg",
+                position: "object-[56%_center]",
+              },
+              {
+                title: "\u041d\u0430 \u043a\u0430\u0436\u0434\u044b\u0439 \u0434\u0435\u043d\u044c",
+                text: "\u0414\u043b\u044f \u0440\u0430\u0431\u043e\u0442\u044b, \u0433\u043e\u0440\u043e\u0434\u0430 \u0438 \u043a\u043e\u043c\u0444\u043e\u0440\u0442\u043d\u043e\u0439 \u043f\u043e\u0432\u0441\u0435\u0434\u043d\u0435\u0432\u043d\u043e\u0439 \u0436\u0438\u0437\u043d\u0438.",
+                cta: "\u041f\u043e\u0434\u043e\u0431\u0440\u0430\u0442\u044c \u0430\u0432\u0442\u043e \u043d\u0430 \u043a\u0430\u0436\u0434\u044b\u0439 \u0434\u0435\u043d\u044c",
+                image: "/lifestyle/daily-audi-q3-card.jpg",
+                position: "object-[50%_center]",
+              },
+            ].map((card) => (
+              <article
+                key={card.title}
+                className="group"
+              >
+                <div className="relative min-h-[320px] overflow-hidden rounded-[1.75rem] bg-zinc-950 shadow-[0_18px_50px_rgba(15,15,15,0.12)] md:min-h-[360px] xl:min-h-[340px]">
+                  <img
+                    src={card.image}
+                    alt=""
+                    onError={(event) => {
+                      event.currentTarget.style.display = "none";
+                    }}
+                    className={`absolute inset-0 h-full w-full object-cover transition duration-1000 ease-out group-hover:scale-[1.015] ${card.position}`}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/5" />
+                  <a
+                    href="#request-form"
+                    aria-label={card.cta}
+                    className="absolute bottom-6 right-6 flex h-11 w-11 items-center justify-center rounded-full bg-black/35 text-2xl leading-none text-white backdrop-blur transition duration-300 hover:bg-zinc-950"
+                  >
+                    {"\u203a"}
+                  </a>
+                </div>
+                <div className="pt-5">
+                  <h4 className="text-[2rem] font-semibold leading-tight tracking-[-0.02em] text-zinc-950 md:text-[2.35rem]">
+                    {card.title}
+                  </h4>
+                  <p className="mt-3 max-w-[18rem] text-[1.05rem] leading-relaxed text-zinc-600 md:text-lg">
+                    {card.text}
+                  </p>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <h3 className="mt-20 max-w-[1220px] text-5xl font-semibold leading-[1.02] tracking-[-0.035em] md:mt-28 md:text-6xl xl:text-7xl">
+            {"\u0412\u0430\u0448\u0435 \u043f\u0443\u0442\u0435\u0448\u0435\u0441\u0442\u0432\u0438\u0435 \u0441 AutoVector \u043d\u0430\u0447\u0438\u043d\u0430\u0435\u0442\u0441\u044f \u043f\u0440\u044f\u043c\u043e \u0441\u0435\u0439\u0447\u0430\u0441."}
+          </h3>
+        </div>
+      </section>
+
+      {/* CARS */}
+      {/* CARS */}
+<section id="catalog" className="px-6 py-24 md:px-10 md:py-28">
+  <div className="mx-auto max-w-[1500px]">
+
+  <h3 className="mb-12 text-4xl font-bold md:text-5xl">
     Автомобили в наличии
   </h3>
 {/* FILTER BAR */}
@@ -586,7 +715,7 @@ const response = await fetch("/api/request", {
     flex
     flex-wrap
     gap-4
-    mb-10
+    mb-14
   "
 >
 
@@ -734,16 +863,16 @@ const response = await fetch("/api/request", {
 
 
 </div>
-  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+  <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 xl:gap-12">
 
-    {filteredCars.map((car) => (
+    {catalogCars.map((car) => (
 
       <div
         key={car.id}
         className="
           group
           relative
-          rounded-3xl
+          rounded-[2rem]
           overflow-hidden
           border
           border-white/10
@@ -751,7 +880,7 @@ hover:border-yellow-400/50
 focus:border-yellow-400
 focus:shadow-lg
 focus:shadow-yellow-400/10
-          bg-zinc-900
+          bg-zinc-950
           transition
           duration-1000
           ease-in-out
@@ -763,7 +892,7 @@ focus:shadow-yellow-400/10
       >
 
         {/* IMAGE */}
-        <div className="relative overflow-hidden h-[420px] md:h-[460px]">
+        <div className="relative overflow-hidden h-[470px] md:h-[560px]">
 
           <img
             src={getPrimaryImage(car, failedImages)}
@@ -799,16 +928,17 @@ focus:shadow-yellow-400/10
               bottom-0
               left-0
               w-full
-              p-6
+              p-7
+              md:p-9
               z-10
             "
           >
 
-            <h4 className="mb-3 text-2xl font-bold leading-tight md:text-3xl">
+            <h4 className="mb-4 text-3xl font-bold leading-tight md:text-4xl">
               {getCarModelTitle(car.title)}
             </h4>
 
-            <div className="mb-5 space-y-4">
+            <div className="mb-7 space-y-5">
               <div className="flex flex-wrap gap-2">
                 {getCarYearLabel(car) && (
                   <span className="rounded-full border border-white/15 bg-black/45 px-3 py-1 text-sm font-semibold text-white backdrop-blur">
@@ -821,7 +951,7 @@ focus:shadow-yellow-400/10
               </div>
 
               <div>
-                <p className="text-3xl font-black text-yellow-400 md:text-4xl">
+                <p className="text-4xl font-black text-yellow-400 md:text-5xl">
                   {"\u2248"} {formatRubPrice(calculateRussiaPrice(car.price))}
                 </p>
                 <p className="mt-1 text-xs leading-relaxed text-gray-400">
@@ -838,8 +968,8 @@ focus:shadow-yellow-400/10
     text-center
     bg-white
     text-black
-    py-3
-    rounded-xl
+    py-4
+    rounded-2xl
     font-semibold
     transition
     duration-300
@@ -857,6 +987,36 @@ focus:shadow-yellow-400/10
 
     ))}
 
+  </div>
+
+  <div className="mt-20 rounded-[2rem] border border-white/10 bg-zinc-950 px-6 py-12 text-center shadow-2xl shadow-black/30 md:mt-24 md:px-10 md:py-16">
+    <h3 className="text-3xl font-semibold leading-tight text-white md:text-5xl">
+      {"\u041d\u0435 \u043d\u0430\u0448\u043b\u0438 \u043f\u043e\u0434\u0445\u043e\u0434\u044f\u0449\u0438\u0439 \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044c?"}
+    </h3>
+    <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-zinc-400 md:text-xl">
+      {"\u041c\u044b \u043f\u043e\u0434\u0431\u0435\u0440\u0451\u043c \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044c \u043f\u043e\u0434 \u0432\u0430\u0448\u0438 \u0437\u0430\u0434\u0430\u0447\u0438, \u0431\u044e\u0434\u0436\u0435\u0442 \u0438 \u0441\u0442\u0438\u043b\u044c \u0436\u0438\u0437\u043d\u0438."}
+    </p>
+    <div className="mt-9 flex flex-col justify-center gap-4 sm:flex-row sm:flex-wrap">
+      <a
+        href="#request-form"
+        className="rounded-2xl bg-yellow-400 px-7 py-4 text-sm font-bold text-black transition duration-300 hover:bg-yellow-300"
+      >
+        {"\u041f\u043e\u0434\u043e\u0431\u0440\u0430\u0442\u044c \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044c"}
+      </a>
+      <a
+        href="#catalog"
+        className="rounded-2xl border border-white/15 bg-white/5 px-7 py-4 text-sm font-bold text-white transition duration-300 hover:border-yellow-400/60 hover:text-yellow-300"
+      >
+        {"\u041a \u0444\u0438\u043b\u044c\u0442\u0440\u0430\u043c"}
+      </a>
+      <a
+        href="#"
+        className="rounded-2xl border border-white/15 bg-white/5 px-7 py-4 text-sm font-bold text-white transition duration-300 hover:border-yellow-400/60 hover:text-yellow-300"
+      >
+        {"\u041d\u0430\u0432\u0435\u0440\u0445"}
+      </a>
+    </div>
+  </div>
   </div>
 </section>
 {/* ABOUT */}

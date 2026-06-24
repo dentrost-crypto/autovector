@@ -1,0 +1,67 @@
+[
+  {
+    "id": "content_001",
+    "project": "Reality Sandbox",
+    "channel": "Telegram",
+    "format": "post",
+    "title": "Как мы начали строить AMOS",
+    "status": "review",
+    "agent": "Content Agent",
+    "priority": "high",
+    "plannedDate": "2026-06-24",
+    "freshness": "evergreen",
+    "cta": "Подписаться и следить за созданием AI-бизнеса"
+  },
+  {
+    "id": "content_002",
+    "project": "AutoVector",
+    "channel": "Telegram",
+    "format": "post",
+    "title": "Почему AutoVector — это не просто сайт автомобилей",
+    "status": "draft",
+    "agent": "Content Agent",
+    "priority": "high",
+    "plannedDate": "2026-06-25",
+    "freshness": "evergreen",
+    "cta": "Перейти на сайт AutoVector"
+  },
+  {
+    "id": "content_003",
+    "project": "AutoVector",
+    "channel": "YouTube Shorts",
+    "format": "shorts",
+    "title": "Zeekr 001 против Porsche Panamera",
+    "status": "idea",
+    "agent": "Video Agent",
+    "priority": "medium",
+    "plannedDate": "2026-06-25",
+    "freshness": "background",
+    "cta": "Написать в Telegram для подбора авто"
+  },
+  {
+    "id": "content_004",
+    "project": "Reality Sandbox",
+    "channel": "Telegram",
+    "format": "post",
+    "title": "День создания AMOS Dashboard",
+    "status": "approved",
+    "agent": "Content Agent",
+    "priority": "high",
+    "plannedDate": "2026-06-24",
+    "freshness": "evergreen",
+    "cta": "Следить за развитием проекта"
+  },
+  {
+    "id": "content_005",
+    "project": "AutoVector",
+    "channel": "VK",
+    "format": "post",
+    "title": "Как выбрать авто из Китая без риска",
+    "status": "idea",
+    "agent": "Content Agent",
+    "priority": "medium",
+    "plannedDate": "2026-06-26",
+    "freshness": "evergreen",
+    "cta": "Оставить заявку на подбор"
+  }
+]

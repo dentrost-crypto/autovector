@@ -193,3 +193,5 @@ Instagram
 CTA:
 
 Причина:
+Agent обязан соблюдать:
+AMOS/docs/content_freshness_standard.md

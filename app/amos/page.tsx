@@ -1,9 +1,14 @@
 import carsData from "../data/cars.json";
+import leadsData from "../../AMOS/data/leads.json";
 
 const CNY_TO_RUB = 10.5;
 const RUSSIA_DELIVERY_COST_RUB = 900_000;
 
 const cars = carsData;
+const leads = leadsData;
+const hotLeadCount = leads.filter(
+  (lead) => lead.temperature.toLowerCase() === "hot",
+).length;
 const brands = [...new Set(cars.map((car) => car.brand).filter(Boolean))];
 const brandCounts = cars.reduce<Record<string, number>>((counts, car) => {
   if (car.brand) {
@@ -32,8 +37,8 @@ const formatRubPrice = (value: number) =>
 const overviewCards = [
   {
     label: "ЛИДЫ СЕГОДНЯ",
-    value: "12",
-    detail: "🔥 Hot: 4",
+    value: String(leads.length),
+    detail: `🔥 Hot: ${hotLeadCount}`,
   },
   {
     label: "НА ПРОВЕРКЕ",
@@ -99,51 +104,6 @@ const contentRows = [
     status: "Published",
     owner: "Publisher Agent",
     due: "Вчера",
-  },
-];
-
-const leadRows = [
-  {
-    name: "Анна",
-    request: "Toyota RAV4 до 2.5 млн",
-    source: "Telegram",
-    status: "Новый",
-    next: "Ответить до 12:30",
-  },
-  {
-    name: "Игорь",
-    request: "BMW X1, 2021-2023",
-    source: "Сайт",
-    status: "Квалификация",
-    next: "Уточнить бюджет",
-  },
-  {
-    name: "Марина",
-    request: "Семейный кроссовер",
-    source: "VK",
-    status: "Подбор автомобиля",
-    next: "Отправить 3 варианта",
-  },
-  {
-    name: "Сергей",
-    request: "Honda Civic",
-    source: "Сайт",
-    status: "Созвон назначен",
-    next: "Созвон в 18:00",
-  },
-  {
-    name: "Ольга",
-    request: "Toyota Camry",
-    source: "Telegram",
-    status: "Задаток получен",
-    next: "Проверить лот",
-  },
-  {
-    name: "Дмитрий",
-    request: "BMW 7 Series",
-    source: "Рекомендация",
-    status: "Потерян",
-    next: "Вернуться через 30 дней",
   },
 ];
 
@@ -396,45 +356,60 @@ export default function AmosDashboardPage() {
             <PanelTitle
               eyebrow="Leads"
               title="Leads Board"
-              description="5 активных лидов и следующий шаг по каждому."
+              description={`${leads.length} лидов · ${hotLeadCount} горячих`}
             />
 
-            <div className="max-h-[360px] overflow-auto rounded-xl border border-white/10">
-              <table className="w-full table-fixed text-left text-sm">
-                <thead className="sticky top-0 z-10 border-b border-white/10 bg-zinc-950 text-xs uppercase tracking-[0.14em] text-zinc-400">
-                  <tr>
-                    <th className="px-4 py-3">Клиент</th>
-                    <th className="px-4 py-3">Запрос</th>
-                    <th className="px-4 py-3">Статус</th>
-                    <th className="px-4 py-3">Шаг</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/10">
-                  {leadRows.slice(0, 5).map((row) => (
-                    <tr
-                      key={`${row.name}-${row.request}`}
-                      className="hover:bg-white/[0.025]"
-                    >
-                      <td className="px-4 py-3 text-base font-semibold text-white">
-                        {row.name}
-                        <div className="mt-1 text-xs font-medium text-zinc-500">
-                          {row.source}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-base text-zinc-300">
-                        {row.request}
-                      </td>
-                      <td className="px-4 py-3">
-                        <StatusBadge status={row.status} />
-                      </td>
-                      <td className="px-4 py-3 text-base text-zinc-300">
-                        {row.next}
-                      </td>
+            {leads.length > 0 ? (
+              <div className="max-h-[360px] overflow-auto rounded-xl border border-white/10">
+                <table className="w-full table-fixed text-left text-sm">
+                  <thead className="sticky top-0 z-10 border-b border-white/10 bg-zinc-950 text-xs uppercase tracking-[0.14em] text-zinc-400">
+                    <tr>
+                      <th className="px-4 py-3">Клиент</th>
+                      <th className="px-4 py-3">Интерес</th>
+                      <th className="px-4 py-3">Бюджет</th>
+                      <th className="px-4 py-3">Статус</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-white/10">
+                    {leads.slice(0, 5).map((lead) => (
+                      <tr key={lead.id} className="hover:bg-white/[0.025]">
+                        <td className="px-4 py-3 text-base font-semibold text-white">
+                          <span className="flex items-center gap-2">
+                            {lead.temperature === "hot" && (
+                              <span aria-label="Горячий лид">🔥</span>
+                            )}
+                            {lead.name}
+                          </span>
+                          <div className="mt-1 text-xs font-medium text-zinc-500">
+                            {lead.source} · {lead.createdAt}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-base text-zinc-300">
+                          {lead.interest}
+                        </td>
+                        <td className="px-4 py-3 text-base font-medium text-zinc-200">
+                          {lead.budget}
+                        </td>
+                        <td className="px-4 py-3">
+                          <StatusBadge status={lead.status} />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="flex min-h-[220px] items-center justify-center rounded-xl border border-dashed border-white/15 bg-white/[0.02] p-8 text-center">
+                <div>
+                  <p className="text-lg font-semibold text-white">
+                    Лидов пока нет
+                  </p>
+                  <p className="mt-2 text-sm text-zinc-500">
+                    Добавьте записи в AMOS/data/leads.json.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
           <div

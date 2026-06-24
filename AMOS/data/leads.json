@@ -1,0 +1,52 @@
+[
+  {
+    "id": "lead_001",
+    "name": "Иван",
+    "source": "Telegram",
+    "interest": "Toyota Camry",
+    "budget": "3 000 000 ₽",
+    "status": "Новый",
+    "temperature": "hot",
+    "createdAt": "2026-06-24"
+  },
+  {
+    "id": "lead_002",
+    "name": "Анна",
+    "source": "Сайт",
+    "interest": "Toyota RAV4",
+    "budget": "2 700 000 ₽",
+    "status": "Квалификация",
+    "temperature": "hot",
+    "createdAt": "2026-06-24"
+  },
+  {
+    "id": "lead_003",
+    "name": "Марина",
+    "source": "VK",
+    "interest": "Семейный кроссовер",
+    "budget": "3 500 000 ₽",
+    "status": "Подбор автомобиля",
+    "temperature": "warm",
+    "createdAt": "2026-06-23"
+  },
+  {
+    "id": "lead_004",
+    "name": "Сергей",
+    "source": "Telegram",
+    "interest": "Honda Civic",
+    "budget": "2 200 000 ₽",
+    "status": "Созвон назначен",
+    "temperature": "warm",
+    "createdAt": "2026-06-22"
+  },
+  {
+    "id": "lead_005",
+    "name": "Ольга",
+    "source": "Рекомендация",
+    "interest": "BMW X1",
+    "budget": "3 100 000 ₽",
+    "status": "Задаток получен",
+    "temperature": "hot",
+    "createdAt": "2026-06-21"
+  }
+]

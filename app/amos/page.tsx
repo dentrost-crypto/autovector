@@ -1,10 +1,12 @@
 import carsData from "../data/cars.json";
+import contentQueueData from "../data/content_queue.json";
 import leadsData from "../../AMOS/data/leads.json";
 
 const CNY_TO_RUB = 10.5;
 const RUSSIA_DELIVERY_COST_RUB = 900_000;
 
 const cars = carsData;
+const contentQueue = contentQueueData;
 const leads = leadsData;
 const hotLeadCount = leads.filter(
   (lead) => lead.temperature.toLowerCase() === "hot",
@@ -34,6 +36,22 @@ const latestCars = [...cars]
 const formatRubPrice = (value: number) =>
   `${new Intl.NumberFormat("ru-RU").format(value)} ₽`;
 
+const contentStatuses = [
+  { key: "idea", label: "Ideas" },
+  { key: "draft", label: "Drafts" },
+  { key: "review", label: "Review" },
+  { key: "approved", label: "Approved" },
+  { key: "published", label: "Published" },
+];
+const contentStatusCounts = Object.fromEntries(
+  contentStatuses.map(({ key }) => [
+    key,
+    contentQueue.filter((item) => item.status.toLowerCase() === key).length,
+  ]),
+);
+const formatContentStatus = (status: string) =>
+  status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+
 const overviewCards = [
   {
     label: "ЛИДЫ СЕГОДНЯ",
@@ -42,13 +60,13 @@ const overviewCards = [
   },
   {
     label: "НА ПРОВЕРКЕ",
-    value: "7",
-    detail: "Review queue",
+    value: String(contentStatusCounts.review),
+    detail: "Content review",
   },
   {
     label: "ОПУБЛИКОВАНО",
-    value: "3",
-    detail: "Сегодня",
+    value: String(contentStatusCounts.published),
+    detail: "Content queue",
   },
   {
     label: "АГЕНТЫ",
@@ -59,51 +77,6 @@ const overviewCards = [
     label: "КАТАЛОГ",
     value: String(cars.length),
     detail: `${brands.length} бренда`,
-  },
-];
-
-const contentRows = [
-  {
-    title: "Toyota RAV4: почему подходит семье",
-    channel: "Telegram",
-    status: "Idea",
-    owner: "Trend Agent",
-    due: "Сегодня",
-  },
-  {
-    title: "BMW X1 под ключ: короткий продающий пост",
-    channel: "Telegram",
-    status: "Draft",
-    owner: "Content Agent",
-    due: "Сегодня",
-  },
-  {
-    title: "Видео-карусель Honda Civic",
-    channel: "Shorts",
-    status: "Review",
-    owner: "Video Agent",
-    due: "Завтра",
-  },
-  {
-    title: "Что проверить перед покупкой авто из Китая",
-    channel: "VK",
-    status: "Approved",
-    owner: "Research Agent",
-    due: "24 июня",
-  },
-  {
-    title: "Volkswagen Tiguan L: расчет под ключ",
-    channel: "Telegram",
-    status: "Scheduled",
-    owner: "Publisher Agent",
-    due: "25 июня",
-  },
-  {
-    title: "Подбор авто без риска и переплат",
-    channel: "MAX",
-    status: "Published",
-    owner: "Publisher Agent",
-    due: "Вчера",
   },
 ];
 
@@ -311,42 +284,76 @@ export default function AmosDashboardPage() {
             <PanelTitle
               eyebrow="Content"
               title="Content Board"
-              description="5 ближайших материалов. Остальное внутри scroll."
+              description={`${contentQueue.length} материалов в локальной очереди.`}
             />
 
-            <div className="max-h-[360px] overflow-auto rounded-xl border border-white/10">
-              <table className="w-full table-fixed text-left text-sm">
-                <thead className="sticky top-0 z-10 border-b border-white/10 bg-zinc-950 text-xs uppercase tracking-[0.14em] text-zinc-400">
-                  <tr>
-                    <th className="px-4 py-3">Материал</th>
-                    <th className="px-4 py-3">Канал</th>
-                    <th className="px-4 py-3">Статус</th>
-                    <th className="px-4 py-3">Срок</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/10">
-                  {contentRows.slice(0, 5).map((row) => (
-                    <tr key={row.title} className="hover:bg-white/[0.025]">
-                      <td className="px-4 py-3 text-base font-semibold text-white">
-                        {row.title}
-                        <div className="mt-1 text-xs font-medium text-zinc-500">
-                          {row.owner}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-base text-zinc-300">
-                        {row.channel}
-                      </td>
-                      <td className="px-4 py-3">
-                        <StatusBadge status={row.status} />
-                      </td>
-                      <td className="px-4 py-3 text-base text-zinc-300">
-                        {row.due}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-5">
+              {contentStatuses.map(({ key, label }) => (
+                <article
+                  key={key}
+                  className="rounded-xl border border-white/10 bg-white/[0.025] p-3"
+                >
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500">
+                    {label}
+                  </p>
+                  <p className="mt-1 text-2xl font-black text-white">
+                    {contentStatusCounts[key]}
+                  </p>
+                </article>
+              ))}
             </div>
+
+            {contentQueue.length > 0 ? (
+              <div className="max-h-[360px] overflow-auto rounded-xl border border-white/10">
+                <table className="w-full min-w-[760px] text-left text-sm">
+                  <thead className="sticky top-0 z-10 border-b border-white/10 bg-zinc-950 text-xs uppercase tracking-[0.14em] text-zinc-400">
+                    <tr>
+                      <th className="px-4 py-3">Материал</th>
+                      <th className="px-4 py-3">Проект</th>
+                      <th className="px-4 py-3">Канал</th>
+                      <th className="px-4 py-3">Статус</th>
+                      <th className="px-4 py-3">Дата</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/10">
+                    {contentQueue.map((item) => {
+                      const displayStatus = formatContentStatus(item.status);
+
+                      return (
+                        <tr key={item.id} className="hover:bg-white/[0.025]">
+                          <td className="px-4 py-3 text-base font-semibold text-white">
+                            {item.title}
+                          </td>
+                          <td className="px-4 py-3 text-base text-zinc-300">
+                            {item.project}
+                          </td>
+                          <td className="px-4 py-3 text-base text-zinc-300">
+                            {item.channel}
+                          </td>
+                          <td className="px-4 py-3">
+                            <StatusBadge status={displayStatus} />
+                          </td>
+                          <td className="px-4 py-3 text-base text-zinc-300">
+                            {item.plannedDate}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="flex min-h-[220px] items-center justify-center rounded-xl border border-dashed border-white/15 bg-white/[0.02] p-8 text-center">
+                <div>
+                  <p className="text-lg font-semibold text-white">
+                    Очередь контента пуста
+                  </p>
+                  <p className="mt-2 text-sm text-zinc-500">
+                    Добавьте записи в app/data/content_queue.json.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
           <div

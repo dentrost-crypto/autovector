@@ -1,5 +1,6 @@
 import carsData from "../data/cars.json";
 import contentQueueData from "../data/content_queue.json";
+import tasksData from "../data/tasks.json";
 import leadsData from "../../AMOS/data/leads.json";
 
 const CNY_TO_RUB = 10.5;
@@ -7,6 +8,7 @@ const RUSSIA_DELIVERY_COST_RUB = 900_000;
 
 const cars = carsData;
 const contentQueue = contentQueueData;
+const tasks = tasksData;
 const leads = leadsData;
 const hotLeadCount = leads.filter(
   (lead) => lead.temperature.toLowerCase() === "hot",
@@ -51,6 +53,28 @@ const contentStatusCounts = Object.fromEntries(
 );
 const formatContentStatus = (status: string) =>
   status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+const todayMoscow = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Europe/Moscow",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+}).format(new Date());
+const openTasks = tasks.filter((task) => task.status.toLowerCase() === "open");
+const highPriorityTasks = tasks.filter(
+  (task) =>
+    task.priority.toLowerCase() === "high" &&
+    !["done", "completed", "closed"].includes(task.status.toLowerCase()),
+);
+const tasksDueToday = tasks.filter(
+  (task) =>
+    task.dueDate === todayMoscow &&
+    !["done", "completed", "closed"].includes(task.status.toLowerCase()),
+);
+const formatTaskLabel = (value: string) =>
+  value
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
 
 const overviewCards = [
   {
@@ -139,12 +163,6 @@ const agents = [
 
 const widgets = [
   {
-    title: "Tasks",
-    value: "8 открыто",
-    detail: "2 срочные задачи требуют решения сегодня.",
-    items: ["Проверить домен autovector.pro", "Подготовить 3 поста на неделю"],
-  },
-  {
     title: "Reports",
     value: "Daily готов",
     detail: "Weekly report запланирован на воскресенье.",
@@ -165,6 +183,14 @@ const statusStyles: Record<string, string> = {
   "Созвон назначен": "border-indigo-400/30 bg-indigo-400/10 text-indigo-200",
   "Задаток получен": "border-emerald-400/30 bg-emerald-400/10 text-emerald-200",
   Потерян: "border-red-400/30 bg-red-400/10 text-red-200",
+  Open: "border-sky-400/30 bg-sky-400/10 text-sky-200",
+  "In Progress": "border-yellow-400/40 bg-yellow-400/10 text-yellow-200",
+};
+
+const priorityStyles: Record<string, string> = {
+  high: "border-red-400/30 bg-red-400/10 text-red-200",
+  medium: "border-yellow-400/30 bg-yellow-400/10 text-yellow-200",
+  low: "border-zinc-400/30 bg-zinc-400/10 text-zinc-300",
 };
 
 function StatusBadge({ status }: { status: string }) {
@@ -527,6 +553,97 @@ export default function AmosDashboardPage() {
         </section>
 
         <section className="mt-5 grid gap-5 xl:grid-cols-2">
+          <article className="rounded-2xl border border-white/10 bg-zinc-950 p-5">
+            <PanelTitle
+              eyebrow="Tasks"
+              title="Tasks Board"
+              description="Операционные задачи из app/data/tasks.json."
+            />
+
+            <div className="mb-4 grid grid-cols-3 gap-3">
+              {[
+                { label: "Open", value: openTasks.length },
+                { label: "High priority", value: highPriorityTasks.length },
+                { label: "Due today", value: tasksDueToday.length },
+              ].map((metric) => (
+                <div
+                  key={metric.label}
+                  className="rounded-xl border border-white/10 bg-white/[0.025] p-3"
+                >
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500">
+                    {metric.label}
+                  </p>
+                  <p className="mt-1 text-2xl font-black text-white">
+                    {metric.value}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {tasks.length > 0 ? (
+              <div className="max-h-[360px] overflow-auto rounded-xl border border-white/10">
+                <table className="w-full min-w-[820px] text-left text-sm">
+                  <thead className="sticky top-0 z-10 border-b border-white/10 bg-zinc-950 text-xs uppercase tracking-[0.14em] text-zinc-400">
+                    <tr>
+                      <th className="px-4 py-3">Задача</th>
+                      <th className="px-4 py-3">Проект</th>
+                      <th className="px-4 py-3">Owner</th>
+                      <th className="px-4 py-3">Статус</th>
+                      <th className="px-4 py-3">Приоритет</th>
+                      <th className="px-4 py-3">Срок</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/10">
+                    {tasks.map((task) => {
+                      const displayStatus = formatTaskLabel(task.status);
+
+                      return (
+                        <tr key={task.id} className="hover:bg-white/[0.025]">
+                          <td className="px-4 py-3 text-base font-semibold text-white">
+                            {task.title}
+                          </td>
+                          <td className="px-4 py-3 text-base text-zinc-300">
+                            {task.project}
+                          </td>
+                          <td className="px-4 py-3 text-base text-zinc-300">
+                            {task.owner}
+                          </td>
+                          <td className="px-4 py-3">
+                            <StatusBadge status={displayStatus} />
+                          </td>
+                          <td className="px-4 py-3">
+                            <span
+                              className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-semibold uppercase ${
+                                priorityStyles[task.priority.toLowerCase()] ||
+                                priorityStyles.low
+                              }`}
+                            >
+                              {task.priority}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-base text-zinc-300">
+                            {task.dueDate}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="flex min-h-[220px] items-center justify-center rounded-xl border border-dashed border-white/15 bg-white/[0.02] p-8 text-center">
+                <div>
+                  <p className="text-lg font-semibold text-white">
+                    Задач пока нет
+                  </p>
+                  <p className="mt-2 text-sm text-zinc-500">
+                    Добавьте записи в app/data/tasks.json.
+                  </p>
+                </div>
+              </div>
+            )}
+          </article>
+
           {widgets.map((widget) => (
             <article
               key={widget.title}

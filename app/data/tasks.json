@@ -1,0 +1,52 @@
+[
+  {
+    "id": "task_001",
+    "title": "Создать VK страницу AutoVector",
+    "project": "AutoVector",
+    "owner": "Denis",
+    "status": "open",
+    "priority": "high",
+    "dueDate": "2026-06-24",
+    "type": "growth"
+  },
+  {
+    "id": "task_002",
+    "title": "Создать YouTube канал AutoVector",
+    "project": "AutoVector",
+    "owner": "Denis",
+    "status": "open",
+    "priority": "high",
+    "dueDate": "2026-06-24",
+    "type": "growth"
+  },
+  {
+    "id": "task_003",
+    "title": "Подготовить 3 поста для Reality Sandbox",
+    "project": "Reality Sandbox",
+    "owner": "Content Agent",
+    "status": "open",
+    "priority": "high",
+    "dueDate": "2026-06-24",
+    "type": "content"
+  },
+  {
+    "id": "task_004",
+    "title": "Подключить Tasks Board к tasks.json",
+    "project": "AMOS",
+    "owner": "Engineering Agent",
+    "status": "in_progress",
+    "priority": "medium",
+    "dueDate": "2026-06-24",
+    "type": "engineering"
+  },
+  {
+    "id": "task_005",
+    "title": "Создать RuTube канал AutoVector",
+    "project": "AutoVector",
+    "owner": "Denis",
+    "status": "open",
+    "priority": "medium",
+    "dueDate": "2026-06-25",
+    "type": "growth"
+  }
+]

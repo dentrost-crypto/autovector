@@ -93,31 +93,124 @@ const criticalChannelCount = socialChannels.filter(
   (channel) => channel.priority.toLowerCase() === "critical",
 ).length;
 
-const overviewCards = [
+const websiteChannel = socialChannels.find(
+  (channel) => channel.platform.toLowerCase() === "website",
+);
+const telegramAutoChannel = socialChannels.find(
+  (channel) => channel.name === "Подбор авто Азия",
+);
+const realitySandboxChannel = socialChannels.find(
+  (channel) => channel.name === "Reality Sandbox",
+);
+const vkChannel = socialChannels.find(
+  (channel) => channel.platform.toLowerCase() === "vk",
+);
+const maxChannel = socialChannels.find(
+  (channel) => channel.platform.toLowerCase() === "max",
+);
+const nextHighPriorityTask = tasks.find(
+  (task) =>
+    task.status.toLowerCase() === "open" &&
+    task.priority.toLowerCase() === "high",
+);
+
+type BusinessTone = "green" | "yellow" | "orange" | "red" | "neutral";
+
+const getChannelState = (
+  channel: (typeof socialChannels)[number] | undefined,
+  activeLabel = "Active",
+) => {
+  if (
+    channel?.status.toLowerCase() === "active" &&
+    channel.connected
+  ) {
+    return { value: activeLabel, tone: "green" as BusinessTone };
+  }
+
+  const status = channel?.status.toLowerCase();
+  if (status === "planned") {
+    return { value: "Planned", tone: "yellow" as BusinessTone };
+  }
+  if (status === "setup") {
+    return { value: "Setup", tone: "orange" as BusinessTone };
+  }
+
+  return { value: "Offline", tone: "red" as BusinessTone };
+};
+
+const websiteState = getChannelState(websiteChannel, "Online");
+const telegramAutoState = getChannelState(telegramAutoChannel);
+const realitySandboxState = getChannelState(realitySandboxChannel);
+const vkState = getChannelState(vkChannel);
+const maxState = getChannelState(maxChannel);
+
+const businessStatusCards: Array<{
+  label: string;
+  value: string;
+  detail?: string;
+  tone: BusinessTone;
+}> = [
   {
-    label: "ЛИДЫ СЕГОДНЯ",
-    value: String(leads.length),
-    detail: `🔥 Hot: ${hotLeadCount}`,
+    label: "Website",
+    value: websiteState.value,
+    detail: websiteChannel?.url || "Not connected",
+    tone: websiteState.tone,
   },
   {
-    label: "НА ПРОВЕРКЕ",
-    value: String(contentStatusCounts.review),
-    detail: "Content review",
-  },
-  {
-    label: "ОПУБЛИКОВАНО",
-    value: String(contentStatusCounts.published),
-    detail: "Content queue",
-  },
-  {
-    label: "АГЕНТЫ",
-    value: "9",
-    detail: "Online",
-  },
-  {
-    label: "КАТАЛОГ",
+    label: "Catalog",
     value: String(cars.length),
-    detail: `${brands.length} бренда`,
+    detail: "автомобилей",
+    tone: "green",
+  },
+  {
+    label: "Telegram Auto",
+    value: telegramAutoState.value,
+    detail: telegramAutoChannel?.name,
+    tone: telegramAutoState.tone,
+  },
+  {
+    label: "Reality Sandbox",
+    value: realitySandboxState.value,
+    detail: realitySandboxChannel?.platform,
+    tone: realitySandboxState.tone,
+  },
+  {
+    label: "VK",
+    value: vkState.value,
+    detail: vkChannel?.connected ? "Connected" : "Not connected",
+    tone: vkState.tone,
+  },
+  {
+    label: "MAX",
+    value: maxState.value,
+    detail: maxChannel?.connected ? "Connected" : "Not connected",
+    tone: maxState.tone,
+  },
+  {
+    label: "Content Queue",
+    value: String(contentQueue.length),
+    detail: `${contentStatusCounts.review} review`,
+    tone: contentQueue.length > 0 ? "green" : "neutral",
+  },
+  {
+    label: "Hot Leads",
+    value: String(hotLeadCount),
+    detail: `${leads.length} всего`,
+    tone: hotLeadCount > 0 ? "yellow" : "neutral",
+  },
+  {
+    label: "Tasks",
+    value: String(openTasks.length),
+    detail: `${highPriorityTasks.length} high priority`,
+    tone: openTasks.length > 0 ? "yellow" : "green",
+  },
+  {
+    label: "Next Action",
+    value: nextHighPriorityTask?.title || "Нет срочных задач",
+    detail: nextHighPriorityTask
+      ? `${nextHighPriorityTask.project} · ${nextHighPriorityTask.owner}`
+      : "Очередь под контролем",
+    tone: nextHighPriorityTask ? "orange" : "green",
   },
 ];
 
@@ -218,6 +311,17 @@ const channelStatusStyles: Record<string, string> = {
   offline: "border-red-400/30 bg-red-400/10 text-red-200",
 };
 
+const businessToneStyles: Record<BusinessTone, string> = {
+  green:
+    "border-emerald-400/25 bg-emerald-400/[0.07] before:bg-emerald-400",
+  yellow:
+    "border-yellow-400/25 bg-yellow-400/[0.07] before:bg-yellow-400",
+  orange:
+    "border-orange-400/30 bg-orange-400/[0.08] before:bg-orange-400",
+  red: "border-red-400/30 bg-red-400/[0.08] before:bg-red-400",
+  neutral: "border-white/10 bg-white/[0.025] before:bg-zinc-500",
+};
+
 function StatusBadge({ status }: { status: string }) {
   return (
     <span
@@ -306,22 +410,47 @@ export default function AmosDashboardPage() {
           </div>
         </section>
 
-        <section id="overview" className="scroll-mt-24">
-          <div className="mb-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
-            {overviewCards.map((card) => (
+        <section
+          id="overview"
+          className="mb-5 scroll-mt-24 rounded-2xl border border-white/10 bg-zinc-950 p-5"
+        >
+          <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-yellow-400/90">
+                Business Status
+              </p>
+              <h2 className="mt-1 text-xl font-semibold text-white">
+                Состояние бизнеса
+              </h2>
+            </div>
+            <p className="text-sm text-zinc-500">
+              Сводка из подключённых локальных источников
+            </p>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            {businessStatusCards.map((card) => (
               <article
                 key={card.label}
-                className="rounded-2xl border border-white/10 bg-zinc-950 p-4 shadow-xl shadow-black/20"
+                className={`relative min-h-[126px] overflow-hidden rounded-xl border p-4 before:absolute before:inset-y-0 before:left-0 before:w-1 ${businessToneStyles[card.tone]}`}
               >
-                <p className="text-sm font-semibold uppercase tracking-[0.14em] text-zinc-400">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-400">
                   {card.label}
                 </p>
-                <p className="mt-3 text-3xl font-black text-white">
+                <p
+                  className={`mt-3 font-black text-white ${
+                    card.label === "Next Action"
+                      ? "text-lg leading-6"
+                      : "text-2xl"
+                  }`}
+                >
                   {card.value}
                 </p>
-                <p className="mt-2 text-sm font-medium leading-5 text-zinc-300">
-                  {card.detail}
-                </p>
+                {card.detail && (
+                  <p className="mt-2 truncate text-sm font-medium text-zinc-400">
+                    {card.detail}
+                  </p>
+                )}
               </article>
             ))}
           </div>

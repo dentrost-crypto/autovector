@@ -1,5 +1,6 @@
 import carsData from "../data/cars.json";
 import contentQueueData from "../data/content_queue.json";
+import socialChannelsData from "../data/social_channels.json";
 import tasksData from "../data/tasks.json";
 import leadsData from "../../AMOS/data/leads.json";
 
@@ -8,6 +9,7 @@ const RUSSIA_DELIVERY_COST_RUB = 900_000;
 
 const cars = carsData;
 const contentQueue = contentQueueData;
+const socialChannels = socialChannelsData;
 const tasks = tasksData;
 const leads = leadsData;
 const hotLeadCount = leads.filter(
@@ -75,6 +77,21 @@ const formatTaskLabel = (value: string) =>
     .split("_")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
+const activeChannelCount = socialChannels.filter(
+  (channel) => channel.status.toLowerCase() === "active",
+).length;
+const plannedChannelCount = socialChannels.filter(
+  (channel) => channel.status.toLowerCase() === "planned",
+).length;
+const connectedChannelCount = socialChannels.filter(
+  (channel) => channel.connected,
+).length;
+const automatedChannelCount = socialChannels.filter(
+  (channel) => channel.automation,
+).length;
+const criticalChannelCount = socialChannels.filter(
+  (channel) => channel.priority.toLowerCase() === "critical",
+).length;
 
 const overviewCards = [
   {
@@ -188,9 +205,17 @@ const statusStyles: Record<string, string> = {
 };
 
 const priorityStyles: Record<string, string> = {
+  critical: "border-red-500/40 bg-red-500/15 text-red-100",
   high: "border-red-400/30 bg-red-400/10 text-red-200",
   medium: "border-yellow-400/30 bg-yellow-400/10 text-yellow-200",
   low: "border-zinc-400/30 bg-zinc-400/10 text-zinc-300",
+};
+
+const channelStatusStyles: Record<string, string> = {
+  active: "border-emerald-400/30 bg-emerald-400/10 text-emerald-200",
+  planned: "border-yellow-400/30 bg-yellow-400/10 text-yellow-200",
+  setup: "border-orange-400/30 bg-orange-400/10 text-orange-200",
+  offline: "border-red-400/30 bg-red-400/10 text-red-200",
 };
 
 function StatusBadge({ status }: { status: string }) {
@@ -242,7 +267,7 @@ export default function AmosDashboardPage() {
           </div>
 
           <nav className="flex gap-2 overflow-x-auto text-sm text-zinc-300">
-            {["Overview", "Catalog", "Content", "Leads", "Agents"].map((item) => (
+            {["Overview", "Catalog", "Content", "Leads", "Agents", "Channels"].map((item) => (
               <a
                 key={item}
                 href={`#${item.toLowerCase()}`}
@@ -668,6 +693,154 @@ export default function AmosDashboardPage() {
               </ul>
             </article>
           ))}
+        </section>
+
+        <section
+          id="channels"
+          className="mt-5 scroll-mt-24 rounded-2xl border border-white/10 bg-zinc-950 p-5"
+        >
+          <PanelTitle
+            eyebrow="Digital Infrastructure"
+            title="Social Channels"
+            description="Карта цифровых площадок, подключений и автоматизации."
+          />
+
+          <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            {[
+              { label: "Active", value: activeChannelCount },
+              { label: "Planned", value: plannedChannelCount },
+              { label: "Connected", value: connectedChannelCount },
+              { label: "Automated", value: automatedChannelCount },
+              { label: "Critical", value: criticalChannelCount },
+            ].map((metric) => (
+              <article
+                key={metric.label}
+                className="rounded-xl border border-white/10 bg-white/[0.025] p-4"
+              >
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                  {metric.label}
+                </p>
+                <p className="mt-2 text-3xl font-black text-white">
+                  {metric.value}
+                </p>
+              </article>
+            ))}
+          </div>
+
+          {socialChannels.length > 0 ? (
+            <div className="max-h-[440px] overflow-auto rounded-xl border border-white/10">
+              <table className="w-full min-w-[1580px] text-left text-sm">
+                <thead className="sticky top-0 z-10 border-b border-white/10 bg-zinc-950 text-xs uppercase tracking-[0.12em] text-zinc-400">
+                  <tr>
+                    <th className="px-4 py-3">Platform</th>
+                    <th className="px-4 py-3">Name</th>
+                    <th className="px-4 py-3">Project</th>
+                    <th className="px-4 py-3">Status</th>
+                    <th className="px-4 py-3">Priority</th>
+                    <th className="px-4 py-3">Connected</th>
+                    <th className="px-4 py-3">Automation</th>
+                    <th className="px-4 py-3">Publisher</th>
+                    <th className="px-4 py-3">Purpose</th>
+                    <th className="px-4 py-3">URL</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/10">
+                  {socialChannels.map((channel) => {
+                    const status = channel.status.toLowerCase();
+                    const priority = channel.priority.toLowerCase();
+
+                    return (
+                      <tr key={channel.id} className="hover:bg-white/[0.025]">
+                        <td className="px-4 py-3 text-base font-semibold text-white">
+                          {channel.platform}
+                        </td>
+                        <td className="px-4 py-3 text-base text-zinc-300">
+                          {channel.name}
+                        </td>
+                        <td className="px-4 py-3 text-base text-zinc-300">
+                          {channel.project}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-semibold uppercase ${
+                              channelStatusStyles[status] ||
+                              "border-white/15 bg-white/5 text-zinc-300"
+                            }`}
+                          >
+                            {channel.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-semibold uppercase ${
+                              priorityStyles[priority] || priorityStyles.low
+                            }`}
+                          >
+                            {channel.priority}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`font-semibold ${
+                              channel.connected
+                                ? "text-emerald-300"
+                                : "text-zinc-500"
+                            }`}
+                          >
+                            {channel.connected ? "Yes" : "No"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`font-semibold ${
+                              channel.automation
+                                ? "text-emerald-300"
+                                : "text-zinc-500"
+                            }`}
+                          >
+                            {channel.automation ? "Yes" : "No"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-base text-zinc-300">
+                          {channel.publisherAgent}
+                        </td>
+                        <td className="max-w-sm px-4 py-3 text-base leading-6 text-zinc-300">
+                          {channel.purpose}
+                        </td>
+                        <td className="px-4 py-3">
+                          {channel.url ? (
+                            <a
+                              href={channel.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex rounded-full border border-yellow-400/40 bg-yellow-400/10 px-4 py-2 text-xs font-semibold text-yellow-200 transition hover:bg-yellow-400 hover:text-black"
+                            >
+                              Open
+                            </a>
+                          ) : (
+                            <span className="text-sm text-zinc-500">
+                              Not connected
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="flex min-h-[220px] items-center justify-center rounded-xl border border-dashed border-white/15 bg-white/[0.02] p-8 text-center">
+              <div>
+                <p className="text-lg font-semibold text-white">
+                  Каналы пока не добавлены
+                </p>
+                <p className="mt-2 text-sm text-zinc-500">
+                  Добавьте записи в app/data/social_channels.json.
+                </p>
+              </div>
+            </div>
+          )}
         </section>
       </div>
     </main>

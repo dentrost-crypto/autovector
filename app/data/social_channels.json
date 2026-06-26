@@ -14,21 +14,26 @@
     "contentTypes": ["catalog", "landing", "leads"],
     "owner": "Denis"
   },
-  {
-    "id": "channel_001",
-    "project": "AutoVector",
-    "platform": "VK",
-    "name": "AutoVector",
-    "url": "",
-    "status": "planned",
-    "connected": false,
-    "automation": false,
-    "publisherAgent": "Publisher Agent",
-    "priority": "high",
-    "purpose": "Органический рост, доверие, лиды",
-    "contentTypes": ["posts", "clips", "cars", "expert"],
-    "owner": "Denis"
-  },
+ {
+  "id": "channel_001",
+  "project": "AutoVector",
+  "platform": "VK",
+  "name": "AutoVector",
+  "url": "https://vk.com/club239860693",
+  "status": "active",
+  "connected": true,
+  "automation": false,
+  "publisherAgent": "Publisher Agent",
+  "priority": "high",
+  "purpose": "Органический рост, доверие, лиды",
+  "contentTypes": [
+    "posts",
+    "clips",
+    "cars",
+    "expert"
+  ],
+  "owner": "Denis"
+},
   {
     "id": "channel_002",
     "project": "AutoVector",

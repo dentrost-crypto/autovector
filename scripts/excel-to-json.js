@@ -106,6 +106,7 @@ function detectBrand(...values) {
   if (text.includes("toyota")) return "Toyota";
   if (text.includes("volkswagen")) return "Volkswagen";
   if (text.includes("honda")) return "Honda";
+  if (text.includes("geely")) return "Geely";
   if (text.includes("bmw")) return "BMW";
 
   return "";
@@ -138,6 +139,14 @@ function detectModel(brand, ...values) {
     if (text.includes("haoying")) return "Haoying";
   }
 
+  if (brand === "Geely") {
+    if (text.includes("xingyue-l") || text.includes("xingyue l")) return "Xingyue L";
+    if (text.includes("xingyue")) return "Xingyue";
+    if (text.includes("binyue")) return "Binyue";
+    if (text.includes("emgrand")) return "Emgrand";
+    if (text.includes("boyue")) return "Boyue";
+  }
+
   if (brand === "BMW") {
     if (/\bx2\b/.test(text)) return "X2";
     if (/\bx1\b/.test(text)) return "X1";
@@ -148,12 +157,12 @@ function detectModel(brand, ...values) {
   return "";
 }
 
-function cleanTitle(value, fallbackYear) {
+function cleanTitle(value, fallbackYear, fallbackBrand = "", fallbackModel = "") {
   const text = normalizeSpaces(value);
   const year = getYear(text) || getYear(fallbackYear);
   const beforeMileage = text.split(/,\s*\u043f\u0440\u043e\u0431\u0435\u0433/i)[0].trim();
-  const brand = detectBrand(beforeMileage) || "BMW";
-  const model = detectModel(brand, beforeMileage) || beforeMileage.replace(new RegExp(`^${brand}\\s+`, "i"), "");
+  const brand = fallbackBrand || detectBrand(beforeMileage);
+  const model = fallbackModel || detectModel(brand, beforeMileage) || beforeMileage.replace(new RegExp(`^${brand}\\s+`, "i"), "");
 
   return normalizeSpaces([brand, model, year ? `${year} \u0433.` : ""].join(" "));
 }
@@ -240,7 +249,7 @@ const cars = rows.map((car, index) => {
 
   return {
     id: index + 1,
-    title: cleanTitle(rawTitle, rawYear),
+    title: cleanTitle(rawTitle, rawYear, brand, model),
     link: rawLink,
     brand,
     model,

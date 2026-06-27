@@ -7,6 +7,7 @@
     "build": "next build",
     "build:car-video": "node scripts/build-car-video.js",
     "download-images": "node scripts/download-images.js",
+    "post:vk": "node scripts/post-to-vk.js",
     "update-rates": "node scripts/update-rates.js",
     "start": "next start",
     "lint": "eslint"

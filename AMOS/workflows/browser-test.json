@@ -1,10 +1,12 @@
 {
   "name": "Browser Worker smoke test",
   "headless": false,
+  "timeout": 15000,
+  "pause": false,
   "steps": [
     {
       "action": "open",
-      "url": "https://www.autovector.pro"
+      "url": "https://autovector.vercel.app"
     },
     {
       "action": "wait",

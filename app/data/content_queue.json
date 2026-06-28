@@ -88,5 +88,33 @@
     ],
     "publishedAt": "2026-06-28T12:13:04.074Z",
     "publishedUrl": "https://vk.com/wall-239860693_8"
+  },
+  {
+    "id": "content_007",
+    "type": "social_post",
+    "platforms": [
+      "vk"
+    ],
+    "status": "published",
+    "topic": "Спокойный подбор автомобиля из Азии под ключ",
+    "text": "Покупка автомобиля из Китая, Кореи или Японии не должна превращаться в стресс.\n\nAutoVector помогает пройти этот путь спокойно: от подбора вариантов до проверки, расчёта и сопровождения сделки.\n\nМы заранее показываем реальные фото, объясняем стоимость и держим связь на каждом этапе.",
+    "cta": "Оставьте заявку — подскажем, какие автомобили подходят под ваш бюджет и задачи.",
+    "hashtags": [
+      "AutoVector",
+      "автоизкитая",
+      "автоизкореи",
+      "автоизяпонии",
+      "автоподбор"
+    ],
+    "imagePrompt": "Premium lifestyle photo: calm client and consultant discussing a car purchase near a modern BMW or Lexus, dark elegant AutoVector style, trustworthy concierge service mood.",
+    "image": "public/posts/test-vk-image.png",
+    "createdBy": "content_creator_agent",
+    "createdAt": "2026-06-28T12:52:50.174Z",
+    "imageGeneratedBy": "image_agent_v1_placeholder",
+    "imageUpdatedAt": "2026-06-28T14:00:33.794Z",
+    "approvedBy": "human_manual_approval",
+    "approvedAt": "2026-06-28T14:14:43.527Z",
+    "publishedAt": "2026-06-28T14:35:05.523Z",
+    "publishedUrl": "https://vk.com/wall-239860693_9"
   }
 ]

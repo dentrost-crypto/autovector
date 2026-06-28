@@ -18,12 +18,33 @@
     "channel": "Telegram",
     "format": "post",
     "title": "Почему AutoVector — это не просто сайт автомобилей",
-    "status": "draft",
+    "status": "needs_revision",
     "agent": "Content Agent",
     "priority": "high",
     "plannedDate": "2026-06-25",
     "freshness": "evergreen",
-    "cta": "Перейти на сайт AutoVector"
+    "cta": "Перейти на сайт AutoVector",
+    "review": {
+      "overall": 5.8,
+      "hook": 5,
+      "emotion": 5,
+      "trust": 5,
+      "cta": 7,
+      "brand": 7,
+      "readability": 6,
+      "decision": "needs_revision",
+      "comments": [
+        "Усилить первую строку: быстрее показать проблему или выгоду.",
+        "Добавить больше эмоционального образа: спокойствие, уверенность, комфорт.",
+        "Чётче раскрыть проверку, прозрачность и сопровождение.",
+        "CTA сделать более конкретным и спокойным.",
+        "Сильнее связать текст с AutoVector и авто из Азии.",
+        "Упростить структуру и разбить текст на короткие блоки.",
+        "Decision: needs_revision."
+      ],
+      "reviewedBy": "creative_director_v1",
+      "reviewedAt": "2026-06-28T15:24:46.792Z"
+    }
   },
   {
     "id": "content_003",
@@ -142,5 +163,43 @@
     "imageUpdatedAt": "2026-06-28T14:45:45.825Z",
     "approvedBy": "human_manual_approval",
     "approvedAt": "2026-06-28T14:45:48.628Z"
+  },
+  {
+    "id": "content_009",
+    "type": "social_post",
+    "platforms": [
+      "vk"
+    ],
+    "status": "approved",
+    "topic": "Спокойный подбор автомобиля из Азии под ключ",
+    "text": "Покупка автомобиля из Китая, Кореи или Японии не должна превращаться в стресс.\n\nAutoVector помогает пройти этот путь спокойно: от подбора вариантов до проверки, расчёта и сопровождения сделки.\n\nМы заранее показываем реальные фото, объясняем стоимость и держим связь на каждом этапе.",
+    "cta": "Оставьте заявку — подскажем, какие автомобили подходят под ваш бюджет и задачи.",
+    "hashtags": [
+      "AutoVector",
+      "автоизкитая",
+      "автоизкореи",
+      "автоизяпонии",
+      "автоподбор"
+    ],
+    "imagePrompt": "Premium lifestyle photo: calm client and consultant discussing a car purchase near a modern BMW or Lexus, dark elegant AutoVector style, trustworthy concierge service mood.",
+    "image": null,
+    "createdBy": "content_creator_agent",
+    "createdAt": "2026-06-28T15:23:59.186Z",
+    "review": {
+      "overall": 9,
+      "hook": 8,
+      "emotion": 8,
+      "trust": 9,
+      "cta": 9,
+      "brand": 10,
+      "readability": 10,
+      "decision": "approved",
+      "comments": [
+        "Текст готов к публикационной подготовке.",
+        "Decision: approved."
+      ],
+      "reviewedBy": "creative_director_v1",
+      "reviewedAt": "2026-06-28T15:26:36.425Z"
+    }
   }
 ]

@@ -10,6 +10,8 @@
     "content:create": "node scripts/content/content-creator-agent.js",
     "content:image": "node scripts/content/image-agent.js",
     "content:pipeline": "npm run content:create && npm run content:review && npm run content:image && npm run publisher:prepare && npm run publisher:vk:draft",
+    "content:pipeline:draft": "npm run content:pipeline",
+    "content:pipeline:live": "npm run content:create && npm run content:review && npm run content:image && npm run publisher:prepare && npm run publisher:vk:live && npm run publisher:mark-published",
     "content:review": "node scripts/directors/creative-director-agent.js",
     "download-images": "node scripts/download-images.js",
     "post:vk": "node scripts/post-to-vk.js",

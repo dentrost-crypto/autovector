@@ -38,6 +38,14 @@
       "selector": "[contenteditable='true']"
     },
     {
+      "action": "press",
+      "key": "Control+A"
+    },
+    {
+      "action": "press",
+      "key": "Backspace"
+    },
+    {
       "action": "type",
       "text": "Тестовый пост AutoVector с изображением. Не публиковать."
     },
@@ -46,8 +54,13 @@
       "ms": 1000
     },
     {
+      "action": "waitForSelector",
+      "selector": "input[type='file'][accept*='image/']",
+      "timeout": 10000
+    },
+    {
       "action": "uploadFile",
-      "selector": "input[type='file']",
+      "selector": "input[type='file'][accept*='image/']",
       "path": "public/posts/test-vk-image.png"
     },
     {

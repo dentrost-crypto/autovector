@@ -55,6 +55,7 @@ function getScenarioBrowserOptions(scenario) {
     ...(scenario.headless !== undefined ? { headless: scenario.headless } : {}),
     ...(scenario.slowMo !== undefined ? { slowMo: scenario.slowMo } : {}),
     ...(scenario.viewport !== undefined ? { viewport: scenario.viewport } : {}),
+    ...(scenario.profileDir !== undefined ? { profileDir: scenario.profileDir } : {}),
   };
 }
 
@@ -76,12 +77,27 @@ class BrowserWorker {
       headless: step.headless ?? this.options.headless ?? true,
       slowMo: step.slowMo ?? this.options.slowMo ?? 0,
     };
+    const viewport = step.viewport || this.options.viewport || { width: 1440, height: 1000 };
 
-    this.browser = await chromium.launch(browserOptions);
-    this.context = await this.browser.newContext({
-      acceptDownloads: true,
-      viewport: step.viewport || this.options.viewport || { width: 1440, height: 1000 },
-    });
+    if (this.options.profileDir) {
+      const profileDir = resolveProjectPath(this.options.profileDir);
+      console.log(`[BrowserWorker] using persistent profile: ${this.options.profileDir}`);
+      ensureParentDir(path.join(profileDir, ".keep"));
+
+      this.context = await chromium.launchPersistentContext(profileDir, {
+        ...browserOptions,
+        acceptDownloads: true,
+        viewport,
+      });
+      this.browser = null;
+    } else {
+      this.browser = await chromium.launch(browserOptions);
+      this.context = await this.browser.newContext({
+        acceptDownloads: true,
+        viewport,
+      });
+    }
+
     this.page = await this.context.newPage();
     this.page.setDefaultTimeout(step.timeout || this.defaultTimeout);
     this.page.setDefaultNavigationTimeout(step.timeout || this.defaultTimeout);
@@ -109,14 +125,21 @@ class BrowserWorker {
     await this.ensurePage();
 
     if (step.selector) {
-      await this.page.waitForSelector(step.selector, {
-        state: step.state || "visible",
-        timeout: step.timeout || this.defaultTimeout,
-      });
+      await this.waitForSelector(step);
       return;
     }
 
     await this.page.waitForTimeout(step.ms || 1000);
+  }
+
+  async waitForSelector(step) {
+    await this.ensurePage();
+    if (!step.selector) throw new Error("waitForSelector requires selector");
+
+    await this.page.locator(step.selector).first().waitFor({
+      state: step.state || "visible",
+      timeout: step.timeout || this.defaultTimeout,
+    });
   }
 
   async click(step) {
@@ -128,9 +151,62 @@ class BrowserWorker {
     });
   }
 
+  async clickNth(step) {
+    await this.ensurePage();
+    if (!step.selector) throw new Error("clickNth requires selector");
+
+    const index = Number(step.index || 0);
+
+    await this.page.locator(step.selector).nth(index).click({
+      timeout: step.timeout || this.defaultTimeout,
+    });
+  }
+
+  async clickText(step) {
+    await this.ensurePage();
+    if (!step.text) throw new Error("clickText requires text");
+
+    await this.page.getByText(String(step.text), {
+      exact: step.exact ?? false,
+    }).first().click({
+      timeout: step.timeout || this.defaultTimeout,
+    });
+  }
+
+  async clickRole(step) {
+    await this.ensurePage();
+    if (!step.role) throw new Error("clickRole requires role");
+
+    const options = {};
+    if (step.name !== undefined) {
+      options.name = step.name;
+    }
+    if (step.exact !== undefined) {
+      options.exact = step.exact;
+    }
+
+    await this.page.getByRole(step.role, options).first().click({
+      timeout: step.timeout || this.defaultTimeout,
+    });
+  }
+
+  async fill(step) {
+    await this.ensurePage();
+    if (!step.selector) throw new Error("fill requires selector");
+
+    await this.page.locator(step.selector).first().fill(String(step.text ?? step.value ?? ""), {
+      timeout: step.timeout || this.defaultTimeout,
+    });
+  }
+
   async type(step) {
     await this.ensurePage();
-    if (!step.selector) throw new Error("type requires selector");
+    if (!step.selector) {
+      await this.page.keyboard.type(String(step.text || ""), {
+        delay: step.delay || 0,
+      });
+      return;
+    }
 
     const locator = this.page.locator(step.selector).first();
 
@@ -149,12 +225,25 @@ class BrowserWorker {
     });
   }
 
+  async press(step) {
+    await this.ensurePage();
+    if (!step.key) throw new Error("press requires key");
+
+    await this.page.keyboard.press(String(step.key), {
+      delay: step.delay || 0,
+    });
+  }
+
   async uploadFile(step) {
     await this.ensurePage();
-    if (!step.selector) throw new Error("uploadFile requires selector");
     if (!step.path) throw new Error("uploadFile requires path");
 
-    await this.page.locator(step.selector).first().setInputFiles(resolveProjectPath(step.path));
+    const filePath = resolveProjectPath(step.path);
+    const selector = step.selector || "input[type='file']";
+
+    console.log(`[BrowserWorker] upload file path: ${filePath}`);
+
+    await this.page.locator(selector).first().setInputFiles(filePath);
   }
 
   async downloadFile(step) {
@@ -244,12 +333,29 @@ class BrowserWorker {
         return this.openUrl(step);
       case "wait":
         return this.wait(step);
+      case "waitForSelector":
+        return this.waitForSelector(step);
       case "click":
       case "clickElement":
         return this.click(step);
+      case "clickNth":
+      case "clickSelectorAll":
+        return this.clickNth(step);
+      case "clickText":
+      case "clickByText":
+        return this.clickText(step);
+      case "clickRole":
+      case "clickByRole":
+        return this.clickRole(step);
+      case "fill":
+      case "fillText":
+        return this.fill(step);
       case "type":
       case "typeText":
         return this.type(step);
+      case "press":
+      case "pressKey":
+        return this.press(step);
       case "uploadFile":
         return this.uploadFile(step);
       case "downloadFile":
@@ -293,7 +399,7 @@ class BrowserWorker {
         await this.runStep(stepWithTimeout);
         console.log(`[BrowserWorker] ${stepNumber}/${steps.length} ${action} done in ${Date.now() - startedAt}ms`);
 
-        if (scenario.screenshotAfterStep && this.page && this.browser && normalizeAction(action) !== "close") {
+        if (scenario.screenshotAfterStep && this.page && this.context && normalizeAction(action) !== "close") {
           const scenarioName = slugify(scenario.name);
           const screenshotPath = resolveProjectPath(
             `screenshots/browser-worker-steps/${scenarioName}-step-${String(stepNumber).padStart(2, "0")}.png`,

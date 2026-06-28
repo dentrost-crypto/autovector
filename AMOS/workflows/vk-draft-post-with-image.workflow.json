@@ -1,0 +1,62 @@
+{
+  "name": "vk-draft-post-with-image",
+  "headless": false,
+  "slowMo": 150,
+  "timeout": 30000,
+  "waitUntil": "domcontentloaded",
+  "profileDir": "auth/chromium-profile",
+  "pause": true,
+  "screenshotAfterStep": true,
+  "steps": [
+    {
+      "action": "open",
+      "url": "https://vk.com/club239860693"
+    },
+    {
+      "action": "wait",
+      "ms": 3000
+    },
+    {
+      "action": "clickText",
+      "text": "Создать"
+    },
+    {
+      "action": "wait",
+      "ms": 1000
+    },
+    {
+      "action": "clickText",
+      "text": "Пост",
+      "exact": true
+    },
+    {
+      "action": "wait",
+      "ms": 1500
+    },
+    {
+      "action": "click",
+      "selector": "[contenteditable='true']"
+    },
+    {
+      "action": "type",
+      "text": "Тестовый пост AutoVector с изображением. Не публиковать."
+    },
+    {
+      "action": "wait",
+      "ms": 1000
+    },
+    {
+      "action": "uploadFile",
+      "selector": "input[type='file']",
+      "path": "public/posts/test-vk-image.png"
+    },
+    {
+      "action": "wait",
+      "ms": 3000
+    },
+    {
+      "action": "screenshot",
+      "path": "screenshots/vk-after-image-upload.png"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "name": "vk-draft-post",
+  "headless": false,
+  "slowMo": 150,
+  "timeout": 30000,
+  "waitUntil": "domcontentloaded",
+  "profileDir": "auth/chromium-profile",
+  "pause": true,
+  "screenshotAfterStep": true,
+  "steps": [
+    {
+      "action": "open",
+      "url": "https://vk.com/club239860693"
+    },
+    {
+      "action": "wait",
+      "ms": 3000
+    },
+    {
+      "action": "clickText",
+      "text": "Создать"
+    },
+    {
+      "action": "clickText",
+      "text": "Пост",
+      "exact": true
+    },
+    {
+      "action": "wait",
+      "ms": 1500
+    },
+    {
+      "action": "screenshot",
+      "path": "screenshots/vk-after-post-click.png"
+    },
+    {
+      "action": "click",
+      "selector": "[contenteditable='true']"
+    },
+    {
+      "action": "type",
+      "text": "Тестовый черновик AutoVector. Не публиковать."
+    },
+    {
+      "action": "wait",
+      "ms": 1000
+    },
+    {
+      "action": "screenshot",
+      "path": "screenshots/vk-after-text-type.png"
+    },
+    {
+      "action": "wait",
+      "ms": 1000
+    },
+    {
+      "action": "screenshot",
+      "path": "screenshots/vk-after-create-click.png"
+    }
+  ]
+}

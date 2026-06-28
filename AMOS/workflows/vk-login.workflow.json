@@ -1,0 +1,24 @@
+{
+  "name": "vk-login",
+  "headless": false,
+  "slowMo": 100,
+  "timeout": 30000,
+  "waitUntil": "domcontentloaded",
+  "profileDir": "auth/chromium-profile",
+  "pause": true,
+  "screenshotAfterStep": true,
+  "steps": [
+    {
+      "action": "open",
+      "url": "https://vk.com/club239860693"
+    },
+    {
+      "action": "wait",
+      "ms": 3000
+    },
+    {
+      "action": "screenshot",
+      "path": "screenshots/vk-login-open.png"
+    }
+  ]
+}

@@ -131,12 +131,35 @@ function reviewContent(content) {
   };
 }
 
+function getDraftTimestamp(item) {
+  const value = item.createdAt || item.updatedAt || item.plannedDate || "";
+  const timestamp = Date.parse(value);
+
+  return Number.isNaN(timestamp) ? 0 : timestamp;
+}
+
+function findFreshDraftIndex(queue) {
+  const candidates = queue
+    .map((item, index) => ({ item, index }))
+    .filter(({ item }) => item.status === "draft" && !item.review);
+
+  if (candidates.length === 0) return -1;
+
+  return candidates
+    .sort((left, right) => {
+      const timestampDiff = getDraftTimestamp(right.item) - getDraftTimestamp(left.item);
+      if (timestampDiff !== 0) return timestampDiff;
+
+      return right.index - left.index;
+    })[0].index;
+}
+
 function main() {
   const queue = readJson(CONTENT_QUEUE_PATH);
-  const targetIndex = queue.findIndex((item) => item.status === "draft");
+  const targetIndex = findFreshDraftIndex(queue);
 
   if (targetIndex === -1) {
-    console.log("Creative Director Agent: no draft content found.");
+    console.log("Creative Director Agent: no fresh draft content found.");
     return;
   }
 

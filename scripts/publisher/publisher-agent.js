@@ -103,10 +103,16 @@ function pickImage(item) {
 }
 
 function findApprovedVkPost(queue) {
-  return queue.find((item) => {
-    const status = normalizePlatform(item.status);
-    return status === "approved" && isVkContent(item);
-  });
+  return queue
+    .filter((item) => {
+      const status = normalizePlatform(item.status);
+      return status === "approved" && isVkContent(item) && buildText(item) && pickImage(item);
+    })
+    .sort((left, right) => {
+      const leftDate = Date.parse(left.approvedAt || left.createdAt || left.plannedDate || "") || 0;
+      const rightDate = Date.parse(right.approvedAt || right.createdAt || right.plannedDate || "") || 0;
+      return rightDate - leftDate;
+    })[0];
 }
 
 function preparePayload() {

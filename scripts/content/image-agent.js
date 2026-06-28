@@ -13,17 +13,40 @@ function writeJson(filePath, data) {
   fs.writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`, "utf8");
 }
 
+function getContentTimestamp(item) {
+  const value = item.approvedAt || item.createdAt || item.updatedAt || item.plannedDate || "";
+  const timestamp = Date.parse(value);
+
+  return Number.isNaN(timestamp) ? 0 : timestamp;
+}
+
+function findFreshImageTargetIndex(queue) {
+  const candidates = queue
+    .map((item, index) => ({ item, index }))
+    .filter(({ item }) =>
+      ["draft", "approved"].includes(item.status) &&
+      item.image === null &&
+      typeof item.imagePrompt === "string" &&
+      item.imagePrompt.trim(),
+    );
+
+  if (candidates.length === 0) return -1;
+
+  return candidates
+    .sort((left, right) => {
+      const timestampDiff = getContentTimestamp(right.item) - getContentTimestamp(left.item);
+      if (timestampDiff !== 0) return timestampDiff;
+
+      return right.index - left.index;
+    })[0].index;
+}
+
 function main() {
   const queue = readJson(CONTENT_QUEUE_PATH);
-  const targetIndex = queue.findIndex((item) =>
-    item.status === "draft" &&
-    item.image === null &&
-    typeof item.imagePrompt === "string" &&
-    item.imagePrompt.trim(),
-  );
+  const targetIndex = findFreshImageTargetIndex(queue);
 
   if (targetIndex === -1) {
-    console.log("Image Agent: no draft content with empty image and imagePrompt found.");
+    console.log("Image Agent: no draft/approved content with empty image and imagePrompt found.");
     return;
   }
 

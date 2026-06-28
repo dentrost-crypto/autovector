@@ -323,5 +323,74 @@
     "imageUpdatedAt": "2026-06-28T16:26:12.794Z",
     "publishedAt": "2026-06-28T16:26:54.419Z",
     "publishedUrl": "https://vk.com/wall-239860693_10"
+  },
+  {
+    "id": "content_013",
+    "type": "social_post",
+    "platforms": [
+      "vk"
+    ],
+    "status": "draft",
+    "contentType": "expert",
+    "topic": "Как AutoVector снижает риски при покупке автомобиля из Азии",
+    "text": "Главный вопрос при покупке автомобиля из Азии - не только цена. Важно понимать состояние машины, историю, реальные расходы и этапы сделки.\n\nAutoVector помогает пройти этот путь спокойно: подбираем варианты, проверяем данные, показываем фото до покупки и заранее объясняем, из чего складывается итоговая стоимость.\n\nТак клиент принимает решение не вслепую, а с понятной картиной по автомобилю, срокам и бюджету.",
+    "cta": "Напишите нам - разберём ваш бюджет и покажем, какие варианты стоит рассматривать.",
+    "hashtags": [
+      "AutoVector",
+      "автоподбор",
+      "автоизазии",
+      "проверкаавто",
+      "автоподключ"
+    ],
+    "imagePrompt": "Premium automotive concierge scene, consultant showing vehicle inspection details to a calm client near a modern BMW or Lexus, dark elegant style, trust and transparency.",
+    "image": null,
+    "createdBy": "content_creator_agent",
+    "createdAt": "2026-06-28T17:17:05.695Z"
+  },
+  {
+    "id": "content_014",
+    "type": "social_post",
+    "platforms": [
+      "vk"
+    ],
+    "status": "draft",
+    "contentType": "emotional",
+    "topic": "Момент, когда автомобиль уже ощущается вашим",
+    "text": "Представьте момент, когда вы впервые видите себя за рулём нового автомобиля: спокойная поездка по городу, семейный маршрут на выходные, уверенность на трассе.\n\nAutoVector берёт на себя сложную часть покупки, чтобы у клиента оставалось главное - выбрать автомобиль, который подходит по стилю жизни и вызывает желание сесть за руль.\n\nМы сопровождаем процесс внимательно и без давления, от первого запроса до понятного следующего шага.",
+    "cta": "Оставьте заявку - подберём автомобиль под ваши задачи, темп жизни и бюджет.",
+    "hashtags": [
+      "AutoVector",
+      "автоподбор",
+      "автодлясемьи",
+      "автоизкитая",
+      "автоизкореи"
+    ],
+    "imagePrompt": "Emotional premium lifestyle photo, client receiving car keys near a beautiful modern crossover, calm family mood, elegant dark AutoVector brand atmosphere.",
+    "image": null,
+    "createdBy": "content_creator_agent",
+    "createdAt": "2026-06-28T17:17:35.510Z"
+  },
+  {
+    "id": "content_015",
+    "type": "social_post",
+    "platforms": [
+      "vk"
+    ],
+    "status": "draft",
+    "contentType": "case",
+    "topic": "Мини-кейс: когда клиенту нужен был понятный семейный автомобиль",
+    "text": "Клиент хотел свежий автомобиль для семьи, но сомневался: разные рынки, непонятные комплектации, риски по состоянию и итоговой цене.\n\nAutoVector помог сравнить несколько вариантов, отсечь слабые предложения и оставить те машины, по которым можно было спокойно принимать решение.\n\nВ такой покупке важен не только сам автомобиль. Важно, чтобы клиент понимал, за что платит и какой путь проходит сделка.",
+    "cta": "Напишите менеджеру - разберём вашу задачу и предложим понятные варианты.",
+    "hashtags": [
+      "AutoVector",
+      "кейсподбора",
+      "семейныйавто",
+      "автоизазии",
+      "подбормашины"
+    ],
+    "imagePrompt": "Premium family car purchase consultation, consultant and couple reviewing documents near a modern SUV, calm serious mood, trust, no aggressive sales.",
+    "image": null,
+    "createdBy": "content_creator_agent",
+    "createdAt": "2026-06-28T17:18:07.677Z"
   }
 ]

@@ -1,0 +1,29 @@
+[
+  {
+    "id": "manual_seed",
+    "name": "Manual seed references",
+    "platform": "manual",
+    "project": "AutoVector",
+    "status": "active",
+    "priority": "high",
+    "notes": "Initial curated references for Trend Agent v1 Trend Scout mode."
+  },
+  {
+    "id": "vk_auto_market",
+    "name": "VK automotive communities",
+    "platform": "vk",
+    "project": "AutoVector",
+    "status": "planned",
+    "priority": "high",
+    "notes": "Future source for observing hooks, objections and client questions in automotive communities."
+  },
+  {
+    "id": "telegram_auto_channels",
+    "name": "Telegram automotive channels",
+    "platform": "telegram",
+    "project": "AutoVector",
+    "status": "planned",
+    "priority": "medium",
+    "notes": "Future source for market topics, post structures and audience objections."
+  }
+]

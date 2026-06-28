@@ -19,6 +19,7 @@
     "publisher:mark-published": "node scripts/publisher/publisher-agent.js mark-published",
     "publisher:vk:draft": "node scripts/workers/browser-worker.js AMOS/workflows/vk-publish.workflow.json",
     "publisher:vk:live": "node scripts/workers/browser-worker.js AMOS/workflows/vk-publish-live.workflow.json",
+    "trend:scout": "node scripts/intelligence/trend-agent.js",
     "update-rates": "node scripts/update-rates.js",
     "start": "next start",
     "lint": "eslint"

@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+# Browser Worker artifacts
+screenshots/browser-worker-steps/
+screenshots/browser-worker-*.png
+
+# Browser authentication
+auth/
+playwright/.auth/

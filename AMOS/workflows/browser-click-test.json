@@ -1,0 +1,34 @@
+{
+  "name": "Browser Worker scroll test",
+  "headless": false,
+  "slowMo": 50,
+  "timeout": 15000,
+  "screenshotAfterStep": true,
+  "pause": false,
+  "steps": [
+    {
+      "action": "open",
+      "url": "https://autovector.vercel.app"
+    },
+    {
+      "action": "wait",
+      "ms": 1000
+    },
+    {
+      "action": "scroll",
+      "x": 0,
+      "y": 1200
+    },
+    {
+      "action": "wait",
+      "ms": 1000
+    },
+    {
+      "action": "screenshot",
+      "path": "screenshots/browser-worker-scroll-test.png"
+    },
+    {
+      "action": "close"
+    }
+  ]
+}

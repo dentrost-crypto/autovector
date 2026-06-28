@@ -1,6 +1,8 @@
 const fs = require("fs");
 const path = require("path");
 
+process.env.PW_TEST_SCREENSHOT_NO_FONTS_READY ||= "1";
+
 let chromium;
 
 try {
@@ -34,9 +36,33 @@ function normalizeAction(action) {
     .replace(/[\s_-]+([a-z])/g, (_, letter) => letter.toUpperCase());
 }
 
+function slugify(value) {
+  return String(value || "browser-worker")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9а-яё]+/gi, "-")
+    .replace(/^-+|-+$/g, "")
+    || "browser-worker";
+}
+
+function getStepTimeout(step, scenario) {
+  return step.timeout ?? scenario.timeout ?? 15000;
+}
+
+function getScenarioBrowserOptions(scenario) {
+  return {
+    ...(scenario.browser || {}),
+    ...(scenario.headless !== undefined ? { headless: scenario.headless } : {}),
+    ...(scenario.slowMo !== undefined ? { slowMo: scenario.slowMo } : {}),
+    ...(scenario.viewport !== undefined ? { viewport: scenario.viewport } : {}),
+  };
+}
+
 class BrowserWorker {
   constructor(options = {}) {
     this.options = options;
+    this.defaultTimeout = options.timeout || 15000;
+    this.defaultWaitUntil = options.waitUntil || "domcontentloaded";
     this.browser = null;
     this.context = null;
     this.page = null;
@@ -57,6 +83,8 @@ class BrowserWorker {
       viewport: step.viewport || this.options.viewport || { width: 1440, height: 1000 },
     });
     this.page = await this.context.newPage();
+    this.page.setDefaultTimeout(step.timeout || this.defaultTimeout);
+    this.page.setDefaultNavigationTimeout(step.timeout || this.defaultTimeout);
   }
 
   async ensurePage() {
@@ -69,10 +97,12 @@ class BrowserWorker {
     await this.ensurePage();
     if (!step.url) throw new Error("openUrl requires url");
 
+    const startedAt = Date.now();
     await this.page.goto(step.url, {
-      waitUntil: step.waitUntil || "domcontentloaded",
-      timeout: step.timeout || 60000,
+      waitUntil: step.waitUntil || this.defaultWaitUntil,
+      timeout: step.timeout || this.defaultTimeout,
     });
+    console.log(`[BrowserWorker] opened URL in ${Date.now() - startedAt}ms`);
   }
 
   async wait(step) {
@@ -81,7 +111,7 @@ class BrowserWorker {
     if (step.selector) {
       await this.page.waitForSelector(step.selector, {
         state: step.state || "visible",
-        timeout: step.timeout || 30000,
+        timeout: step.timeout || this.defaultTimeout,
       });
       return;
     }
@@ -94,7 +124,7 @@ class BrowserWorker {
     if (!step.selector) throw new Error("click requires selector");
 
     await this.page.locator(step.selector).first().click({
-      timeout: step.timeout || 30000,
+      timeout: step.timeout || this.defaultTimeout,
     });
   }
 
@@ -115,6 +145,7 @@ class BrowserWorker {
 
     await locator.type(String(step.text || ""), {
       delay: step.delay || 0,
+      timeout: step.timeout || this.defaultTimeout,
     });
   }
 
@@ -135,7 +166,7 @@ class BrowserWorker {
     ensureParentDir(targetPath);
 
     const [download] = await Promise.all([
-      this.page.waitForEvent("download", { timeout: step.timeout || 60000 }),
+      this.page.waitForEvent("download", { timeout: step.timeout || this.defaultTimeout }),
       this.page.locator(step.selector).first().click(),
     ]);
 
@@ -150,7 +181,7 @@ class BrowserWorker {
     await this.ensurePage();
     const selector = step.selector || "body";
     const text = await this.page.locator(selector).first().innerText({
-      timeout: step.timeout || 30000,
+      timeout: step.timeout || this.defaultTimeout,
     });
 
     if (step.saveAs) {
@@ -168,6 +199,7 @@ class BrowserWorker {
     await this.page.screenshot({
       path: targetPath,
       fullPage: step.fullPage ?? false,
+      timeout: step.timeout || this.defaultTimeout,
     });
 
     if (step.saveAs) {
@@ -239,14 +271,55 @@ class BrowserWorker {
 
   async runScenario(scenario) {
     const steps = Array.isArray(scenario.steps) ? scenario.steps : [];
+    this.defaultTimeout = scenario.timeout || this.defaultTimeout;
+    this.defaultWaitUntil = scenario.waitUntil || this.defaultWaitUntil;
 
     if (steps.length === 0) {
       throw new Error("Browser Worker scenario must contain steps[]");
     }
 
     for (const [index, step] of steps.entries()) {
-      console.log(`[BrowserWorker] ${index + 1}/${steps.length}: ${step.action}`);
-      await this.runStep(step);
+      const stepNumber = index + 1;
+      const action = step.action || "unknown";
+      const stepWithTimeout = {
+        ...step,
+        timeout: getStepTimeout(step, scenario),
+      };
+      const startedAt = Date.now();
+
+      console.log(`[BrowserWorker] ${stepNumber}/${steps.length} ${action} start`);
+
+      try {
+        await this.runStep(stepWithTimeout);
+        console.log(`[BrowserWorker] ${stepNumber}/${steps.length} ${action} done in ${Date.now() - startedAt}ms`);
+
+        if (scenario.screenshotAfterStep && this.page && this.browser && normalizeAction(action) !== "close") {
+          const scenarioName = slugify(scenario.name);
+          const screenshotPath = resolveProjectPath(
+            `screenshots/browser-worker-steps/${scenarioName}-step-${String(stepNumber).padStart(2, "0")}.png`,
+          );
+          ensureParentDir(screenshotPath);
+          try {
+            await this.page.screenshot({
+              path: screenshotPath,
+              fullPage: false,
+              timeout: Math.min(stepWithTimeout.timeout, 5000),
+            });
+          } catch (screenshotError) {
+            console.warn(
+              `[BrowserWorker] step screenshot failed for ${stepNumber}/${steps.length}: ${screenshotError.message}`,
+            );
+          }
+        }
+      } catch (error) {
+        error.browserWorkerStep = {
+          number: stepNumber,
+          action,
+          selector: step.selector,
+          url: step.url,
+        };
+        throw error;
+      }
     }
 
     return this.results;
@@ -263,16 +336,45 @@ async function runFromCli() {
   }
 
   const scenario = loadScenario(scenarioPath);
-  const worker = new BrowserWorker(scenario.browser || {});
+  const worker = new BrowserWorker({
+    ...getScenarioBrowserOptions(scenario),
+    timeout: scenario.timeout || 15000,
+    waitUntil: scenario.waitUntil || "domcontentloaded",
+  });
 
   try {
     const results = await worker.runScenario(scenario);
     console.log(JSON.stringify({ ok: true, results }, null, 2));
   } catch (error) {
-    console.error(`[BrowserWorker] failed: ${error.message}`);
+    const failedStep = error.browserWorkerStep || {};
+    console.error(`[BrowserWorker] failed step number: ${failedStep.number || "unknown"}`);
+    console.error(`[BrowserWorker] action: ${failedStep.action || "unknown"}`);
+    if (failedStep.selector) console.error(`[BrowserWorker] selector: ${failedStep.selector}`);
+    if (failedStep.url) console.error(`[BrowserWorker] url: ${failedStep.url}`);
+    console.error(`[BrowserWorker] error: ${error.message}`);
+
+    if (worker.page) {
+      try {
+        const errorScreenshotPath = resolveProjectPath("screenshots/browser-worker-error.png");
+        ensureParentDir(errorScreenshotPath);
+        await worker.page.screenshot({
+          path: errorScreenshotPath,
+          fullPage: true,
+          timeout: 5000,
+        });
+        console.error(`[BrowserWorker] error screenshot: ${errorScreenshotPath}`);
+      } catch (screenshotError) {
+        console.error(`[BrowserWorker] error screenshot failed: ${screenshotError.message}`);
+      }
+    }
+
     process.exitCode = 1;
   } finally {
-    await worker.close();
+    if (scenario.pause && process.exitCode !== 1) {
+      console.log("Browser left open for inspection.");
+    } else {
+      await worker.close();
+    }
   }
 }
 
@@ -282,4 +384,5 @@ if (require.main === module) {
 
 module.exports = {
   BrowserWorker,
+  getScenarioBrowserOptions,
 };

@@ -1,0 +1,21 @@
+{
+  "name": "Browser Worker smoke test",
+  "headless": false,
+  "steps": [
+    {
+      "action": "open",
+      "url": "https://www.autovector.pro"
+    },
+    {
+      "action": "wait",
+      "ms": 3000
+    },
+    {
+      "action": "screenshot",
+      "path": "screenshots/browser-worker-test.png"
+    },
+    {
+      "action": "close"
+    }
+  ]
+}

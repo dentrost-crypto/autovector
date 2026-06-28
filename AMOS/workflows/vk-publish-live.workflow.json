@@ -1,12 +1,13 @@
 {
-  "name": "vk-publish",
+  "name": "vk-publish-live",
   "headless": false,
   "slowMo": 150,
   "timeout": 30000,
   "waitUntil": "domcontentloaded",
   "profileDir": "auth/chromium-profile",
   "payload": "temp/publish-payload.json",
-  "pause": true,
+  "confirmPublish": true,
+  "pause": false,
   "screenshotAfterStep": true,
   "steps": [
     {
@@ -80,7 +81,10 @@
     },
     {
       "action": "screenshot",
-      "path": "screenshots/vk-publish-draft.png"
+      "path": "screenshots/vk-publish-live-before-publish.png"
+    },
+    {
+      "action": "publishVkPost"
     }
   ]
 }

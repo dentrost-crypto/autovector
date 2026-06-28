@@ -9,7 +9,9 @@
     "download-images": "node scripts/download-images.js",
     "post:vk": "node scripts/post-to-vk.js",
     "publisher:prepare": "node scripts/publisher/publisher-agent.js",
+    "publisher:mark-published": "node scripts/publisher/publisher-agent.js mark-published",
     "publisher:vk:draft": "node scripts/workers/browser-worker.js AMOS/workflows/vk-publish.workflow.json",
+    "publisher:vk:live": "node scripts/workers/browser-worker.js AMOS/workflows/vk-publish-live.workflow.json",
     "update-rates": "node scripts/update-rates.js",
     "start": "next start",
     "lint": "eslint"

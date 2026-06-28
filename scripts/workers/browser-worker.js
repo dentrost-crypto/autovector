@@ -13,6 +13,7 @@ try {
 }
 
 const ROOT_DIR = path.resolve(__dirname, "..", "..");
+const PUBLISH_RESULT_PATH = path.join(ROOT_DIR, "temp", "publish-result.json");
 
 function resolveProjectPath(filePath) {
   if (!filePath) return "";
@@ -36,6 +37,11 @@ function loadPayload(payloadPath) {
   const absolutePath = resolveProjectPath(payloadPath);
   const raw = fs.readFileSync(absolutePath, "utf8");
   return JSON.parse(raw);
+}
+
+function writeJson(filePath, data) {
+  ensureParentDir(filePath);
+  fs.writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`, "utf8");
 }
 
 function normalizeAction(action) {
@@ -73,6 +79,7 @@ class BrowserWorker {
     this.defaultTimeout = options.timeout || 15000;
     this.defaultWaitUntil = options.waitUntil || "domcontentloaded";
     this.payload = options.payload || {};
+    this.confirmPublish = options.confirmPublish === true;
     this.browser = null;
     this.context = null;
     this.page = null;
@@ -212,6 +219,42 @@ class BrowserWorker {
     });
   }
 
+  async clickAllText(step) {
+    await this.ensurePage();
+    if (!step.text) throw new Error("clickAllText requires text");
+
+    const maxClicks = Number(step.maxClicks || 10);
+    let clicked = 0;
+
+    for (let attempt = 0; attempt < maxClicks; attempt += 1) {
+      const locator = this.page.getByText(String(step.text), {
+        exact: step.exact ?? true,
+      });
+      const count = await locator.count();
+      let clickedOnAttempt = false;
+
+      for (let index = 0; index < count; index += 1) {
+        const item = locator.nth(index);
+
+        try {
+          if (!(await item.isVisible({ timeout: 500 }))) continue;
+
+          await item.click({ timeout: step.timeout || this.defaultTimeout });
+          clicked += 1;
+          clickedOnAttempt = true;
+          await this.page.waitForTimeout(step.delayAfterClick || 300);
+          break;
+        } catch (error) {
+          // Continue looking for another visible matching element.
+        }
+      }
+
+      if (!clickedOnAttempt) break;
+    }
+
+    console.log(`[BrowserWorker] clickAllText clicked ${clicked} element(s): ${step.text}`);
+  }
+
   async clickRole(step) {
     await this.ensurePage();
     if (!step.role) throw new Error("clickRole requires role");
@@ -335,6 +378,20 @@ class BrowserWorker {
     }
   }
 
+  async takeNamedScreenshot(fileName) {
+    await this.ensurePage();
+    const targetPath = resolveProjectPath(`screenshots/${fileName}`);
+    ensureParentDir(targetPath);
+
+    await this.page.screenshot({
+      path: targetPath,
+      fullPage: false,
+      timeout: 5000,
+    });
+
+    console.log(`[BrowserWorker] screenshot: ${targetPath}`);
+  }
+
   async scroll(step) {
     await this.ensurePage();
     const x = Number(step.x || 0);
@@ -344,6 +401,96 @@ class BrowserWorker {
       ({ scrollX, scrollY }) => window.scrollBy(scrollX, scrollY),
       { scrollX: x, scrollY: y },
     );
+  }
+
+  async clickFirstText(candidates, timeout) {
+    for (const text of candidates) {
+      const locator = this.page.getByText(text, { exact: true }).first();
+
+      try {
+        await locator.waitFor({ state: "visible", timeout: Math.min(timeout, 5000) });
+        await locator.click({ timeout });
+        console.log(`[BrowserWorker] clicked text: ${text}`);
+        return text;
+      } catch (error) {
+        console.log(`[BrowserWorker] text not available: ${text}`);
+      }
+    }
+
+    throw new Error(`None of these buttons were found: ${candidates.join(", ")}`);
+  }
+
+  async capturePublishedUrl() {
+    await this.ensurePage();
+
+    try {
+      const currentUrl = this.page.url();
+      const currentMatch = currentUrl.match(/(?:wall|w=wall)(-?\d+_\d+)/);
+
+      if (currentMatch) {
+        return `https://vk.com/wall${currentMatch[1]}`;
+      }
+
+      const hrefs = await this.page.locator("a[href*='wall']").evaluateAll((links) =>
+        links
+          .map((link) => link.href || link.getAttribute("href") || "")
+          .filter(Boolean),
+      );
+
+      for (const href of hrefs) {
+        const match = href.match(/(?:wall|w=wall)(-?\d+_\d+)/);
+        if (match) {
+          return `https://vk.com/wall${match[1]}`;
+        }
+      }
+    } catch (error) {
+      console.log(`[BrowserWorker] published URL capture failed: ${error.message}`);
+    }
+
+    return null;
+  }
+
+  async publishVkPost(step) {
+    await this.ensurePage();
+
+    if (!this.confirmPublish) {
+      throw new Error("publishVkPost requires scenario.confirmPublish === true");
+    }
+
+    console.log("[BrowserWorker] publishVkPost confirmed by scenario.confirmPublish=true");
+    await this.takeNamedScreenshot("vk-publish-before-next.png");
+
+    await this.clickFirstText(["Далее"], step.timeout || this.defaultTimeout);
+    await this.page.waitForTimeout(step.afterNextWaitMs || 2000);
+    await this.takeNamedScreenshot("vk-publish-before-final.png");
+
+    const publishButton = await this.clickFirstText(
+      ["Опубликовать сейчас", "Опубликовать", "Разместить"],
+      step.timeout || this.defaultTimeout,
+    );
+
+    console.log(`[BrowserWorker] VK publish button clicked: ${publishButton}`);
+    await this.page.waitForTimeout(step.afterPublishWaitMs || 5000);
+    await this.takeNamedScreenshot("vk-publish-after-final.png");
+
+    const publishedUrl = await this.capturePublishedUrl();
+    const publishedAt = new Date().toISOString();
+
+    this.results.publishedUrl = publishedUrl;
+    this.results.publishedAt = publishedAt;
+
+    const publishResult = {
+      ok: true,
+      id: this.payload.id || null,
+      platform: this.payload.platform || "vk",
+      publishedUrl,
+      publishedAt,
+    };
+
+    writeJson(PUBLISH_RESULT_PATH, publishResult);
+    console.log(`[BrowserWorker] publish result written to ${path.relative(ROOT_DIR, PUBLISH_RESULT_PATH)}`);
+
+    return publishResult;
   }
 
   async close() {
@@ -384,6 +531,8 @@ class BrowserWorker {
       case "clickText":
       case "clickByText":
         return this.clickText(resolvedStep);
+      case "clickAllText":
+        return this.clickAllText(resolvedStep);
       case "clickRole":
       case "clickByRole":
         return this.clickRole(resolvedStep);
@@ -407,6 +556,8 @@ class BrowserWorker {
         return this.takeScreenshot(resolvedStep);
       case "scroll":
         return this.scroll(resolvedStep);
+      case "publishVkPost":
+        return this.publishVkPost(resolvedStep);
       case "close":
       case "closeBrowser":
         return this.close();
@@ -488,6 +639,7 @@ async function runFromCli() {
     timeout: scenario.timeout || 15000,
     waitUntil: scenario.waitUntil || "domcontentloaded",
     payload,
+    confirmPublish: scenario.confirmPublish === true,
   });
 
   try {

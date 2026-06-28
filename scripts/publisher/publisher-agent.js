@@ -4,6 +4,7 @@ const path = require("path");
 const ROOT_DIR = path.resolve(__dirname, "..", "..");
 const CONTENT_QUEUE_PATH = path.join(ROOT_DIR, "app", "data", "content_queue.json");
 const PAYLOAD_PATH = path.join(ROOT_DIR, "temp", "publish-payload.json");
+const RESULT_PATH = path.join(ROOT_DIR, "temp", "publish-result.json");
 const FALLBACK_IMAGE_PATH = "public/posts/test-vk-image.png";
 
 function readJson(filePath) {
@@ -108,7 +109,7 @@ function findApprovedVkPost(queue) {
   });
 }
 
-function main() {
+function preparePayload() {
   const queue = readJson(CONTENT_QUEUE_PATH);
   const item = findApprovedVkPost(queue);
 
@@ -138,6 +139,59 @@ function main() {
   console.log(`Publisher Agent: text length ${payload.text.length}`);
   console.log(`Publisher Agent: image ${payload.image || "(none)"}`);
   console.log(`Publisher Agent: payload written to ${path.relative(ROOT_DIR, PAYLOAD_PATH)}`);
+}
+
+function markPublished() {
+  const queue = readJson(CONTENT_QUEUE_PATH);
+  const payload = readJson(PAYLOAD_PATH);
+  const result = fs.existsSync(RESULT_PATH) ? readJson(RESULT_PATH) : {};
+  const publishedAt = result.publishedAt || new Date().toISOString();
+  const publishedUrl = result.publishedUrl || null;
+
+  let updated = false;
+
+  const updatedQueue = queue.map((item) => {
+    if (item.id !== payload.id) return item;
+
+    updated = true;
+    const nextItem = {
+      ...item,
+      status: "published",
+      publishedAt,
+      publishedUrl,
+    };
+
+    if (item.platformStatus && typeof item.platformStatus === "object") {
+      nextItem.platformStatus = {
+        ...item.platformStatus,
+        vk: "published",
+      };
+    }
+
+    return nextItem;
+  });
+
+  if (!updated) {
+    throw new Error(`Content item ${payload.id} not found in app/data/content_queue.json`);
+  }
+
+  writeJson(CONTENT_QUEUE_PATH, updatedQueue);
+
+  console.log(`Publisher Agent: marked ${payload.id} as published`);
+  console.log(`Publisher Agent: publishedAt ${publishedAt}`);
+  console.log(`Publisher Agent: publishedUrl ${publishedUrl || "(none)"}`);
+  console.log("Publisher Agent: Dashboard already reads app/data/content_queue.json.");
+}
+
+function main() {
+  const command = process.argv[2] || "prepare";
+
+  if (command === "mark-published") {
+    markPublished();
+    return;
+  }
+
+  preparePayload();
 }
 
 main();

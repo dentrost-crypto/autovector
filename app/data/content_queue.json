@@ -64,27 +64,29 @@
     "freshness": "evergreen",
     "cta": "Оставить заявку на подбор"
   },
-{
-  "id": "content_006",
-  "project": "AutoVector",
-  "channel": "VK",
-  "format": "post",
-  "title": "Почему всё больше покупателей выбирают автомобили из Азии",
-  "status": "approved",
-  "agent": "Content Agent",
-  "publisher": "Publisher Agent",
-  "priority": "high",
-  "plannedDate": "2026-06-25",
-  "freshness": "evergreen",
-  "imageRequired": true,
-  "videoRequired": false,
-  "cta": "Оставьте заявку на бесплатный подбор автомобиля.",
-  "tags": [
-    "автоизкитая",
-    "автоизкореи",
-    "автоизяпонии",
-    "автоподбор",
-    "autovector"
-  ]
-}
+  {
+    "id": "content_006",
+    "project": "AutoVector",
+    "channel": "VK",
+    "format": "post",
+    "title": "Почему всё больше покупателей выбирают автомобили из Азии",
+    "status": "published",
+    "agent": "Content Agent",
+    "publisher": "Publisher Agent",
+    "priority": "high",
+    "plannedDate": "2026-06-25",
+    "freshness": "evergreen",
+    "imageRequired": true,
+    "videoRequired": false,
+    "cta": "Оставьте заявку на бесплатный подбор автомобиля.",
+    "tags": [
+      "автоизкитая",
+      "автоизкореи",
+      "автоизяпонии",
+      "автоподбор",
+      "autovector"
+    ],
+    "publishedAt": "2026-06-28T12:13:04.074Z",
+    "publishedUrl": "https://vk.com/wall-239860693_8"
+  }
 ]

@@ -91,8 +91,46 @@ function scoreReadability(content) {
   return clampScore(score);
 }
 
-function buildComments(scores, decision) {
+function detectGluedWords(content) {
+  const text = String(content.text || "");
+  const explicitSuspiciousWords = [
+    "идержим",
+    "ипоказываем",
+    "ичестно",
+    "всделке",
+    "сподбором",
+  ];
+  const gluedWords = new Set();
+  const patterns = [
+    /\bи[а-яА-ЯёЁ]{3,}\b/g,
+    /\bв[а-яА-ЯёЁ]{3,}\b/g,
+    /\bс[а-яА-ЯёЁ]{3,}\b/g,
+    /\bк[а-яА-ЯёЁ]{3,}\b/g,
+    /\bна[а-яА-ЯёЁ]{3,}\b/g,
+    /\bпо[а-яА-ЯёЁ]{3,}\b/g,
+  ];
+
+  for (const word of explicitSuspiciousWords) {
+    if (text.toLowerCase().includes(word)) {
+      gluedWords.add(word);
+    }
+  }
+
+  for (const pattern of patterns) {
+    for (const match of text.matchAll(pattern)) {
+      gluedWords.add(match[0]);
+    }
+  }
+
+  return Array.from(gluedWords);
+}
+
+function buildComments(scores, decision, qualityFlags = {}) {
   const comments = [];
+
+  if (qualityFlags.gluedWords?.length) {
+    comments.push(`Найдены возможные склеенные слова: ${qualityFlags.gluedWords.join(", ")}.`);
+  }
 
   if (scores.hook < 8) comments.push("Усилить первую строку: быстрее показать проблему или выгоду.");
   if (scores.emotion < 8) comments.push("Добавить больше эмоционального образа: спокойствие, уверенность, комфорт.");
@@ -108,6 +146,9 @@ function buildComments(scores, decision) {
 }
 
 function reviewContent(content) {
+  const qualityFlags = {
+    gluedWords: detectGluedWords(content),
+  };
   const scores = {
     hook: scoreHook(content),
     emotion: scoreEmotion(content),
@@ -116,16 +157,23 @@ function reviewContent(content) {
     brand: scoreBrand(content),
     readability: scoreReadability(content),
   };
-  const overall = Number((
+
+  if (qualityFlags.gluedWords.length) {
+    scores.readability = Math.min(scores.readability, 5);
+  }
+
+  const rawOverall = Number((
     Object.values(scores).reduce((sum, score) => sum + score, 0) / Object.values(scores).length
   ).toFixed(1));
-  const decision = overall >= 8 ? "approved" : "needs_revision";
+  const overall = qualityFlags.gluedWords.length ? Math.min(rawOverall, 7.9) : rawOverall;
+  const decision = qualityFlags.gluedWords.length || overall < 8 ? "needs_revision" : "approved";
 
   return {
     overall,
     ...scores,
     decision,
-    comments: buildComments(scores, decision),
+    comments: buildComments(scores, decision, qualityFlags),
+    qualityFlags,
     reviewedBy: "creative_director_v1",
     reviewedAt: new Date().toISOString(),
   };

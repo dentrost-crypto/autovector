@@ -1,0 +1,76 @@
+{
+  "name": "vk-publish",
+  "headless": false,
+  "slowMo": 150,
+  "timeout": 30000,
+  "waitUntil": "domcontentloaded",
+  "profileDir": "auth/chromium-profile",
+  "payload": "temp/publish-payload.json",
+  "pause": true,
+  "screenshotAfterStep": true,
+  "steps": [
+    {
+      "action": "open",
+      "url": "https://vk.com/club239860693"
+    },
+    {
+      "action": "wait",
+      "ms": 3000
+    },
+    {
+      "action": "clickText",
+      "text": "Создать"
+    },
+    {
+      "action": "wait",
+      "ms": 1000
+    },
+    {
+      "action": "clickText",
+      "text": "Пост",
+      "exact": true
+    },
+    {
+      "action": "wait",
+      "ms": 1500
+    },
+    {
+      "action": "click",
+      "selector": "[contenteditable='true']"
+    },
+    {
+      "action": "press",
+      "key": "Control+A"
+    },
+    {
+      "action": "press",
+      "key": "Backspace"
+    },
+    {
+      "action": "type",
+      "textFromPayload": "text"
+    },
+    {
+      "action": "wait",
+      "ms": 1000
+    },
+    {
+      "action": "waitForSelector",
+      "selector": "input[type='file'][accept*='image/']",
+      "timeout": 10000
+    },
+    {
+      "action": "uploadFile",
+      "selector": "input[type='file'][accept*='image/']",
+      "pathFromPayload": "image"
+    },
+    {
+      "action": "wait",
+      "ms": 3000
+    },
+    {
+      "action": "screenshot",
+      "path": "screenshots/vk-publish-draft.png"
+    }
+  ]
+}

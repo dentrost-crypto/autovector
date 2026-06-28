@@ -30,6 +30,14 @@ function loadScenario(scenarioPath) {
   return JSON.parse(raw);
 }
 
+function loadPayload(payloadPath) {
+  if (!payloadPath) return {};
+
+  const absolutePath = resolveProjectPath(payloadPath);
+  const raw = fs.readFileSync(absolutePath, "utf8");
+  return JSON.parse(raw);
+}
+
 function normalizeAction(action) {
   return String(action || "")
     .trim()
@@ -64,10 +72,41 @@ class BrowserWorker {
     this.options = options;
     this.defaultTimeout = options.timeout || 15000;
     this.defaultWaitUntil = options.waitUntil || "domcontentloaded";
+    this.payload = options.payload || {};
     this.browser = null;
     this.context = null;
     this.page = null;
     this.results = {};
+  }
+
+  getPayloadValue(key) {
+    if (!key) return "";
+
+    return String(key)
+      .split(".")
+      .reduce((value, part) => (value && value[part] !== undefined ? value[part] : ""), this.payload);
+  }
+
+  resolvePayloadReferences(step) {
+    const resolvedStep = { ...step };
+
+    if (step.textFromPayload) {
+      resolvedStep.text = this.getPayloadValue(step.textFromPayload);
+    }
+
+    if (step.valueFromPayload) {
+      resolvedStep.value = this.getPayloadValue(step.valueFromPayload);
+    }
+
+    if (step.pathFromPayload) {
+      resolvedStep.path = this.getPayloadValue(step.pathFromPayload);
+    }
+
+    if (step.urlFromPayload) {
+      resolvedStep.url = this.getPayloadValue(step.urlFromPayload);
+    }
+
+    return resolvedStep;
   }
 
   async launch(step = {}) {
@@ -322,56 +361,57 @@ class BrowserWorker {
   }
 
   async runStep(step) {
-    const action = normalizeAction(step.action);
+    const resolvedStep = this.resolvePayloadReferences(step);
+    const action = normalizeAction(resolvedStep.action);
 
     switch (action) {
       case "launch":
       case "launchBrowser":
-        return this.launch(step);
+        return this.launch(resolvedStep);
       case "openUrl":
       case "open":
-        return this.openUrl(step);
+        return this.openUrl(resolvedStep);
       case "wait":
-        return this.wait(step);
+        return this.wait(resolvedStep);
       case "waitForSelector":
-        return this.waitForSelector(step);
+        return this.waitForSelector(resolvedStep);
       case "click":
       case "clickElement":
-        return this.click(step);
+        return this.click(resolvedStep);
       case "clickNth":
       case "clickSelectorAll":
-        return this.clickNth(step);
+        return this.clickNth(resolvedStep);
       case "clickText":
       case "clickByText":
-        return this.clickText(step);
+        return this.clickText(resolvedStep);
       case "clickRole":
       case "clickByRole":
-        return this.clickRole(step);
+        return this.clickRole(resolvedStep);
       case "fill":
       case "fillText":
-        return this.fill(step);
+        return this.fill(resolvedStep);
       case "type":
       case "typeText":
-        return this.type(step);
+        return this.type(resolvedStep);
       case "press":
       case "pressKey":
-        return this.press(step);
+        return this.press(resolvedStep);
       case "uploadFile":
-        return this.uploadFile(step);
+        return this.uploadFile(resolvedStep);
       case "downloadFile":
-        return this.downloadFile(step);
+        return this.downloadFile(resolvedStep);
       case "readText":
-        return this.readText(step);
+        return this.readText(resolvedStep);
       case "takeScreenshot":
       case "screenshot":
-        return this.takeScreenshot(step);
+        return this.takeScreenshot(resolvedStep);
       case "scroll":
-        return this.scroll(step);
+        return this.scroll(resolvedStep);
       case "close":
       case "closeBrowser":
         return this.close();
       default:
-        throw new Error(`Unsupported browser worker action: ${step.action}`);
+        throw new Error(`Unsupported browser worker action: ${resolvedStep.action}`);
     }
   }
 
@@ -442,10 +482,12 @@ async function runFromCli() {
   }
 
   const scenario = loadScenario(scenarioPath);
+  const payload = loadPayload(scenario.payload);
   const worker = new BrowserWorker({
     ...getScenarioBrowserOptions(scenario),
     timeout: scenario.timeout || 15000,
     waitUntil: scenario.waitUntil || "domcontentloaded",
+    payload,
   });
 
   try {

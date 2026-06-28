@@ -42,7 +42,11 @@ next-env.d.ts
 # Browser Worker artifacts
 screenshots/browser-worker-steps/
 screenshots/browser-worker-*.png
+screenshots/*.png
 
 # Browser authentication
 auth/
 playwright/.auth/
+
+# Runtime payloads
+temp/
